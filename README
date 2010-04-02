@@ -1,0 +1,18 @@
+Shoutbridge
+
+UBB.threads Shoubox <-> XMPP Bridge
+
+A bridge software that allows discussions in a UBB.threads shoutbox to be mirrored to an XMPP chat.
+
+Main features:
+ X All messages written in Shoutbox should be sent to the XMPP chat room.
+ * All messages written in the XMPP chat room should be sent to the Shoutbox.
+ * If UBB.threads user has XMPP login details saved, messages should be sent using these.
+ - If no XMPP details, messages will be sent with UBB.threads username prepended to message.
+ * Messages from XMPP will be added as user in Shoutbox if they have XMPP login details saved in profile.
+ X Simple API to UBB.threads to read/write messages and get user by login details and login details from user.
+ 
+Additional features:
+ * Plugins for message hooks, to allow simple bot-like behavior.
+ * Dice Bot which can roll dice, e.g. "/dice 3d6" gives "Dice roll result: 12 (5 + 3 + 4)"
+ 

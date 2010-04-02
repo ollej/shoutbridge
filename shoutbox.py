@@ -4,6 +4,12 @@ import MySQLdb
 from datetime import date
 from datetime import datetime
 
+class ShoutboxError(Exception):
+    "Unknown Shoutbox error"
+
+class ShoutboxUserNotFoundError(ShoutboxError):
+    "Found no such user."
+
 class User:
     id = ""
     name = ""
@@ -58,7 +64,7 @@ class Shoutbox:
     db_tbl_user = "ubbt_USERS"
     db_tbl_xmpp = "ubbt_USER_XMPP"
     db_tbl_graemlins = "ubbt_GRAEMLINS"
-    latest_shout = 229222 #0
+    latest_shout = 229244#0
     db = None
     graemlins = None
 
@@ -112,7 +118,10 @@ class Shoutbox:
         print "ID: " + id
         self.db.execute(sql, id)
         row = self.db.fetchone()
-        usr = User(row[0], row[1], row[2], row[3])
+        if row:
+            usr = User(row[0], row[1], row[2], row[3])
+        else:
+            raise ShoutboxUserNotFoundError
         return usr
 
     def getUserByUsername(self, username):

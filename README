@@ -15,4 +15,10 @@ Main features:
 Additional features:
  * Plugins for message hooks, to allow simple bot-like behavior.
  * Dice Bot which can roll dice, e.g. "/dice 3d6" gives "Dice roll result: 12 (5 + 3 + 4)"
+ * /me 
  
+TODO:
+ * Keep track of roster via prescence, read user info only once.
+ * Move date formats into configuration.
+ * Send config object as parameter to Shoutbox/XmppBridge instead of values.
+ * Connect to an xmpp conference room instead of just sending messages to a user

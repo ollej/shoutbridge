@@ -2,14 +2,15 @@
 
 import sys
 from shoutbox import *
-from xmppbridge import *
+#from xmppbridge import *
+from twistedbridge import *
 from conf import Conf
 
 def start_shoutbridge():
     print "Shoutbridge started..."
     cfg = Conf('config.ini', 'LOCAL')
     sbox = Shoutbox(cfg.db_name, cfg.db_user, cfg.db_pass)
-    bridge = XmppBridge(sbox, cfg.xmpp_login, cfg.xmpp_pass, cfg.xmpp_host, cfg.xmpp_port, cfg.xmpp_room)
+    bridge = TwistedBridge(sbox, cfg.xmpp_login, cfg.xmpp_pass, cfg.xmpp_host, cfg.xmpp_port, cfg.xmpp_room)
     bridge.listen()
     #row = sbox.getUser(xmpp_login)
     #usr = User(row[0], row[1])

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import os
-import xmpp
-import time
-import re
+from twisted.internet import task
+from twisted.internet import reactor
+from twisted.names.srvconnect import SRVConnector
+from twisted.words.xish import domish
+from twisted.words.protocols.jabber import xmlstream, client, jid
 
 class BridgeError(Exception):
     "Unknown Bridge Error"
@@ -15,14 +15,27 @@ class BridgeConnectionError(BridgeError):
 class BridgeAuthenticationError(BridgeError):
     "Could not authenticate."
 
-class XmppBridge(object):
+class XMPPClientConnector(SRVConnector):
+    def __init__(self, reactor, domain, factory):
+        SRVConnector.__init__(self, reactor, 'xmpp-client', domain, factory)
+
+    def pickServer(self):
+        host, port = SRVConnector.pickServer(self)
+
+        if not self.servers and not self.orderedServers:
+            # no SRV record, fall back..
+            port = 5222
+
+        return host, port
+
+class TwistedBridge(object):
     login = ""
     passwd = ""
     room = ""
     host = ""
     port = 5222
-    discoName = "Shoutbridge"
     shoutbox = None
+    xmlstream = None
     roster = []
 
     def __init__(self, sbox, login, passwd, host, port=5222, room=""):
@@ -39,73 +52,46 @@ class XmppBridge(object):
         # Make an XMPP connection
         self.make_connection()
 
-        # Register handlers
-        self.register_handlers()
-
-    def __del__(self):
-        if self.cl:
-            self.cl.disconnect()
-
     def make_connection(self):
         """
         Make an XMPP connection and authorize the user.
         """
-        self.jid = xmpp.protocol.JID(self.login)
-        debug = xmpp.debug.Debug() #['always', 'nodebuilder']
-        self.cl = xmpp.Client(self.jid.getDomain(), debug=debug)
-        self.con = self.cl.connect()
-        #self.cl = xmpp.client.Component(self.jid.getDomain(), self.port, debug=debug)
-        #self.con = self.cl.connect((self.jid.getDomain(), self.port))
-        if not self.con:
-            raise BridgeConnectionError
-        print 'Connected with', self.con
-        self.auth = self.cl.auth(self.jid.getNode(), self.passwd, resource=self.jid.getResource())
-        if not self.auth:
-            raise BridgeAuthenticationError
-        print 'Authenticated using', self.auth
+        self.jid = jid.JID(self.login)
+        f = client.XMPPClientFactory(self.jid, self.passwd)
+        f.addBootstrap(xmlstream.STREAM_CONNECTED_EVENT, self.connected)
+        f.addBootstrap(xmlstream.STREAM_END_EVENT, self.disconnected)
+        f.addBootstrap(xmlstream.STREAM_AUTHD_EVENT, self.authenticated)
+        f.addBootstrap(xmlstream.INIT_FAILED_EVENT, self.init_failed)
+        connector = XMPPClientConnector(reactor, self.jid.host, f)
+        connector.connect()
 
-    def register_handlers(self):
-        """
-        Register message handlers
-        """
-        self.cl.RegisterHandler('iq', self.handle_iq)
-        self.cl.RegisterHandler('presence', self.handle_presence)
-        self.cl.RegisterHandler('message', self.handle_message)
-        self.disco = xmpp.browser.Browser()
-        self.disco.PlugIn(self.cl)
-        self.disco.setDiscoHandler(self.xmpp_base_disco,node='', jid=self.login)
+    def rawDataIn(self, buf):
+        print "RECV: %s" % unicode(buf, 'utf-8').encode('ascii', 'replace')
 
-    # Disco Handlers
-    def xmpp_base_disco(self, con, event, type):
-        fromjid = event.getFrom().__str__()
-        to = event.getTo()
-        node = event.getQuerynode();
-        #Type is either 'info' or 'items'
-        if to == self.login:
-            if node == None:
-                if type == 'info':
-                    return {
-                        'ids': [
-                            {'category': 'gateway', 'type': 'smtp', 'name': self.discoName}],
-                        'features': [NS_VERSION, NS_COMMANDS]}
-                if type == 'items':
-                    return []
-            else:
-                self.cl.send(Error(event, ERR_ITEM_NOT_FOUND))
-                raise NodeProcessed
-        else:
-            self.cl.send(Error(event, MALFORMED_JID))
-            raise NodeProcessed
+    def rawDataOut(self, buf):
+        print "SEND: %s" % unicode(buf, 'utf-8').encode('ascii', 'replace')
 
-    def handle_iq(self, conn, iq_node):
-        """
-        Handler for processing some "get" query from custom namespace
-        """
-        print "Iq stanza received:", iq_node.getType(), iq_node.getFrom().getResource()
-        reply = iq_node.buildReply('result')
-        # ... put some content into reply node
-        conn.send(reply)
-        raise NodeProcessed  # This stanza is fully processed
+    def connected(self, xs):
+        print 'Connected.'
+        self.xmlstream = xs
+        # Log all traffic
+        xs.rawDataInFn = self.rawDataIn
+        xs.rawDataOutFn = self.rawDataOut
+
+    def disconnected(self, xs):
+        print 'Disconnected.'
+        reactor.stop()
+
+    def authenticated(self, xs):
+        print "Authenticated."
+        presence = domish.Element((None, 'presence'))
+        xs.send(presence)
+        #reactor.callLater(35, xs.sendFooter)
+
+    def init_failed(self, failure):
+        print "Initialization failed."
+        print failure
+        self.xmlstream.sendFooter()
 
     def handle_presence(self, conn, pres):
         nick = pres.getFrom().getResource()
@@ -170,12 +156,19 @@ class XmppBridge(object):
         Send an text as XMPP message to tojid
         """
         try:
-            id = self.cl.send(xmpp.protocol.Message(tojid, text))
+            message = domish.Element((None, 'message'))
+            message['to'] = tojid
+            message['from'] = self.login
+            message['type'] = 'chat'
+            message.addElement('body', content=text)
+            id = self.xmlstream.send(message)
             print 'Sent message with id', id
         except UnicodeDecodeError:
             print "Unicode Decode Error: " + text
 
     def process_shoutbox_messages(self):
+        if not self.xmlstream:
+            return False
         msgs = self.shoutbox.readShouts()
         for m in msgs:
             text = self.clean_message(m.text)
@@ -187,21 +180,11 @@ class XmppBridge(object):
         Start listening on XMPP and Shoutbox, relaying messages.
         """
         try:
-            while 1:
-                print "Loop..."
-                # Process incoming XMPP messages.
-                self.cl.Process(5)
-
-                # Process shoutbox messages.
-                self.process_shoutbox_messages()
-
-                # Sleep before next loop iteration.
-                #time.sleep(1)
-
-                # Reconnect to XMPP if necessary.
-                if not self.cl.isConnected():
-                    self.cl.reconnectAndReauth()
-
+            # Send messages from shoutbox every 10 seconds
+            l = task.LoopingCall(self.process_shoutbox_messages)
+            l.start(10.0)
+            # Start the reactor
+            reactor.run()
         except KeyboardInterrupt:
             print "Exiting..."
 

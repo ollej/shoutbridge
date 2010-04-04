@@ -3,8 +3,9 @@
 from twisted.internet import task
 from twisted.internet import reactor
 from twisted.names.srvconnect import SRVConnector
-from twisted.words.xish import domish
+from twisted.words.xish import domish, xpath
 from twisted.words.protocols.jabber import xmlstream, client, jid
+from shoutbox import *
 
 class BridgeError(Exception):
     "Unknown Bridge Error"
@@ -36,7 +37,7 @@ class TwistedBridge(object):
     port = 5222
     shoutbox = None
     xmlstream = None
-    roster = []
+    roster = dict()
 
     def __init__(self, sbox, login, passwd, host, port=5222, room=""):
         """
@@ -77,10 +78,13 @@ class TwistedBridge(object):
         # Log all traffic
         xs.rawDataInFn = self.rawDataIn
         xs.rawDataOutFn = self.rawDataOut
+        # Add Event observers
+        xs.addObserver("/message[@type='chat']", self.handle_message)
+        xs.addObserver("/presence", self.handle_presence)
 
     def disconnected(self, xs):
         print 'Disconnected.'
-        reactor.stop()
+        #reactor.stop()
 
     def authenticated(self, xs):
         print "Authenticated."
@@ -93,37 +97,49 @@ class TwistedBridge(object):
         print failure
         self.xmlstream.sendFooter()
 
-    def handle_presence(self, conn, pres):
-        nick = pres.getFrom().getResource()
-        type = pres.getType()
-        print "Presence stanza received:", nick, type
+    def handle_presence(self, pres):
+        type = pres.getAttribute('type')
+        fromjid = jid.JID(pres.getAttribute('from'))
+        nick = fromjid.user + '@' + fromjid.host
         if type == 'unavailable':
             if nick in self.roster:
-                self.roster.remove(nick)
+                del self.roster[nick]
                 print "Adding to roster:", nick
         else:
             if nick not in self.roster:
-                self.roster.append(nick)
+                self.add_to_roster(nick)
                 print "Removing from roster:", nick
 
+    def add_to_roster(self, nick):
+        try:
+            user = self.shoutbox.getUserByLogin(nick)
+        except ShoutboxUserNotFoundError:
+            # Default to anonymous user with JID as username
+            user = User(1, nick, '', '')
+        self.roster[nick] = user
 
-    def handle_message(self, conn, mess):
+    def get_from_roster(self, nick):
+        if not nick in self.roster:
+            self.add_to_roster(nick)
+        return self.roster[nick]
+
+    def handle_message(self, mess):
         """
         Handle an XMPP message.
         """
-        type = mess.getType()
-        fromjid = mess.getFrom().getStripped()
-        nick = mess.getFrom().getResource()
-        print "Message stanza received:", fromjid, '/', nick, type
-        if type in ['message', 'chat', None]: 
-            # and fromjid == self.remotejid:
-            text = mess.getBody()
-            try:
-                user = self.shoutbox.getUserByLogin(fromjid)
-            except ShoutboxUserNotFoundError:
-                # Default to anonymous user with JID as username
-                user = User(1, nick, '', '')
-            self.shoutbox.sendShout(user, text)
+        type = mess.getAttribute('type')
+        fromjid = jid.JID(mess.getAttribute('from'))
+        nick = fromjid.user + '@' + fromjid.host
+        body = None
+        for e in mess.elements():
+            if e.name == "body":
+              body = unicode(e.__str__())
+              break
+        if body is not None and type in ['message', 'chat', None]: 
+            user = self.get_from_roster(nick)
+            self.shoutbox.sendShout(user, body)
+        else:
+            print "What is this?", mess.toXml()
 
     def strip_tags(self, s):
         """
@@ -181,8 +197,8 @@ class TwistedBridge(object):
         """
         try:
             # Send messages from shoutbox every 10 seconds
-            l = task.LoopingCall(self.process_shoutbox_messages)
-            l.start(10.0)
+            #l = task.LoopingCall(self.process_shoutbox_messages)
+            #l.start(10.0)
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:

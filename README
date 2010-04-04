@@ -6,10 +6,10 @@ A bridge software that allows discussions in a UBB.threads shoutbox to be mirror
 
 Main features:
  X All messages written in Shoutbox should be sent to the XMPP chat room.
- * All messages written in the XMPP chat room should be sent to the Shoutbox.
+ X All messages written in the XMPP chat room should be sent to the Shoutbox.
  * If UBB.threads user has XMPP login details saved, messages should be sent using these.
  - If no XMPP details, messages will be sent with UBB.threads username prepended to message.
- * Messages from XMPP will be added as user in Shoutbox if they have XMPP login details saved in profile.
+ X Messages from XMPP will be added as user in Shoutbox if they have XMPP login details saved in profile.
  X Simple API to UBB.threads to read/write messages and get user by login details and login details from user.
  
 Additional features:
@@ -18,7 +18,7 @@ Additional features:
  * /me 
  
 TODO:
- * Keep track of roster via prescence, read user info only once.
+ X Keep track of roster via prescence, read user info only once.
  * Move date formats into configuration.
  * Send config object as parameter to Shoutbox/XmppBridge instead of values.
- * Connect to an xmpp conference room instead of just sending messages to a user
+ X Connect to an xmpp conference room instead of just sending messages to a user

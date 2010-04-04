@@ -35,6 +35,8 @@ class TwistedBridge(object):
     room = ""
     host = ""
     port = 5222
+    roomjid = ""
+    resource = ""
     shoutbox = None
     xmlstream = None
     roster = dict()
@@ -48,7 +50,8 @@ class TwistedBridge(object):
         self.passwd = passwd
         self.host = host
         self.port = port
-        self.room = room
+        (self.room, foo, self.resource) = room.rpartition('/')
+        self.roomjid = room
 
         # Make an XMPP connection
         self.make_connection()
@@ -75,11 +78,14 @@ class TwistedBridge(object):
     def connected(self, xs):
         print 'Connected.'
         self.xmlstream = xs
+
         # Log all traffic
         xs.rawDataInFn = self.rawDataIn
         xs.rawDataOutFn = self.rawDataOut
+
         # Add Event observers
-        xs.addObserver("/message[@type='chat']", self.handle_message)
+        xs.addObserver("/message[@type='groupchat']", self.handle_message)
+        #xs.addObserver("/message[@type='chat']", self.handle_message)
         xs.addObserver("/presence", self.handle_presence)
 
     def disconnected(self, xs):
@@ -92,35 +98,57 @@ class TwistedBridge(object):
         xs.send(presence)
         #reactor.callLater(35, xs.sendFooter)
 
+        # Connect to conference room
+        self.join_room(self.roomjid)
+
     def init_failed(self, failure):
         print "Initialization failed."
         print failure
         self.xmlstream.sendFooter()
 
+    def join_room(self, room):
+        presence = domish.Element((None, 'presence'))
+        presence['from'] = self.login + '/' + 'blaj'
+        presence['to'] = room
+        presence.addElement('x', u'http://jabber.org/protocol/muc')
+        print "Joining room:", presence.toXml()
+        self.xmlstream.send(presence)
+
     def handle_presence(self, pres):
         type = pres.getAttribute('type')
-        fromjid = jid.JID(pres.getAttribute('from'))
-        nick = fromjid.user + '@' + fromjid.host
+        fromstr = pres.getAttribute('from')
+        (login, sep, nick) = fromstr.rpartition('/')
+        fromjid = jid.JID(fromstr)
+        # FIXME: This is silly, I need xpaths working.
+        for e in pres.elements():
+            if e.name == 'x':
+                for f in e.elements():
+                    if f.name == 'item':
+                        if f.hasAttribute('jid'):
+                            fromjid = jid.JID(f['jid'])
+                            break
+        fromstr = fromjid.user + '@' + fromjid.host
         if type == 'unavailable':
             if nick in self.roster:
                 del self.roster[nick]
-                print "Adding to roster:", nick
+                print "Removing from roster:", nick
         else:
             if nick not in self.roster:
-                self.add_to_roster(nick)
-                print "Removing from roster:", nick
+                self.add_to_roster(nick, fromstr)
+                print "Adding to roster:", nick
+        print "Roster: ", str(self.roster)
 
-    def add_to_roster(self, nick):
+    def add_to_roster(self, nick, jid):
         try:
-            user = self.shoutbox.getUserByLogin(nick)
+            user = self.shoutbox.getUserByLogin(jid)
         except ShoutboxUserNotFoundError:
             # Default to anonymous user with JID as username
-            user = User(1, nick, '', '')
+            user = User(1, jid, '', '')
         self.roster[nick] = user
 
-    def get_from_roster(self, nick):
+    def get_from_roster(self, nick, jid):
         if not nick in self.roster:
-            self.add_to_roster(nick)
+            self.add_to_roster(nick, jid)
         return self.roster[nick]
 
     def handle_message(self, mess):
@@ -128,15 +156,43 @@ class TwistedBridge(object):
         Handle an XMPP message.
         """
         type = mess.getAttribute('type')
-        fromjid = jid.JID(mess.getAttribute('from'))
-        nick = fromjid.user + '@' + fromjid.host
-        body = None
+        fromstr = mess.getAttribute('from')
+        fromjid = jid.JID(fromstr)
+
+        # Groupchat messages have different from jid
+        if type == 'groupchat':
+            (fromstr, sep, nick) = fromstr.rpartition('/')
+        else:
+            nick = fromjid.user + '@' + fromjid.host
+
+        # Skip if message is sent by shoutbridge
+        print "Nick is", nick
+        if nick == self.resource:
+            print "Got message from myself."
+            return
+
+        # Untangle xml mess to retrieve data.
+        # Should preferrably be using xpath
         for e in mess.elements():
+            # Get message body.
             if e.name == "body":
-              body = unicode(e.__str__())
-              break
-        if body is not None and type in ['message', 'chat', None]: 
-            user = self.get_from_roster(nick)
+                body = unicode(e.__str__())
+            if e.name == "x":
+                if e.defaultUri in ['jabber:x:delay', 'urn:xmpp:delay']:
+                    # This is a delayed message, skip it.
+                    print "Skipping delayed message."
+                    return
+                elif e.defaultUri == 'http://jabber.org/protocol/muc#user':
+                    for f in e.elements():
+                        if f.name == 'status':
+                            if f.getAttribute('code') == '100':
+                                print "Anonymous room message, skipping."
+                                return
+
+        # Send message.
+        if body and type in ['message', 'chat', 'groupchat', None]: 
+            user = self.get_from_roster(nick, fromstr)
+            print "Relaying message to shoutbox:", user, user.name, body
             self.shoutbox.sendShout(user, body)
         else:
             print "What is this?", mess.toXml()
@@ -175,12 +231,12 @@ class TwistedBridge(object):
             message = domish.Element((None, 'message'))
             message['to'] = tojid
             message['from'] = self.login
-            message['type'] = 'chat'
+            message['type'] = 'groupchat'
             message.addElement('body', content=text)
             id = self.xmlstream.send(message)
             print 'Sent message with id', id
         except UnicodeDecodeError:
-            print "Unicode Decode Error: " + text
+            print "Unicode Decode Error: ", text
 
     def process_shoutbox_messages(self):
         if not self.xmlstream:
@@ -197,8 +253,8 @@ class TwistedBridge(object):
         """
         try:
             # Send messages from shoutbox every 10 seconds
-            #l = task.LoopingCall(self.process_shoutbox_messages)
-            #l.start(10.0)
+            l = task.LoopingCall(self.process_shoutbox_messages)
+            l.start(2.0)
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:

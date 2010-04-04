@@ -64,7 +64,7 @@ class Shoutbox:
     db_tbl_user = "ubbt_USERS"
     db_tbl_xmpp = "ubbt_USER_XMPP"
     db_tbl_graemlins = "ubbt_GRAEMLINS"
-    latest_shout = 229244#0
+    latest_shout = 229330 #0 - or read from config
     db = None
     graemlins = None
 

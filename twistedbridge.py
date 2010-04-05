@@ -140,10 +140,10 @@ class TwistedBridge(object):
 
     def add_to_roster(self, nick, jid):
         try:
-            user = self.shoutbox.getUserByLogin(jid)
+            user = self.shoutbox.getUserByJid(jid)
         except ShoutboxUserNotFoundError:
             # Default to anonymous user with JID as username
-            user = User(1, jid, '', '')
+            user = User(1, jid, '')
         self.roster[nick] = user
 
     def get_from_roster(self, nick, jid):
@@ -252,9 +252,9 @@ class TwistedBridge(object):
         Start listening on XMPP and Shoutbox, relaying messages.
         """
         try:
-            # Send messages from shoutbox every 10 seconds
+            # Send messages from shoutbox every few seconds
             l = task.LoopingCall(self.process_shoutbox_messages)
-            l.start(2.0)
+            l.start(5.0) # TODO: Should be configurable
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:

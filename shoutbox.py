@@ -13,14 +13,12 @@ class ShoutboxUserNotFoundError(ShoutboxError):
 class User:
     id = ""
     name = ""
-    xlogin = ""
-    xpwd = ""
+    jid = ""
 
-    def __init__(self, id, name, xlogin, xpwd):
+    def __init__(self, id, name, jid):
         self.id = id
         self.name = name
-        self.xlogin = xlogin
-        self.xpwd = xpwd
+        self.jid = jid
 
 class Shout:
     """
@@ -62,7 +60,8 @@ class Shoutbox:
     db_pass = ""
     db_tbl_shoutbox = "ubbt_SHOUT_BOX"
     db_tbl_user = "ubbt_USERS"
-    db_tbl_xmpp = "ubbt_USER_XMPP"
+    db_tbl_profile = "ubbt_USER_PROFILE"
+    db_fld_profile = "USER_EXTRA_FIELD_1" # TODO: Should be configurable
     db_tbl_graemlins = "ubbt_GRAEMLINS"
     latest_shout = 229330 #0 - or read from config
     db = None
@@ -113,13 +112,15 @@ class Shoutbox:
         """
         Retrieves User information based on a db field and value.
         """
-        sql = "SELECT USER_ID, USER_DISPLAY_NAME, XMPP_LOGIN, XMPP_PASSWD FROM " + self.db_tbl_user + " u LEFT OUTER JOIN " + self.db_tbl_xmpp + " x ON u.USER_ID = x.XMPP_USER_ID WHERE " + field + " = %s"
+        if not id:
+            return User(1, 'Anonymous', '')
+        sql = "SELECT u.USER_ID, u.USER_DISPLAY_NAME, " + self.db_fld_profile + " AS JIDLOGIN FROM " + self.db_tbl_user + " u LEFT OUTER JOIN " + self.db_tbl_profile + " x ON u.USER_ID = x.USER_ID WHERE " + field + " = %s"
         print "SQL: " + sql
         print "ID: " + id
         self.db.execute(sql, id)
         row = self.db.fetchone()
         if row:
-            usr = User(row[0], row[1], row[2], row[3])
+            usr = User(row[0], row[1], row[2])
         else:
             raise ShoutboxUserNotFoundError
         return usr
@@ -136,11 +137,11 @@ class Shoutbox:
         """
         return self._getUserByField("u.USER_ID", id)
 
-    def getUserByLogin(self, login):
+    def getUserByJid(self, jid):
         """
         Retrieves User information based on an XMPP login.
         """
-        return self._getUserByField("x.XMPP_LOGIN", login)
+        return self._getUserByField(self.db_fld_profile, jid)
 
     def getXmppDetails(self, userid):
         """
@@ -165,7 +166,7 @@ class Shoutbox:
         """
         if start < 0:
             start = self.latest_shout
-        sql = "SELECT SHOUT_ID, USER_ID, SHOUT_DISPLAY_NAME, SHOUT_TEXT, SHOUT_TIME FROM " + self.db_tbl_shoutbox + " WHERE SHOUT_ID > %s ORDER BY SHOUT_ID ASC"
+        sql = "SELECT SHOUT_ID, USER_ID, SHOUT_DISPLAY_NAME, SHOUT_TEXT, SHOUT_TIME FROM " + self.db_tbl_shoutbox + " WHERE SHOUT_ID > %s AND USER_IP<>'127.0.0.1' ORDER BY SHOUT_ID ASC"
         self.db.execute(sql, start)
         rows = self.db.fetchall()
         # Keep track of the latest shout
@@ -200,7 +201,7 @@ def main():
         if id.isdigit():
             usr = sbox.getUserById(id)
         elif string.find(id, '@') >= 0:
-            usr = sbox.getUserByLogin(id)
+            usr = sbox.getUserByJid(id)
         else:
             usr = sbox.getUserByUsername(id)
         sbox.sendShout(usr, msg)

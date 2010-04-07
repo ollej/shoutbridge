@@ -157,7 +157,7 @@ class Shoutbox:
         Send a shoutbox message from a user.
         """
         sql = "INSERT INTO " + self.db_tbl_shoutbox + " (USER_ID, SHOUT_DISPLAY_NAME, SHOUT_TEXT, SHOUT_TIME, USER_IP) VALUES ( %s, %s, %s, UNIX_TIMESTAMP(), %s)"
-        data = (user.id, user.name, message, '127.0.0.1')
+        data = (user.id, user.name, unicode(message), '127.0.0.1')
         self.db.execute(sql, data)
 
     def readShouts(self, start=-1):

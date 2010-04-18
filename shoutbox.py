@@ -68,6 +68,7 @@ class Shoutbox:
     graemlins = None
 
     def __init__(self, cfg):
+        self.cfg = cfg
         self.db_name = cfg.db_name
         self.db_user = cfg.db_user
         self.db_pass = cfg.db_pass

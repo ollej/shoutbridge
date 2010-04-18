@@ -40,6 +40,7 @@ class TwistedBridge(object):
     shoutbox = None
     xmlstream = None
     roster = dict()
+    cfg = None
 
     def __init__(self, sbox, cfg):
         """
@@ -53,6 +54,7 @@ class TwistedBridge(object):
         self.port = cfg.xmpp_port
         (self.room, foo, self.resource) = cfg.xmpp_room.rpartition('/')
         self.roomjid = cfg.xmpp_room
+        self.cfg = cfg
 
         # Make an XMPP connection
         self.make_connection()
@@ -245,7 +247,10 @@ class TwistedBridge(object):
         msgs = self.shoutbox.readShouts()
         for m in msgs:
             text = self.clean_message(m.text)
-            text = "%s <%s> %s" % (m.time, m.name, text)
+            if self.cfg.show_time == "True":
+                text = "%s <%s> %s" % (m.time, m.name, text)
+            else:
+                text = "<%s> %s" % (m.name, text)
             self.send_message(self.room, text)
 
     def listen(self):
@@ -255,7 +260,7 @@ class TwistedBridge(object):
         try:
             # Send messages from shoutbox every few seconds
             l = task.LoopingCall(self.process_shoutbox_messages)
-            l.start(5.0) # TODO: Should be configurable
+            l.start(float(self.cfg.loop_time))
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:

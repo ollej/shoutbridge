@@ -80,6 +80,7 @@ class ExternalShoutbox:
 
     def __init__(self, config):
         self.parser = ElementParser()
+        self.cfg = config
         self.base_url = config.base_url
         self.shoutre = re.compile(
             r"""
@@ -128,7 +129,7 @@ class ExternalShoutbox:
         """
         if not id:
             return User(1, 'Anonymous', '')
-        usr = User(1, 'Anonymous', '')
+        usr = User(1, id, '')
         return usr
 
     def getUserByUsername(self, username):
@@ -147,7 +148,7 @@ class ExternalShoutbox:
         """
         Retrieves User information based on an XMPP login.
         """
-        return self._getUserByField(self.db_fld_profile, jid)
+        return self._getUserByField('', jid)
 
     def sendShout(self, user, message):
         """

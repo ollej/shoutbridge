@@ -28,15 +28,22 @@ Requirements
  * MySQL
  * UBB.threads v7
  * Twisted
- * MySQLdb
+ * MySQLdb (for direct connection to shoutbox)
 
 
 Installation
 ------------
-To install Shoutbridge, you first need to install a couple of dependencies:
+Shoutbridge requires a few extra python modules to run. Currently, the only
+working xmpp bridge class is Twisted, so that python module must be installed.
+The MySQLdb module is needed for a direct connection to the shoutbox. If you
+don't have access to the UBB.threads database where you run the Shoutbridge,
+you can instead use the ExternalShoutbridge class. In this case, you don't
+need the MySQLdb module.
 
-    $ sudo easy_install MySQLdb
+Install necessary modules:
+
     $ sudo easy_install Twisted
+    $ sudo easy_install MySQLdb
 
 Next, create a configuration file from the example.
 
@@ -56,6 +63,9 @@ xmpp_host and xmpp_port should be set to the jabber server to connect to.
 In UBB.threads, you should set Profile Extra Field 1 to "JID Login". If a user 
 enters their jabber id in this field, messages sent from that jid will be written
 as that user in the shoutbox.
+
+If you are running the ExternalShoutbox you must enter the URL to your UBB.threads
+installation. 
 
 Now you should be ready to start the program:
 

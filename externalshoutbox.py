@@ -84,14 +84,15 @@ class ExternalShoutbox:
         self.base_url = config.base_url
         self.shoutre = re.compile(
             r"""
-            title="Skriven:\ (?P<time>[^"]*)" .*
-            id="shout(?P<id>\d+)">\s
-            <a\ href="/forum/ubbthreads.php/users/(?P<userid>\d*)/(?:.*).html">
-            <span(?:[^>]*?)>(?P<username>[^<]+)</span></a>:&nbsp;
-            (?P<content>.*)
-            \s<\/div>
+                title="Skriven:\ (?P<time>[^"]*)" .*
+                id="shout(?P<id>\d+)"> .*
+                (?:<span class="standouttext">\*)?
+                <a\ href="/forum/ubbthreads.php/users/(?P<userid>\d*)/(?:.*).html">
+                <span(?:[^>]*?)>(?P<username>[^<]+)</span></a>:?&nbsp;
+                (?P<content>.*?)
+                \n(?:<\/span>)?<\/div>
             """,
-            re.X | re.M | re.S )
+            re.VERBOSE | re.MULTILINE | re.DOTALL )
 
     def __del__(self):
         pass

@@ -18,16 +18,17 @@ class HeadstockBridge(object):
     port = 5222
     shoutbox = None
 
-    def __init__(self, sbox, login, passwd, host, port=5222, room=""):
+    def __init__(self, sbox, cfg):
         """
         Instantiate an XMPP bridge using XMPP login details and a shoutbox object.
         """
         self.shoutbox = sbox
-        self.login = login
-        self.passwd = passwd
-        self.host = host
-        self.port = port
-        self.room = room
+        self.login = cfg.xmpp_login
+        self.passwd = cfg.xmpp_pass
+        self.host = cfg.xmpp_host
+        if cfg.xmpp_port:
+            self.port = cfg.xmpp_port
+        self.room = cfg.xmpp_room
 
     def ready(self, client):
         self.client = client

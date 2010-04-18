@@ -1,26 +1,39 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from shoutbox import *
-#from xmppbridge import *
+from externalshoutbox import *
 from twistedbridge import *
 from conf import Conf
 
 def start_shoutbridge():
     print "Shoutbridge started..."
     cfg = Conf('config.ini', 'LOCAL')
-    sbox = Shoutbox(cfg.db_name, cfg.db_user, cfg.db_pass)
-    bridge = TwistedBridge(sbox, cfg.xmpp_login, cfg.xmpp_pass, cfg.xmpp_host, cfg.xmpp_port, cfg.xmpp_room)
+
+    # Setup Shoutbox
+#    if cfg.shoutbox_type == "external_ubb":
+#        from externalshoutbox import *
+#    elif cfg.shoutbox_type == "ubb":
+#        from shoutbox import *
+#    else:
+#        print "Configured shoutbox type not supported:", cfg.shoutbox_type
+    sbox = ExternalShoutbox(cfg)
+
+    # Setup xmpp bridge
+#    if cfg.bridge_type == "twisted":
+#        from twistedbridge import *
+#        bridge = TwistedBridge(sbox, cfg)
+#    elif cfg.bridge_type == "xmpppy":
+#        from xmppbridge import *
+#        bridge = XmppBridge(sbox, cfg)
+#    elif cfg.bridge_type == "headstock":
+#        from headstockbridge import *
+#        bridge = HeadstockBridge(sbox, cfg)
+#    else:
+#        print "Bridge type not supported:", cfg.bridge_type
+    bridge = TwistedBridge(sbox, cfg)
+
+    # Start bridge
     bridge.listen()
-    #row = sbox.getUser(xmpp_login)
-    #usr = User(row[0], row[1])
-    #print "User = " + str(usr)
-    #xmppdetails = sbox.getXmppDetails(2)
-    #print "XMPP Details = " + str(xmppdetails)
-    #sbox.sendShout(usr, "asdf asdf asdf ")
-    #msgs = sbox.readShouts()
-    #for m in msgs:
-    #    print m
     print "Shoutbridge ended."
 
 # Call the main function.

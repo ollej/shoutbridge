@@ -41,17 +41,18 @@ class TwistedBridge(object):
     xmlstream = None
     roster = dict()
 
-    def __init__(self, sbox, login, passwd, host, port=5222, room=""):
+    def __init__(self, sbox, cfg):
         """
         Instantiate an XMPP bridge using XMPP login details and a shoutbox object.
         """
+        # cfg.xmpp_login, cfg.xmpp_pass, cfg.xmpp_host, cfg.xmpp_port, cfg.xmpp_room
         self.shoutbox = sbox
-        self.login = login
-        self.passwd = passwd
-        self.host = host
-        self.port = port
-        (self.room, foo, self.resource) = room.rpartition('/')
-        self.roomjid = room
+        self.login = cfg.xmpp_login
+        self.passwd = cfg.xmpp_pass
+        self.host = cfg.xmpp_host
+        self.port = cfg.xmpp_port
+        (self.room, foo, self.resource) = cfg.xmpp_room.rpartition('/')
+        self.roomjid = cfg.xmpp_room
 
         # Make an XMPP connection
         self.make_connection()

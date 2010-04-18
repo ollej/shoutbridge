@@ -1,7 +1,7 @@
 Shoutbridge
 ===========
 
-UBB.threads Shoubox <-> XMPP Bridge
+UBB.threads Shoutbox <-> XMPP Bridge
 
 Description
 -----------
@@ -19,6 +19,7 @@ These are the main features of Shoutbridge:
  * Simple API to UBB.threads to read/write messages and get user by login details and login details from user.
  * Keep track of roster via prescence, read user info only once.
  * Connect to an xmpp conference room instead of just sending messages to a user
+ * Can read shoutbox info directly via MySQL database, or over http.
 
 
 Requirements
@@ -67,7 +68,6 @@ Some ideas for future development.
 
  * If UBB.threads user has XMPP login details saved, messages should be sent using these.
  * Move date formats into configuration.
- * Send config object as parameter to Shoutbox/XmppBridge instead of values.
  * Possibly change to a transport gateway using XEP-0100: Gateway Interaction
  * Plugins for message hooks, to allow simple bot-like behavior.
  * Dice Bot which can roll dice, e.g. "/dice 3d6" gives "Dice roll result: 12 (5 + 3 + 4)"

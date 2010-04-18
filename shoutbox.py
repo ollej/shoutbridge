@@ -61,17 +61,21 @@ class Shoutbox:
     db_tbl_shoutbox = "ubbt_SHOUT_BOX"
     db_tbl_user = "ubbt_USERS"
     db_tbl_profile = "ubbt_USER_PROFILE"
-    db_fld_profile = "USER_EXTRA_FIELD_1" # TODO: Should be configurable
+    db_fld_profile = "USER_EXTRA_FIELD_1"
     db_tbl_graemlins = "ubbt_GRAEMLINS"
-    latest_shout = 229330 #0 - or read from config
+    latest_shout = 0
     db = None
     graemlins = None
 
-    def __init__(self, db, user, pwd, host="localhost"):
-        self.db_name = db
-        self.db_user = user
-        self.db_pass = pwd
-        self.db_host = host
+    def __init__(self, cfg):
+        self.db_name = cfg.db_name
+        self.db_user = cfg.db_user
+        self.db_pass = cfg.db_pass
+        self.db_host = cfg.db_host
+        if cfg.latest_shout:
+            self.latest_shout = cfg.latest_shout
+        if cfg.ubb_jid_field:
+            self.db_fld_profile = cfg.ubb_jid_field
         self.connectDb()
 
     def __del__(self):
@@ -192,7 +196,7 @@ def main():
     import string
     from conf import Conf
     cfg = Conf('config.ini', 'LOCAL')
-    sbox = Shoutbox(cfg.db_name, cfg.db_user, cfg.db_pass)
+    sbox = Shoutbox(cfg)
     if len(sys.argv) > 1:
         args = sys.argv
         id = args[1]

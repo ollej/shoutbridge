@@ -14,6 +14,11 @@ define('NO_WRAPPER',1);
 function page_listshouts_gpc () {
 	return array(
 		"input" => array(
+            "action" => array("action","get","string"),
+            "secret" => array("secret","get","string"),
+            "user_id" => array("user_id","get","string"),
+            "user_name" => array("user_name","get","string"),
+            "message" => array("message","get","string"),
 			"start" => array("start","get","int"),
             "format" => array("format","get","string"),
 		),
@@ -30,17 +35,8 @@ function page_listshouts_run () {
 
 	global $style_array,$smarty,$user,$in,$ubbt_lang,$config,$forumvisit,$visit,$dbh,$html;
 
-	extract($in, EXTR_OVERWRITE | EXTR_REFS); // quick and dirty fix - extract hash values as vars
-
     $shout = new ShoutList('text');
-    $shouts =& $shout->readShouts($start);
-    if ($format == 'json') {
-	    header('Content-type: application/json; charset=utf-8');
-        echo json_encode($shouts);
-    } else {
-	    header('Content-type: text/xml; charset=utf-8');
-        echo $shout->createShoutXml($shouts);
-    }
+    $shout->dispatch($in);
 
 	return false;
 }
@@ -49,6 +45,7 @@ class ShoutList {
     private $graemlin_html = array();
     private $graemlin_code = array();
     private $graemlin_type = '';
+    private $pass = 'u3nzcxvu8m34';
 
     public function __construct($graemlin_type='') {
         global $dbh, $config, $html;
@@ -64,6 +61,44 @@ class ShoutList {
                 $this->graemlin_html[] = sprintf($img, $image, $code, $code, $width, $height);
                 $this->graemlin_code[] = $smiley ? $smiley : ":$code:";
             }
+        }
+    }
+
+    public function dispatch($in) {
+        if ($in['action'] == "send") {
+            $this->sendShout($in);
+        } else {
+            $this->listShouts(intval($in['start']));
+        }
+    }
+
+    public function sendShout($post) {
+        global $dbh, $config, $html, $ubbt_lang;
+        if ($post['secret'] != $this->pass) {
+            echo "ERROR: INCORRECT PASSWORD";
+        }
+        // user_id, user_name, message
+        $query = "
+            INSERT INTO {$config['TABLE_PREFIX']}SHOUT_BOX 
+            (USER_ID, SHOUT_DISPLAY_NAME, SHOUT_TEXT, SHOUT_TIME, USER_IP) 
+            VALUES (?, ?, ?, UNIX_TIMESTAMP(), '127.0.0.1')
+        ";
+        $username = $post['user_name'] ? $post['user_name'] : $ubbt_lang['ANON_TEXT'];
+        $id = $post['user_id'] ? intval($post['user_id']) : 1;
+        $values = array($id, $username, $post['message']);
+        $dbh->do_placeholder_query($query, $values, __LINE__, __FILE__);
+
+        echo "OK";
+    }
+
+    public function listShouts($start) {
+        $shouts =& $this->readShouts($start);
+        if ($format == 'json') {
+            header('Content-type: application/json; charset=utf-8');
+            echo json_encode($shouts);
+        } else {
+            header('Content-type: text/xml; charset=utf-8');
+            echo $this->createShoutXml($shouts);
         }
     }
 

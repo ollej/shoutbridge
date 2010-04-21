@@ -46,6 +46,20 @@ class MessageShoutbox(Shoutbox):
     def parseShout(self, s):
         return Shout(s['id'], s['from_id'], s['from'], self._getElStr(s.body), s['time'])
 
+    def sendShout(self, user, message):
+        params = urlencode({
+            "ubb": "listshouts",
+            "action": "send",
+            "secret": self.cfg.secret,
+            "user_id": user.id,
+            "user_name": user.name,
+            "message": message.encode('latin-1', 'xmlcharrefreplace'),
+        })
+        result = loadUrl(self.base_url, params)
+        if result == "OK":
+            return True
+        return False
+
     def _getElStr(self, el):
         return unicode(unescape(el.__str__().strip()))
 

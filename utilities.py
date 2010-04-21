@@ -2,6 +2,7 @@
 
 import urllib2
 import re
+import htmlentitydefs
 from twisted.words.xish import domish
 
 class ElementParser(object):

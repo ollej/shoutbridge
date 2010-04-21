@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from externalshoutbox import *
+from messageshoutbox import *
 from twistedbridge import *
 from conf import Conf
 
@@ -16,7 +16,7 @@ def start_shoutbridge():
 #        from shoutbox import *
 #    else:
 #        print "Configured shoutbox type not supported:", cfg.shoutbox_type
-    sbox = ExternalShoutbox(cfg)
+    sbox = MessageShoutbox(cfg)
 
     # Setup xmpp bridge
 #    if cfg.bridge_type == "twisted":

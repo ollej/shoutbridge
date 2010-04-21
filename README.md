@@ -83,4 +83,7 @@ Some ideas for future development.
  * Dice Bot which can roll dice, e.g. "/dice 3d6" gives "Dice roll result: 12 (5 + 3 + 4)"
  * /me 
  * When time is the same as the current time, don't prepend time to message.
+ * If room hasn't been created when joining, accept default room configuration.
+ * Answer to presence requests from server, or whatever is necessary not to be disconnected.
+ * Add functionality to sendShout for MessageShoutbox
 

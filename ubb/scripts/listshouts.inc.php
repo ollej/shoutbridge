@@ -8,7 +8,7 @@
 //	Both Windows and Unix versions are available on the PHP website,
 //	http://www.php.net/
 
-f(!defined("UBB_MAIN_PROGRAM")) exit;
+if(!defined("UBB_MAIN_PROGRAM")) exit;
 define('NO_WRAPPER',1);
 
 function page_listshouts_gpc () {
@@ -36,7 +36,7 @@ function page_listshouts_run () {
     $shouts =& $shout->readShouts($start);
     if ($format == 'json') {
 	    header('Content-type: application/json; charset=utf-8');
-        echo encode_json($shouts);
+        echo json_encode($shouts);
     } else {
 	    header('Content-type: text/xml; charset=utf-8');
         echo $shout->createShoutXml($shouts);

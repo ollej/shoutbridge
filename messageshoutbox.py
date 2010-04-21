@@ -70,7 +70,7 @@ class MessageShoutbox(Shoutbox):
         for e in dom.elements():
             if e.name == "message":
                 shout = self.parseShout(e)
-                if shout.id > oldershouts:
+                if shout.id > oldershouts and shout.userid is not 1:
                     shouts.append(shout)
                     if shout.id > self.latest_shout:
                         self.latest_shout = shout.id

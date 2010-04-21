@@ -53,7 +53,7 @@ class MessageShoutbox(Shoutbox):
             "secret": self.cfg.secret,
             "user_id": user.id,
             "user_name": user.name,
-            "message": message.encode('latin-1', 'xmlcharrefreplace'),
+            "message": message.encode('utf-8', 'xmlcharrefreplace'),
         })
         result = loadUrl(self.base_url, params)
         if result == "OK":

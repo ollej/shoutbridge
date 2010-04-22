@@ -68,6 +68,10 @@ def unescape(text):
         return text # leave as is
     return re.sub("&#?\w+;", fixup, text)
 
+def getElStr(el):
+    return unicode(unescape(el.__str__().strip()))
+
+
 if __name__ == '__main__':
     xml = loadUrl('http://www.rollspel.nu/forum/ubbthreads.php?ubb=listshouts')
     parser = ElementParser()

@@ -30,7 +30,7 @@ class MessageShoutbox(Shoutbox):
         """
         if start < 0:
             start = self.latest_shout
-        print "Loading shouts, with start:", start
+        #print "Loading shouts, with start:", start
         shoutdata = self.loadShouts(start)
         shouts = self.parseShouts(shoutdata)
         return shouts
@@ -38,13 +38,13 @@ class MessageShoutbox(Shoutbox):
     def loadShouts(self, start):
         params = urlencode({
             "ubb": "listshouts",
-            "shout": start,
+            "start": start,
         })
         shoutxml = loadUrl(self.base_url, params)
         return shoutxml
 
     def parseShout(self, s):
-        return Shout(s['id'], s['from_id'], s['from'], self._getElStr(s.body), s['time'])
+        return Shout(s['id'], s['from_id'], s['from'], getElStr(s.body), s['time'])
 
     def sendShout(self, user, message):
         params = urlencode({
@@ -59,9 +59,6 @@ class MessageShoutbox(Shoutbox):
         if result == "OK":
             return True
         return False
-
-    def _getElStr(self, el):
-        return unicode(unescape(el.__str__().strip()))
 
     def parseShouts(self, shoutxml):
         dom = self.parser(shoutxml)

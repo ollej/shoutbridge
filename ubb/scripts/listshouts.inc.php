@@ -131,6 +131,7 @@ class ShoutList {
         $shouts = array();
         while($shout = $dbh->fetch_array($sth, MYSQL_ASSOC)) {
             $shout['body'] = $this->replaceGraemlins(str_replace("&lt;br&gt;", "<br />", $shout['body']));
+            $shout['body'] = preg_replace("#<a href='([^']*)' title='([^']*)' nofollow='nofollow' target='_blank'>\[LÄNK\]</a>#", "$2", $shout['body']);
             $shouts[] = $shout;
         } // end while
 

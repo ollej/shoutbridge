@@ -86,4 +86,4 @@ Some ideas for future development.
  * If room hasn't been created when joining, accept default room configuration.
  * Answer to presence requests from server, or whatever is necessary not to be disconnected.
  * Add functionality to sendShout for MessageShoutbox
-
+ * Links don't show in relayed shoutbox messages.

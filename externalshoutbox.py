@@ -52,7 +52,7 @@ class MessageShoutbox(Shoutbox):
     def loadShouts(self, start):
         params = urlencode({
             "ubb": "getshouts",
-            "shout": start,
+            "start": start,
         })
         shoutxml = loadUrl(self.base_url, params)
         #shoutxml = unicode(shoutxml, 'utf-8').encode('ascii', 'xmlcharrefreplace')

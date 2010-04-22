@@ -120,7 +120,7 @@ class ShoutList {
         $shout_limit = 30;
         $shouts = array();
         $query = "
-            SELECT	s.SHOUT_ID as id, s.USER_ID as user_id, u.USER_DISPLAY_NAME as username, s.SHOUT_TEXT as body, s.SHOUT_TIME as time
+            SELECT	s.SHOUT_ID as id, s.USER_ID as user_id, s.SHOUT_DISPLAY_NAME as username, s.SHOUT_TEXT as body, s.SHOUT_TIME as time
             FROM	{$config['TABLE_PREFIX']}SHOUT_BOX as s, {$config['TABLE_PREFIX']}USERS as u
             WHERE	u.USER_ID = s.USER_ID AND s.SHOUT_ID > ?
             ORDER BY s.SHOUT_ID ASC

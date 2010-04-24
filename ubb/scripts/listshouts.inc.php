@@ -77,6 +77,24 @@ class ShoutList {
         if ($post['secret'] != $this->pass) {
             echo "ERROR: INCORRECT PASSWORD";
         }
+
+        // Get username and userid based on JID
+        if (strpos($post['user_name'], '@') !== false) {
+            $query = "
+                SELECT u.USER_ID, u.USER_DISPLAY_NAME 
+                FROM   {$config['TABLE_PREFIX']}USERS u, {$config['TABLE_PREFIX']}USER_PROFILE p
+                WHERE  u.USER_ID = p.USER_ID
+                AND    p.USER_EXTRA_FIELD_1 = ?
+                ORDER BY u.USER_ID ASC
+                LIMIT 1
+            ";
+            $sth = $dbh->do_placeholder_query($query, array($post['user_name']), __LINE__, __FILE__);
+            while ($row = $dbh->fetch_array($sth)) {
+                $post['user_id'] = $row[0];
+                $post['user_name'] = $row[1];
+            }
+        }
+
         // user_id, user_name, message
         $query = "
             INSERT INTO {$config['TABLE_PREFIX']}SHOUT_BOX 
@@ -122,7 +140,7 @@ class ShoutList {
         $query = "
             SELECT	s.SHOUT_ID as id, s.USER_ID as user_id, s.SHOUT_DISPLAY_NAME as username, s.SHOUT_TEXT as body, s.SHOUT_TIME as time
             FROM	{$config['TABLE_PREFIX']}SHOUT_BOX as s, {$config['TABLE_PREFIX']}USERS as u
-            WHERE	u.USER_ID = s.USER_ID AND s.SHOUT_ID > ?
+            WHERE	u.USER_ID = s.USER_ID AND s.USER_IP <> '127.0.0.1' AND s.SHOUT_ID > ?
             ORDER BY s.SHOUT_ID ASC
             LIMIT	$shout_limit
         ";

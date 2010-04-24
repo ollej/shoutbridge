@@ -35,10 +35,14 @@ def loadUrl(url, params=None, method="GET"):
         url = url + "?%s" % params
         params = None
     print "Loading URL:", url
-    f = urllib2.urlopen(url, params)
-    s = f.read()
-    f.close()
-    s = unicode(s, 'utf-8')
+    try:
+        f = urllib2.urlopen(url, params)
+        s = f.read()
+        f.close()
+        s = unicode(s, 'utf-8')
+    except urllib2.URLError:
+        # For now, just ignore URL errors and return empty string.
+        return ""
     return s
 
 ##

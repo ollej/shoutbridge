@@ -7,6 +7,9 @@ from twisted.words.xish import domish, xpath
 from twisted.words.protocols.jabber import xmlstream, client, jid
 from shoutbox import *
 from utilities import *
+import platform
+from time import time
+from datetime import datetime, date
 
 class BridgeError(Exception):
     "Unknown Bridge Error"
@@ -16,6 +19,12 @@ class BridgeConnectionError(BridgeError):
 
 class BridgeAuthenticationError(BridgeError):
     "Could not authenticate."
+
+class BridgeWrongTypeError(BridgeError):
+    "Incorrect type."
+
+class BridgeMissingAttributeError(BridgeError):
+    "A required attribute is missing."
 
 class XMPPClientConnector(SRVConnector):
     def __init__(self, reactor, domain, factory):
@@ -31,6 +40,8 @@ class XMPPClientConnector(SRVConnector):
         return host, port
 
 class TwistedBridge(object):
+    client_name = "Shoutbridge"
+    client_version = "0.1"
     login = ""
     passwd = ""
     room = ""
@@ -43,6 +54,7 @@ class TwistedBridge(object):
     roster = dict()
     cfg = None
     current_nick = None
+    last_time = 0
 
     def __init__(self, sbox, cfg):
         """
@@ -58,6 +70,7 @@ class TwistedBridge(object):
         self.roomjid = cfg.xmpp_room
         self.cfg = cfg
         self.current_nick = self.resource
+        self.update_last_time()
 
         # Make an XMPP connection
         self.make_connection()
@@ -76,10 +89,10 @@ class TwistedBridge(object):
         connector.connect()
 
     def rawDataIn(self, buf):
-        print "RECV: %s" % unicode(buf, 'utf-8') #.encode('ascii', 'replace')
+        print "RECV: %s" % unicode(buf, 'utf-8')
 
     def rawDataOut(self, buf):
-        print "SEND: %s" % unicode(buf, 'utf-8') #.encode('ascii', 'replace')
+        print "SEND: %s" % unicode(buf, 'utf-8')
 
     def connected(self, xs):
         print 'Connected.'
@@ -93,6 +106,7 @@ class TwistedBridge(object):
         xs.addObserver("/message[@type='groupchat']", self.handle_message)
         #xs.addObserver("/message[@type='chat']", self.handle_message)
         xs.addObserver("/presence", self.handle_presence)
+        xs.addObserver("/iq", self.handle_iq)
 
     def disconnected(self, xs):
         print 'Disconnected.'
@@ -122,12 +136,172 @@ class TwistedBridge(object):
         # TODO: Answer room configuration request.
         # TODO: Wait until server responds on room join before continuing.
 
-        #presence = domish.Element((None, 'presence'))
-        #presence['from'] = self.login + '/' + self.cfg.xmpp_resource
-        #presence['to'] = room
-        #presence.addElement('x', u'http://jabber.org/protocol/muc')
-        #print "Joining room:", presence.toXml()
-        #self.xmlstream.send(presence)
+    def add_to_roster(self, nick, jid):
+        try:
+            user = self.shoutbox.getUserByJid(jid)
+        except ShoutboxUserNotFoundError:
+            # Default to anonymous user with JID as username
+            user = User(1, jid, '')
+        self.roster[nick] = user
+
+    def get_from_roster(self, nick, jid):
+        if not nick in self.roster:
+            self.add_to_roster(nick, jid)
+        return self.roster[nick]
+
+    def get_os_info(self):
+        return str(platform.platform())
+
+    def strip_tags(self, s):
+        """
+        Strip html tags from s
+        """
+        # this list is neccesarry because chk() would otherwise not know
+        # that intag in strip_tags() is ment, and not a new intag variable in chk().
+        intag = [False]
+
+        def chk(c):
+            if intag[0]:
+                intag[0] = (c != '>')
+                return False
+            elif c == '<':
+                intag[0] = True
+                return False
+            return True
+
+        return ''.join(c for c in s if chk(c))
+
+    def clean_message(self, text):
+        """
+        Clean text of unwanted content.
+        """
+        text = self.strip_tags(text)
+        return text
+
+    def update_last_time(self):
+        self.last_time = time()
+
+    def get_last_activity(self):
+        return str(int(time() - self.last_time))
+
+    def logprint(self, *message):
+        print "--------------------------------------------------------------"
+        print datetime.now().strftime(self.cfg.log_date_format), '-',
+        for m in message:
+            print m,
+        print "\n--------------------------------------------------------------"
+
+    def change_nick(self, nick):
+        if self.cfg.show_nick == "True":
+            return
+        if nick and nick != self.current_nick:
+            self.current_nick = nick
+            self.send_presence(
+                to=self.room + '/' + nick
+            )
+
+    def handle_iq(self, iq):
+        """
+        Handles incoming IQ stanzas and dispatches to specific handle methods.
+        """
+        frm = iq.getAttribute('from')
+        to = iq.getAttribute('to')
+        id = iq.getAttribute('id')
+        type = iq.getAttribute('type')
+        self.lookup_iq_method(type)(frm=frm, to=to, id=id, query=iq.query)
+
+    def lookup_iq_method(self, command):
+        return getattr(self, 'handle_iq_' + command.upper(), None) or self.handle_iq_DEFAULT
+
+    def handle_iq_DEFAULT(self, frm=None, to=None, id=None, query=None):
+        self.logprint("Unknown incoming IQ stanza:", frm, to, id, query)
+
+    def handle_iq_GET(self, frm=None, to=None, id=None, query=None):
+        if query.defaultUri == 'jabber:iq:last':
+            self.send_iq_last(to=frm, id=id)
+        elif query.defaultUri == 'jabber:iq:version':
+            self.send_iq_version(to=frm, id=id)
+        elif query.defaultUri == 'http://jabber.org/protocol/disco#info':
+            self.handle_iq_DISCO(frm=frm, to=to, id=id, query=query)
+        else:
+            # Default to sending back error for unknown get iq.
+            self.send_iq_error(to=frm, id=id, query=query)
+
+    def handle_iq_SET(self, frm=None, to=None, id=None, query=None):
+        """
+        IQ set not yet implemented, return error.
+        """
+        self.send_iq_error(to=frm, id=id, query=query)
+
+    def handle_iq_ERROR(self, frm=None, to=None, id=None, query=None):
+        """
+        IQ error stanza is just logged.
+        """
+        self.logprint("Received IQ error stanza:", frm, id, query.toXml())
+
+    def send_iq_version(self, frm=None, to=None, id=None):
+        """
+        Returns iq stanza with client and system information.
+        """
+        querynode = domish.Element(('jabber:iq:version', 'query'))
+        querynode.addElement('name', content=self.client_name)
+        querynode.addElement('version', content=self.client_version)
+        querynode.addElement('os', content=self.get_os_info())
+        self.send_iq('result', id, to=to, children=[querynode])
+
+    def send_iq_last(self, to=None, id=None):
+        """
+        Return IQ stanza with information on seconds since last client usage.
+        """
+        query = domish.Element(('jabber:iq:last', 'query'))
+        query['seconds'] = self.get_last_activity()
+        self.send_iq('result', id, to=to, children=[query])
+
+    def send_iq_disco(self, frm=None, to=None, id=None, query=None):
+        """
+        Send IQ stanza with discovery information.
+        """
+        resultquery = domish.Element(('http://jabber.org/protocol/disco#info', 'query'))
+        feature = domish.Element((None, 'feature'))
+        feature['var'] = 'jabber:iq:last'
+        resultquery.addChild(feature)
+        self.send_iq("result", id, to=to, children=[resultquery])
+
+    def send_iq_error(self, to=None, id=None, type=None, query=None):
+        """
+        Build and send IQ error stanza.
+        """
+        errornode = domish.Element((None, 'error'))
+        if not type:
+            type = 'cancel'
+        if type not in ['cancel', 'continue', 'modify', 'auth', 'wait']:
+            raise BridgeWrongTypeError
+        errornode['type'] = type
+        errornode.addElement('feature-not-implemented', defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas')
+        if reason:
+            errornode.addElement('text', defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas', content=reason)
+        self.send_iq("error", id, to=to, children=[query, errornode])
+
+    def send_iq(self, type, id, frm=None, to=None, children=None, querytype=None):
+        """
+        Sends an IQ stanza on the xml stream.
+        """
+        if type not in ['set', 'get', 'result', 'error']:
+            raise BridgeWrongTypeError
+
+        iq = domish.Element((None, 'iq'))
+        iq['type'] = type
+        if not frm:
+            frm = self.login + '/' + self.current_nick
+        iq['from'] = frm
+        iq['id'] = id
+        if to:
+            iq['to'] = to
+        if children:
+            for child in children:
+                iq.addChild(child)
+        self.logprint("Sending iq stanza:\n", iq.toXml())
+        self.xmlstream.send(iq)
 
     def handle_presence(self, pres):
         if not pres:
@@ -159,7 +333,7 @@ class TwistedBridge(object):
             code = pres.error['code']
         if code == "409":
             # Nick taken, default to original nick.
-            self.update_nick(self.resource)
+            self.change_nick(self.resource)
 
     def handle_presence_UNAVAILABLE(self, pres, nick=None, **kwargs):
         if nick in self.roster:
@@ -183,157 +357,6 @@ class TwistedBridge(object):
             to=fromjid,
         )
 
-    def handle_presence_old(self, pres):
-        type = pres.getAttribute('type')
-        fromstr = pres.getAttribute('from')
-        (login, sep, nick) = fromstr.rpartition('/')
-        fromjid = jid.JID(fromstr)
-        # FIXME: This is silly, I need xpaths working.
-        for e in pres.elements():
-            if e.name == 'x':
-                for f in e.elements():
-                    if f.name == 'item':
-                        if f.hasAttribute('jid'):
-                            fromjid = jid.JID(f['jid'])
-                            break
-        fromstr = fromjid.user + '@' + fromjid.host
-        if type == 'unavailable':
-            if nick in self.roster:
-                del self.roster[nick]
-                print "Removing from roster:", nick
-        else:
-            if nick not in self.roster:
-                self.add_to_roster(nick, fromstr)
-                print "Adding to roster:", nick
-        print "Roster: ", str(self.roster)
-
-    def add_to_roster(self, nick, jid):
-        try:
-            user = self.shoutbox.getUserByJid(jid)
-        except ShoutboxUserNotFoundError:
-            # Default to anonymous user with JID as username
-            user = User(1, jid, '')
-        self.roster[nick] = user
-
-    def get_from_roster(self, nick, jid):
-        if not nick in self.roster:
-            self.add_to_roster(nick, jid)
-        return self.roster[nick]
-
-    def handle_message(self, mess):
-        """
-        Handle an XMPP message.
-        """
-        if mess.x and mess.x.defaultUri:
-            print mess.x.defaultUri
-            # Check if message is delayed.
-            if mess.x.defaultUri in ['jabber:x:delay', 'urn:xmpp:delay']:
-                print "--------------------------------------------------------------"
-                print "Skipping delayed message."
-                print "--------------------------------------------------------------"
-                return
-
-            # Ignore status message about anonymous room.
-            if mess.x.defaultUri == 'http://jabber.org/protocol/muc#user':
-                if mess.x.status and mess.x.status.getAttribute('code') == '100':
-                    print "--------------------------------------------------------------"
-                    print "Anonymous room message, skipping."
-                    print "--------------------------------------------------------------"
-                    return
-
-        fromstr = mess.getAttribute('from')
-        fromjid = jid.JID(fromstr)
-
-        # Groupchat messages have different from jid
-        if mess['type'] == 'groupchat':
-            (fromstr, sep, nick) = fromstr.rpartition('/')
-        else:
-            nick = fromjid.user + '@' + fromjid.host
-
-        # Skip if message is sent by shoutbridge
-        # TODO: Not foolproof, need better way to check who sent message.
-        print "Nick is", nick
-        #if nick == self.resource or nick == self.current_nick:
-        fromuser = self.roster.get(nick)
-        #print "Fromuser:", fromuser
-        #print "fromuser.id", fromuser.id
-        #print "fromuser.name", fromuser.name
-        #print "fromuser.jid:", fromuser.jid
-        #print "self.login:", self.login
-        #print "self.resource:", self.resource
-        #print "fromstr:", fromstr
-        #print "current_nick:", self.current_nick
-        if fromuser and fromuser.name == self.login or nick == self.current_nick:
-            print "--------------------------------------------------------------"
-            print "Got message from myself, skipping..."
-            print "--------------------------------------------------------------"
-            return
-
-        # Get message body.
-        body = getElStr(mess.body)
-
-        # Send message.
-        if body and mess['type'] in ['message', 'chat', 'groupchat', None]: 
-            user = self.get_from_roster(nick, fromstr)
-            print "Relaying message to shoutbox:", user, user.id, user.jid, user.name, body
-            self.shoutbox.sendShout(user, body)
-        else:
-            print "--------------------------------------------------------------"
-            print "Unknown message:", mess.toXml()
-            print "--------------------------------------------------------------"
-
-    def strip_tags(self, s):
-        """
-        Strip html tags from s
-        """
-        # this list is neccesarry because chk() would otherwise not know
-        # that intag in strip_tags() is ment, and not a new intag variable in chk().
-        intag = [False]
-
-        def chk(c):
-            if intag[0]:
-                intag[0] = (c != '>')
-                return False
-            elif c == '<':
-                intag[0] = True
-                return False
-            return True
-
-        return ''.join(c for c in s if chk(c))
-
-    def clean_message(self, text):
-        """
-        Clean text of unwanted content.
-        """
-        text = self.strip_tags(text)
-        return text
-
-    def update_nick(self, nick):
-        if self.cfg.show_nick == "True":
-            return
-        if nick and nick != self.current_nick:
-            self.current_nick = nick
-            self.send_presence(
-                to=self.room + '/' + nick
-            )
-
-    def send_message(self, tojid, text, nick=None):
-        """
-        Send an text as XMPP message to tojid
-        """
-        try:
-            if nick:
-                self.update_nick(nick)
-            message = domish.Element((None, 'message'))
-            message['to'] = tojid
-            message['from'] = self.login + '/' + nick
-            message['type'] = 'groupchat'
-            message.addElement('body', content=text)
-            id = self.xmlstream.send(message)
-            print 'Sent message with id', id
-        except UnicodeDecodeError:
-            print "Unicode Decode Error: ", text
-
     def send_presence(self, xmlns=None, type=None, status=None, show=None,
                      frm=None, to=None, children=None):
         presence = domish.Element((xmlns, 'presence'))
@@ -350,12 +373,73 @@ class TwistedBridge(object):
         if children:
             for k, v in children.items():
                 presence.addElement(k, content=v)
+        self.logprint("Sending presence stanza:\n", presence.toXml())
         self.xmlstream.send(presence)
 
+    def handle_message(self, mess):
+        """
+        Handle an XMPP message.
+        """
+        if mess.x and mess.x.defaultUri:
+            print mess.x.defaultUri
+            # Check if message is delayed.
+            if mess.x.defaultUri in ['jabber:x:delay', 'urn:xmpp:delay']:
+                self.logprint("Skipping delayed message.")
+                return
+
+            # Ignore status message about anonymous room.
+            if mess.x.defaultUri == 'http://jabber.org/protocol/muc#user':
+                if mess.x.status and mess.x.status.getAttribute('code') == '100':
+                    self.logprint("Anonymous room message, skipping.")
+                    return
+
+        fromstr = mess.getAttribute('from')
+        fromjid = jid.JID(fromstr)
+
+        # Groupchat messages have different from jid
+        if mess['type'] == 'groupchat':
+            (fromstr, sep, nick) = fromstr.rpartition('/')
+        else:
+            nick = fromjid.user + '@' + fromjid.host
+
+        # Skip if message is sent by shoutbridge
+        print "Nick is", nick
+        fromuser = self.roster.get(nick)
+        if fromuser and fromuser.name == self.login or nick == self.current_nick:
+            self.logprint("Got message from myself, skipping...")
+            return
+
+        # Get message body.
+        body = getElStr(mess.body)
+
+        # Send message.
+        if body and mess['type'] in ['message', 'chat', 'groupchat', None]: 
+            user = self.get_from_roster(nick, fromstr)
+            print "Relaying message to shoutbox:", user, user.id, user.jid, user.name, body
+            self.shoutbox.sendShout(user, body)
+        else:
+            self.logprint("Unknown message:", mess.toXml())
+
+    def send_message(self, tojid, text, nick=None):
+        """
+        Send an text as XMPP message to tojid
+        """
+        try:
+            if nick:
+                self.change_nick(nick)
+            message = domish.Element((None, 'message'))
+            message['to'] = tojid
+            message['from'] = self.login + '/' + nick
+            message['type'] = 'groupchat'
+            message.addElement('body', content=text)
+            self.logprint("Sending message stanza:\n", message.toXml())
+            id = self.xmlstream.send(message)
+            self.update_last_time()
+            print 'Sent message with id', id
+        except UnicodeDecodeError:
+            print "Unicode Decode Error: ", text
+
     def process_shoutbox_messages(self):
-        if not self.xmlstream:
-            return False
-        self.send_presence(show="chat", status=self.cfg.xmpp_status)
         if not self.xmlstream:
             return False
         msgs = self.shoutbox.readShouts()

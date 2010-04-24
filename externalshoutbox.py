@@ -34,6 +34,13 @@ class MessageShoutbox(Shoutbox):
     def __del__(self):
         pass
 
+    def logprint(self, *message):
+        print "--------------------------------------------------------------"
+        print datetime.now().strftime(self.cfg.log_date_format), '-',
+        for m in message:
+            print m,
+        print "\n--------------------------------------------------------------"
+
     def readShouts(self, start=-1):
         """
         Read shoutbox messages, all or newer than "start".
@@ -76,12 +83,12 @@ class MessageShoutbox(Shoutbox):
         oldershouts = self.latest_shout
         for e in dom.elements():
             if e.name == 'firstshout':
-                self.first_shout = self._getElStr(e)
+                self.first_shout = getElStr(e)
             elif e.name == "lastshout":
-                self.latest_shout = self._getElStr(e)
+                self.latest_shout = getElStr(e)
             elif e.name == "shouts":
                 for f in e.elements('', 'shoutdata'):
-                    shout = self.parseShout(self._getElStr(f))
+                    shout = self.parseShout(getElStr(f))
                     if shout and shout['id'] > oldershouts:
                         shouts.append(shout)
         return shouts

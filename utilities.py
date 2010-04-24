@@ -34,7 +34,6 @@ def loadUrl(url, params=None, method="GET"):
     if params and method == "GET":
         url = url + "?%s" % params
         params = None
-    print "Loading URL:", url
     try:
         f = urllib2.urlopen(url, params)
         s = f.read()

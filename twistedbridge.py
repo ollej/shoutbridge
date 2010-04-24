@@ -26,6 +26,9 @@ class BridgeWrongTypeError(BridgeError):
 class BridgeMissingAttributeError(BridgeError):
     "A required attribute is missing."
 
+class BridgeNoXmlStream(BridgeError):
+    "No active xml stream available."
+
 class XMPPClientConnector(SRVConnector):
     def __init__(self, reactor, domain, factory):
         SRVConnector.__init__(self, reactor, 'xmpp-client', domain, factory)
@@ -42,6 +45,7 @@ class XMPPClientConnector(SRVConnector):
 class TwistedBridge(object):
     client_name = "Shoutbridge"
     client_version = "0.1"
+    client_supported_features = ['jabber:iq:last', 'jabber:iq:version']
     login = ""
     passwd = ""
     room = ""
@@ -98,6 +102,9 @@ class TwistedBridge(object):
         print 'Connected.'
         self.xmlstream = xs
 
+        # Consider last activity time to be when connected.
+        self.update_last_time()
+
         # Log all traffic
         xs.rawDataInFn = self.rawDataIn
         xs.rawDataOutFn = self.rawDataOut
@@ -115,7 +122,7 @@ class TwistedBridge(object):
     def authenticated(self, xs):
         print "Authenticated."
         # Send initial presence
-        self.send_presence(xmlns='jabber:client', show="chat", status=self.cfg.xmpp_status)
+        self.send_presence_status()
 
         # Connect to conference room
         self.join_room(self.roomjid)
@@ -200,6 +207,12 @@ class TwistedBridge(object):
                 to=self.room + '/' + nick
             )
 
+    def send_stanza(self, stanza):
+        if not self.xmlstream:
+            raise BridgeNoXmlStream
+        self.logprint("Sending stanza:\n", stanza.toXml())
+        self.xmlstream.send(stanza)
+
     def handle_iq(self, iq):
         """
         Handles incoming IQ stanzas and dispatches to specific handle methods.
@@ -226,6 +239,12 @@ class TwistedBridge(object):
         else:
             # Default to sending back error for unknown get iq.
             self.send_iq_error(to=frm, id=id, query=query)
+
+    def handle_iq_RESULT(self, frm=None, to=None, id=None, query=None):
+        """
+        IQ result is ignored.
+        """
+        pass
 
     def handle_iq_SET(self, frm=None, to=None, id=None, query=None):
         """
@@ -262,12 +281,13 @@ class TwistedBridge(object):
         Send IQ stanza with discovery information.
         """
         resultquery = domish.Element(('http://jabber.org/protocol/disco#info', 'query'))
-        feature = domish.Element((None, 'feature'))
-        feature['var'] = 'jabber:iq:last'
-        resultquery.addChild(feature)
+        for f in self.client_supported_features:
+            feature = domish.Element((None, 'feature'))
+            feature['var'] = f
+            resultquery.addChild(feature)
         self.send_iq("result", id, to=to, children=[resultquery])
 
-    def send_iq_error(self, to=None, id=None, type=None, query=None):
+    def send_iq_error(self, to=None, id=None, type=None, query=None, condition=None):
         """
         Build and send IQ error stanza.
         """
@@ -277,7 +297,9 @@ class TwistedBridge(object):
         if type not in ['cancel', 'continue', 'modify', 'auth', 'wait']:
             raise BridgeWrongTypeError
         errornode['type'] = type
-        errornode.addElement('feature-not-implemented', defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas')
+        if not condition:
+            condition = 'feature-not-implemented'
+        errornode.addElement(condition, defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas')
         if reason:
             errornode.addElement('text', defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas', content=reason)
         self.send_iq("error", id, to=to, children=[query, errornode])
@@ -300,8 +322,7 @@ class TwistedBridge(object):
         if children:
             for child in children:
                 iq.addChild(child)
-        self.logprint("Sending iq stanza:\n", iq.toXml())
-        self.xmlstream.send(iq)
+        self.send_stanza(iq)
 
     def handle_presence(self, pres):
         if not pres:
@@ -357,8 +378,23 @@ class TwistedBridge(object):
             to=fromjid,
         )
 
+    def send_presence_status(self, show=None, status=None):
+        """
+        Convenience method to send status information.
+        """
+        if status:
+            self.cfg.xmpp_status = status
+        else:
+            status = self.cfg.xmpp_status
+        if not show:
+            show = "chat"
+        self.send_presence(xmlns='jabber:client', show=show, status=status)
+
     def send_presence(self, xmlns=None, type=None, status=None, show=None,
                      frm=None, to=None, children=None):
+        """
+        Build and send presence stanza.
+        """
         presence = domish.Element((xmlns, 'presence'))
         if frm:
             presence['from'] = frm
@@ -373,15 +409,13 @@ class TwistedBridge(object):
         if children:
             for k, v in children.items():
                 presence.addElement(k, content=v)
-        self.logprint("Sending presence stanza:\n", presence.toXml())
-        self.xmlstream.send(presence)
+        self.send_stanza(presence)
 
     def handle_message(self, mess):
         """
         Handle an XMPP message.
         """
         if mess.x and mess.x.defaultUri:
-            print mess.x.defaultUri
             # Check if message is delayed.
             if mess.x.defaultUri in ['jabber:x:delay', 'urn:xmpp:delay']:
                 self.logprint("Skipping delayed message.")
@@ -415,7 +449,8 @@ class TwistedBridge(object):
         # Send message.
         if body and mess['type'] in ['message', 'chat', 'groupchat', None]: 
             user = self.get_from_roster(nick, fromstr)
-            print "Relaying message to shoutbox:", user, user.id, user.jid, user.name, body
+            self.logprint("Relaying message to shoutbox:", user.id, user.jid, user.name, "\n", body)
+            self.update_last_time()
             self.shoutbox.sendShout(user, body)
         else:
             self.logprint("Unknown message:", mess.toXml())
@@ -432,16 +467,21 @@ class TwistedBridge(object):
             message['from'] = self.login + '/' + nick
             message['type'] = 'groupchat'
             message.addElement('body', content=text)
-            self.logprint("Sending message stanza:\n", message.toXml())
-            id = self.xmlstream.send(message)
             self.update_last_time()
-            print 'Sent message with id', id
+            self.send_stanza(message)
         except UnicodeDecodeError:
             print "Unicode Decode Error: ", text
 
     def process_shoutbox_messages(self):
         if not self.xmlstream:
             return False
+
+        # Emulate user being active
+        self.update_last_time()
+        self.send_presence_status()
+
+        # Read shoutbox messages.
+        # TODO: Should possibly use E-tag and options to see if anything has changed.
         msgs = self.shoutbox.readShouts()
         for m in msgs:
             text = self.clean_message(m.text)

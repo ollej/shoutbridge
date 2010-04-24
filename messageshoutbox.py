@@ -10,6 +10,8 @@ import htmlentitydefs
 from shoutbox import *
 from utilities import *
 import xml.parsers.expat
+import time
+from datetime import datetime, date
 
 class MessageShoutbox(Shoutbox):
     latest_shout = 0
@@ -23,6 +25,13 @@ class MessageShoutbox(Shoutbox):
 
     def __del__(self):
         pass
+
+    def logprint(self, *message):
+        print "--------------------------------------------------------------"
+        print datetime.now().strftime(self.cfg.log_date_format), '-',
+        for m in message:
+            print m,
+        print "\n--------------------------------------------------------------"
 
     def readShouts(self, start=-1):
         """
@@ -40,6 +49,7 @@ class MessageShoutbox(Shoutbox):
             "ubb": "listshouts",
             "start": start,
         })
+        self.logprint("Loading shouts:\n", self.base_url, params)
         shoutxml = loadUrl(self.base_url, params)
         return shoutxml
 
@@ -55,6 +65,7 @@ class MessageShoutbox(Shoutbox):
             "user_name": user.name,
             "message": message.encode('utf-8', 'xmlcharrefreplace'),
         })
+        self.logprint("Sending shout:\n", self.base_url, params)
         result = loadUrl(self.base_url, params)
         if result == "OK":
             return True

@@ -22,6 +22,7 @@ class MessageShoutbox(Shoutbox):
         self.parser = ElementParser()
         self.cfg = config
         self.base_url = config.base_url
+        self.latest_shout = self.cfg.latest_shout
 
     def __del__(self):
         pass
@@ -33,13 +34,12 @@ class MessageShoutbox(Shoutbox):
             print m,
         print "\n--------------------------------------------------------------"
 
-    def readShouts(self, start=-1):
+    def readShouts(self, start=None):
         """
         Read shoutbox messages, all or newer than "start".
         """
-        if start < 0:
+        if start is None:
             start = self.latest_shout
-        #print "Loading shouts, with start:", start
         shoutdata = self.loadShouts(start)
         shouts = self.parseShouts(shoutdata)
         return shouts

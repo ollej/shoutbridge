@@ -126,7 +126,7 @@ class TwistedBridge(object):
     def authenticated(self, xs):
         print "Authenticated."
         # Send initial presence
-        self.send_presence_status()
+        #self.send_presence_status()
 
         # Connect to conference room
         self.join_room(self.roomjid)
@@ -228,7 +228,8 @@ class TwistedBridge(object):
 
     def send_stanza(self, stanza):
         if not self.xmlstream:
-            raise BridgeNoXmlStream
+            self.logprint("Stanza not sent, no xml stream:\n", stanza.toXml())
+            return False
         self.logprint("Sending stanza:\n", stanza.toXml())
         self.xmlstream.send(stanza)
 
@@ -487,13 +488,17 @@ class TwistedBridge(object):
         except UnicodeDecodeError:
             print "Unicode Decode Error: ", text
 
+    def ping(self):
+        """
+        Emulate user being active by sending presence status to server and
+        updating last active time.
+        """
+        self.update_last_time()
+        self.send_presence_status()
+
     def process_shoutbox_messages(self):
         if not self.xmlstream:
             return False
-
-        # Emulate user being active
-        self.update_last_time()
-        self.send_presence_status()
 
         # Read shoutbox messages.
         # TODO: Should possibly use E-tag and options to see if anything has changed.
@@ -516,6 +521,8 @@ class TwistedBridge(object):
             # Send messages from shoutbox every few seconds
             l = task.LoopingCall(self.process_shoutbox_messages)
             l.start(float(self.cfg.loop_time))
+            l2 = task.LoopingCall(self.ping)
+            l2.start(60.0)
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:

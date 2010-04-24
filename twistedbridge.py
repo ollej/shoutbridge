@@ -92,6 +92,10 @@ class TwistedBridge(object):
         connector = XMPPClientConnector(reactor, self.jid.host, f)
         connector.connect()
 
+    def close_connection(self):
+        self.send_presence(type="unavailable", reason="Quitting...")
+        self.xmlstream.sendFooter()
+
     def rawDataIn(self, buf):
         print "RECV: %s" % unicode(buf, 'utf-8')
 
@@ -144,12 +148,23 @@ class TwistedBridge(object):
         # TODO: Wait until server responds on room join before continuing.
 
     def add_to_roster(self, nick, jid):
+        if nick in self.roster:
+            return self.roster[nick]
         try:
             user = self.shoutbox.getUserByJid(jid)
         except ShoutboxUserNotFoundError:
             # Default to anonymous user with JID as username
             user = User(1, jid, '')
         self.roster[nick] = user
+        self.logprint("Adding to roster:", nick)
+        return user
+
+    def delete_from_roster(self, nick):
+        if nick in self.roster:
+            del self.roster[nick]
+            self.logprint("Removing from roster:", nick)
+            return True
+        return False
 
     def get_from_roster(self, nick, jid):
         if not nick in self.roster:
@@ -201,11 +216,15 @@ class TwistedBridge(object):
     def change_nick(self, nick):
         if self.cfg.show_nick == "True":
             return
+        # If nick is unavailable, append "_" and try again.
+        if nick in self.roster:
+            return self.change_nick(nick + '_')
         if nick and nick != self.current_nick:
             self.current_nick = nick
             self.send_presence(
                 to=self.room + '/' + nick
             )
+            return nick
 
     def send_stanza(self, stanza):
         if not self.xmlstream:
@@ -357,14 +376,10 @@ class TwistedBridge(object):
             self.change_nick(self.resource)
 
     def handle_presence_UNAVAILABLE(self, pres, nick=None, **kwargs):
-        if nick in self.roster:
-            del self.roster[nick]
-            print "Removing from roster:", nick
+        self.delete_from_roster(nick)
 
     def handle_presence_AVAILABLE(self, pres, fromstr=None, nick=None, **kwargs):
-         if nick not in self.roster:
-            self.add_to_roster(nick, fromstr)
-            print "Adding to roster:", nick
+        user = self.add_to_roster(nick, fromstr)
 
     def handle_presence_UNSUBSCRIBE(self, pres, fromjid=None, **kwargs):
         self.send_presence(
@@ -504,6 +519,6 @@ class TwistedBridge(object):
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:
-            self.send_presence(type="unavailable", reason="Quitting...")
+            self.close_connection()
             print "Exiting..."
 

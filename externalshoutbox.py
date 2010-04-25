@@ -6,10 +6,11 @@ from datetime import date
 from datetime import datetime
 from twisted.words.xish import domish
 import htmlentitydefs
-from shoutbox import *
+
+from Shoutbox import *
 from utilities import *
 
-class MessageShoutbox(Shoutbox):
+class ExternalShoutbox(Shoutbox):
     latest_shout = 0
     first_shout = 0
     base_url = ""
@@ -33,13 +34,6 @@ class MessageShoutbox(Shoutbox):
 
     def __del__(self):
         pass
-
-    def logprint(self, *message):
-        print "--------------------------------------------------------------"
-        print datetime.now().strftime(self.cfg.log_date_format), '-',
-        for m in message:
-            print m,
-        print "\n--------------------------------------------------------------"
 
     def readShouts(self, start=-1):
         """
@@ -73,9 +67,6 @@ class MessageShoutbox(Shoutbox):
             for k, v in s.items():
                 s[k] = unescape(s[k])
             return s
-
-    def _getElStr(self, el):
-        return unicode(el.__str__().strip())
 
     def parseShouts(self, shoutxml):
         dom = self.parser(shoutxml)

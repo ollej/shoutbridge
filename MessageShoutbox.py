@@ -7,22 +7,20 @@ from datetime import date
 from datetime import datetime
 from twisted.words.xish import domish
 import htmlentitydefs
-from shoutbox import *
-from utilities import *
 import xml.parsers.expat
 import time
 from datetime import datetime, date
 
+from Shoutbox import *
+from utilities import *
+
 class MessageShoutbox(Shoutbox):
     latest_shout = 0
-    first_shout = 0
-    base_url = ""
 
-    def __init__(self, config):
+    def __init__(self, config=None):
         self.parser = ElementParser()
-        self.cfg = config
-        self.base_url = config.base_url
-        self.latest_shout = int(self.cfg.latest_shout)
+        if config:
+            self.setConfig(config)
 
     def __del__(self):
         pass
@@ -44,8 +42,8 @@ class MessageShoutbox(Shoutbox):
             "ubb": "listshouts",
             "start": start,
         })
-        self.logprint("Loading shouts:\n", "%s?%s" % (self.base_url, params))
-        shoutxml = loadUrl(self.base_url, params)
+        self.logprint("Loading shouts:\n", "%s?%s" % (self.cfg.base_url, params))
+        shoutxml = loadUrl(self.cfg.base_url, params)
         #self.logprint(shoutxml)
         return shoutxml
 
@@ -61,8 +59,8 @@ class MessageShoutbox(Shoutbox):
             "user_name": user.name,
             "message": message.encode('utf-8', 'xmlcharrefreplace'),
         })
-        self.logprint("Sending shout:\n", self.base_url, params)
-        result = loadUrl(self.base_url, params)
+        self.logprint("Sending shout:\n", self.cfg.base_url, params)
+        result = loadUrl(self.cfg.base_url, params)
         if result == "OK":
             return True
         return False

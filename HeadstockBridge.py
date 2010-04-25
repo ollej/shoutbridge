@@ -10,7 +10,10 @@ from bridge.common import XMPP_CLIENT_NS, XMPP_ROSTER_NS
 from headstock.client import AsyncClient
 import headstock
 
-class HeadstockBridge(object):
+from XmppBridge import *
+from Shoutbox import *
+
+class HeadstockBridge(XmppBridge):
     login = ""
     passwd = ""
     room = ""

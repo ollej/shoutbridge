@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import string
+import types
 from datetime import date
 from datetime import datetime
+from BridgeClass import *
 
 class ShoutboxError(Exception):
     "Unknown Shoutbox error"
@@ -9,7 +12,7 @@ class ShoutboxError(Exception):
 class ShoutboxUserNotFoundError(ShoutboxError):
     "Found no such user."
 
-class User:
+class User(BridgeClass):
     id = ""
     name = ""
     jid = ""
@@ -19,10 +22,7 @@ class User:
         self.name = name
         self.jid = jid
 
-    def __str__(self):
-        return "id: " + str(self.id) + " name: " + self.name + " jid: " + self.jid
-
-class Shout:
+class Shout(BridgeClass):
     """
     SHOUT_ID, USER_ID, SHOUT_DISPLAY_NAME, SHOUT_TEXT, SHOUT_TIME
     """
@@ -37,11 +37,8 @@ class Shout:
         else:
             self.time = d.strftime('%Y-%m-%d %H:%M')
 
-    def __str__(self):
-        return "id: " + str(self.id) + " userid: " + str(self.userid) + " time: " + str(self.time) # + " name: " + self.name #+ " text:\n" + str(self.text).decode('ascii', 'utf-8')
-        #return "id: " + str(self.id) + " userid: " + str(self.userid) + " name: " + self.name + " time: " + str(self.time) + " text:\n" + str(self.text).decode('ascii', 'utf-8')
 
-class Graemlin:
+class Graemlin(BridgeClass):
     """
     GRAEMLIN_MARKUP_CODE, GRAEMLIN_SMILEY_CODE, GRAEMLIN_IMAGE, GRAEMLIN_WIDTH, GRAEMLIN_HEIGHT
     """
@@ -59,24 +56,24 @@ class Graemlin:
     def get_code(self):
         return self.smiley or ':' + self.code + ':'
 
-class Shoutbox:
+class Shoutbox(BridgeClass):
     latest_shout = 0
     graemlins = None
 
-    def __init__(self, cfg):
-        self.cfg = cfg
-        if cfg.latest_shout:
-            self.latest_shout = cfg.latest_shout
+    def __init__(self, cfg=None):
+        if cfg:
+            self.setConfig(cfg)
 
     def __del__(self):
         pass
 
-    def logprint(self, *message):
-        #print "--------------------------------------------------------------"
-        print datetime.now().strftime(self.cfg.log_date_format), '-',
-        for m in message:
-            print m,
-        print "\n--------------------------------------------------------------"
+    def setConfig(self, config):
+        """
+        Updates the configuration.
+        """
+        self.cfg = config
+        if self.cfg.latest_shout:
+            self.latest_shout = int(self.cfg.latest_shout)
 
     def read_graemlin_list(self):
         """
@@ -135,6 +132,14 @@ def main():
     import sys
     import string
     from conf import Conf
+    ## MixIn testing:
+    #import time
+    #from MixIn import MixIn
+    #s.mixinClass(Graemlin)
+    #MixIn(Shout, Graemlin)
+    #s = Shout(12, 34, "adsf", u'adsfäöåääö', time.time())
+    #print s.dumpall()
+    #quit()
     cfg = Conf('config.ini', 'LOCAL')
     sbox = Shoutbox(cfg)
     if len(sys.argv) > 1:

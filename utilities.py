@@ -74,6 +74,53 @@ def unescape(text):
 def getElStr(el):
     return unicode(unescape(el.__str__().strip()))
 
+class ObjectFactoryError(Exception):
+    """
+    Default Object Factory Exception.
+    """
+
+class OFModuleNotLoaded(ObjectFactoryError):
+    """
+    Couldn't load module.
+    """
+
+class OFClassNotInModule(ObjectFactoryError):
+    """
+    Class not found in module.
+    """
+
+class OFClassNotFound(ObjectFactoryError):
+    """
+    Class with given name wasn't found.
+    """
+
+class OFWrongBaseClass(ObjectFactoryError):
+    """
+    Class found, but doesn't have the correct base class.
+    """
+
+class ObjectFactory:
+    def create(self, classname, inst=None):
+        # Dynamically load module.
+        module = __import__(classname)
+        if not module:
+            print "Couldn't load module:", classname
+            raise OFModuleNotLoaded
+
+        # Check that module has classname defined.
+        if not classname in dir(module):
+            raise OFClassNotInModule
+
+        # Dynamically create a class reference.
+        #cls = globals()[classname]
+        cls = module[classname]
+        if not cls:
+            raise OFClassNotFound
+        if inst and not inst in cls.__bases__:
+            raise OFWrongBaseClass
+
+        # Return an instance object of the class.
+        return cls()
 
 if __name__ == '__main__':
     xml = loadUrl('http://www.rollspel.nu/forum/ubbthreads.php?ubb=listshouts')

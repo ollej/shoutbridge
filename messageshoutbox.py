@@ -22,17 +22,10 @@ class MessageShoutbox(Shoutbox):
         self.parser = ElementParser()
         self.cfg = config
         self.base_url = config.base_url
-        self.latest_shout = self.cfg.latest_shout
+        self.latest_shout = int(self.cfg.latest_shout)
 
     def __del__(self):
         pass
-
-    def logprint(self, *message):
-        print "--------------------------------------------------------------"
-        print datetime.now().strftime(self.cfg.log_date_format), '-',
-        for m in message:
-            print m,
-        print "\n--------------------------------------------------------------"
 
     def readShouts(self, start=None):
         """
@@ -41,16 +34,19 @@ class MessageShoutbox(Shoutbox):
         if start is None:
             start = self.latest_shout
         shoutdata = self.loadShouts(start)
-        shouts = self.parseShouts(shoutdata)
-        return shouts
+        if shoutdata:
+            shouts = self.parseShouts(shoutdata)
+            return shouts
+        return []
 
     def loadShouts(self, start):
         params = urlencode({
             "ubb": "listshouts",
             "start": start,
         })
-        self.logprint("Loading shouts:\n", self.base_url, params)
+        self.logprint("Loading shouts:\n", "%s?%s" % (self.base_url, params))
         shoutxml = loadUrl(self.base_url, params)
+        #self.logprint(shoutxml)
         return shoutxml
 
     def parseShout(self, s):
@@ -72,16 +68,25 @@ class MessageShoutbox(Shoutbox):
         return False
 
     def parseShouts(self, shoutxml):
+        if not shoutxml:
+            return []
         dom = self.parser(shoutxml)
+        if not dom:
+            self.logprint("Empty dom object returned from parser for xml:\n", shoutxml)
+            return [] 
         shouts = []
         oldershouts = self.latest_shout
         for e in dom.elements():
             if e.name == "message":
                 shout = self.parseShout(e)
+                #self.logprint("Parsed shout", shout.id, shout.userid, shout.name, shout.time, shout.text)
+                #self.logprint("oldershouts", oldershouts, "latest_shout", self.latest_shout)
                 if shout.id > oldershouts and shout.userid is not 1:
+                    #self.logprint("Adding shout", shout.__str__())
                     shouts.append(shout)
                     if shout.id > self.latest_shout:
-                        self.latest_shout = shout.id
+                        #self.logprint("Updating latest latest_shout to:", shout.id)
+                        self.latest_shout = int(shout.id)
         return shouts
 
 

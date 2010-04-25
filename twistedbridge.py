@@ -171,6 +171,18 @@ class TwistedBridge(object):
             self.add_to_roster(nick, jid)
         return self.roster[nick]
 
+    def remove_jid_from_roster(self, jid, nick=None):
+        self.logprint("Removing self from roster:", jid, nick)
+        if nick and nick in self.roster:
+            usr = self.roster[nick]
+            list = dict(nick=usr)
+        else:
+            list = self.roster
+        if list:
+            for k, u in list.items(): 
+                if u.jid == jid:
+                    self.delete_from_roster(k)
+
     def get_os_info(self):
         return str(platform.platform())
 
@@ -207,7 +219,7 @@ class TwistedBridge(object):
         return str(int(time() - self.last_time))
 
     def logprint(self, *message):
-        print "--------------------------------------------------------------"
+        #print "--------------------------------------------------------------"
         print datetime.now().strftime(self.cfg.log_date_format), '-',
         for m in message:
             print m,
@@ -217,9 +229,11 @@ class TwistedBridge(object):
         if self.cfg.show_nick == "True":
             return
         # If nick is unavailable, append "_" and try again.
-        if nick in self.roster:
-            return self.change_nick(nick + '_')
         if nick and nick != self.current_nick:
+            # If nick is already in roster, but with shoutbridge jid, remove it.
+            self.remove_jid_from_roster(self.login, nick)
+            if nick in self.roster:
+                return self.change_nick(nick + '_')
             self.current_nick = nick
             self.send_presence(
                 to=self.room + '/' + nick
@@ -503,6 +517,7 @@ class TwistedBridge(object):
         # Read shoutbox messages.
         # TODO: Should possibly use E-tag and options to see if anything has changed.
         msgs = self.shoutbox.readShouts()
+        self.logprint("Number of messages received:", len(msgs))
         for m in msgs:
             text = self.clean_message(m.text)
             if self.cfg.show_time == "True" and self.cfg.show_nick == "True":

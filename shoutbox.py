@@ -15,9 +15,12 @@ class User:
     jid = ""
 
     def __init__(self, id, name, jid):
-        self.id = id
+        self.id = int(id)
         self.name = name
         self.jid = jid
+
+    def __str__(self):
+        return "id: " + str(self.id) + " name: " + self.name + " jid: " + self.jid
 
 class Shout:
     """
@@ -33,6 +36,10 @@ class Shout:
             self.time = d.strftime('%H:%M')
         else:
             self.time = d.strftime('%Y-%m-%d %H:%M')
+
+    def __str__(self):
+        return "id: " + str(self.id) + " userid: " + str(self.userid) + " time: " + str(self.time) # + " name: " + self.name #+ " text:\n" + str(self.text).decode('ascii', 'utf-8')
+        #return "id: " + str(self.id) + " userid: " + str(self.userid) + " name: " + self.name + " time: " + str(self.time) + " text:\n" + str(self.text).decode('ascii', 'utf-8')
 
 class Graemlin:
     """
@@ -63,6 +70,13 @@ class Shoutbox:
 
     def __del__(self):
         pass
+
+    def logprint(self, *message):
+        #print "--------------------------------------------------------------"
+        print datetime.now().strftime(self.cfg.log_date_format), '-',
+        for m in message:
+            print m,
+        print "\n--------------------------------------------------------------"
 
     def read_graemlin_list(self):
         """

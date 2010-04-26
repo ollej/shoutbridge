@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from conf import Conf
+from Conf import Conf
 from ObjectFactory import *
 
 def start_shoutbridge():

@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
-class Plugin:
+from BridgeClass import *
+
+class PluginError(Exception):
+    """
+    Default Plugin exception.
+    """
+
+class Plugin(BridgeClass):
     """
     Superclass for Shoutbridge plugins.
     Methods should be implemented by sub-classes.
@@ -13,8 +20,13 @@ class Plugin:
     description = "Default Shoutbridge plugin interface."
     bridge = None
 
-    def __init__(self, bridge):
-        self.bridge = bridge
+    def __init__(self, args):
+        try:
+            self.bridge = args[0]
+            self.logprint("Bridge:", self.bridge)
+        except AttributeError:
+            self.logprint("No bridge object given.")
+            raise PluginError
 
     def setup(self):
         """

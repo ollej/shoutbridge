@@ -1,45 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import string
 
 class BridgeClass:
-    def mixinMethod(self, method, name=None):
-        """
-        Mixin method into this class, under name.
-        ** BROKEN **
-        """
-        if name is None:
-            name = method.__name__
-        print "Mixin method:", name, method
-        self.__setitem__(name, method)
-        return
-        class new(self.__class__):
-            pass
-        setattr(new, name, method)
-        self.__class__ = new
-
-    def mixinClass(self, cls):
-        """
-        Mixin methods from cls into this class.
-        Don't use, use MixIn class from Linux Journal instead.
-        """
-        #class new(self, cls):
-        #    pass
-        #self.__class__ = new
-        #return
-        attrs = vars(cls)
-        for k, v in attrs.items():
-            #if k not in self.__dict__ and callable(v):
-            print "attr:", k, v
-            if not k.startswith('__'):
-                m = getattr(cls, k)
-                if type(m) is types.MethodType:
-                    print "Mixing in:", v
-                    setattr(self, k, m)
-
     def logprint(self, *message):
         #print "--------------------------------------------------------------"
-        print datetime.now().strftime(self.cfg.log_date_format), '-',
+        try:
+            date_format = self.cfg.log_date_format
+        except AttributeError:
+            date_format = "%Y-%m-%d %H:%M:%S"
+        print datetime.now().strftime(date_format), '-',
         for m in message:
             print m,
         print "\n--------------------------------------------------------------"

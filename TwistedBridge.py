@@ -241,6 +241,9 @@ class TwistedBridge(XmppBridge):
                     self.logprint("Anonymous room message, skipping.")
                     return
 
+        # Trigger handleXmppMessage event
+        mess = self.trigger_plugin_event('XmppMessage', mess)
+
         fromstr = mess.getAttribute('from')
         fromjid = jid.JID(fromstr)
 
@@ -265,7 +268,8 @@ class TwistedBridge(XmppBridge):
             user = self.get_from_roster(nick, fromstr)
             self.logprint("Relaying message to shoutbox:", user.id, user.jid, user.name, "\n", body)
             self.update_last_time()
-            self.shoutbox.sendShout(user, body)
+            #self.shoutbox.sendShout(user, body)
+            self.logprint("NOT sending shout:", user, body)
         else:
             self.logprint("Unknown message:", mess.toXml())
 

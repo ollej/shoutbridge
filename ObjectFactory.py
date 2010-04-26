@@ -26,7 +26,7 @@ class OFWrongBaseClassError(ObjectFactoryError):
     """
 
 class ObjectFactory:
-    def create(self, classname, inst=None):
+    def create(self, classname, inst=None, *args):
         # Dynamically load module.
         module = __import__(classname)
         if not module:
@@ -56,7 +56,7 @@ class ObjectFactory:
                 raise OFWrongBaseClassError
 
         # Return an instance object of the class.
-        return cls()
+        return cls(args)
 
 if __name__ == '__main__':
     xml = loadUrl('http://www.rollspel.nu/forum/ubbthreads.php?ubb=listshouts')

@@ -4,6 +4,7 @@ import platform
 from time import time
 from datetime import datetime, date
 
+from ObjectFactory import *
 from BridgeClass import *
 from Shoutbox import *
 from utilities import *
@@ -33,6 +34,8 @@ class XmppBridge(BridgeClass):
     roster = dict()
     cfg = None
     last_time = 0
+    plugins = dict()
+    of = None
 
     def __init__(self, sbox=None, cfg=None):
         """
@@ -73,8 +76,36 @@ class XmppBridge(BridgeClass):
         if cfg:
             self.setConfig(cfg)
 
+        # Load list of plugins
+        self.load_plugins(self.cfg.plugins)
+
         # Make an XMPP connection
         self.make_connection()
+
+    def load_plugins(self, plugs):
+        if not plugs:
+            return
+        if not self.of:
+            self.of = ObjectFactory()
+        pluginlist = plugs.split(',')
+        for p in pluginlist:
+            plug = self.of.create(p + "Plugin", 'Plugin', self)
+            plug.setup()
+            self.logprint("Loaded plugin:", plug)
+            self.plugins[p] = plug
+
+    def trigger_plugin_event(self, event, obj):
+        """
+        Triggers given event on all loaded plugins with obj as argument.
+        """
+        for plugin_name, plugin in self.plugins.items():
+            try:
+                func = getattr(plugin, "handle" + event)
+            except AttributeError:
+                pass
+            else:
+                obj = func(obj)
+        return obj
 
     def make_connection(self):
         """
@@ -341,6 +372,18 @@ class XmppBridge(BridgeClass):
         self.update_last_time()
         self.send_presence_status()
 
+    def send_and_shout(self, text, nick=None):
+        """
+        Sends text to both xmpp room and shoutbox,
+        using self.resource as nick if it isn't set.
+        """
+        if not nick:
+            nick = self.resource
+        user = User(1, nick, self.login)
+        self.shoutbox.sendShout(user, text)
+        self.logprint('The die is cast:', text, nick)
+        self.send_message(self.room, text, nick)
+
     def process_shoutbox_messages(self):
         if not self.xmlstream:
             return False
@@ -350,6 +393,9 @@ class XmppBridge(BridgeClass):
         msgs = self.shoutbox.readShouts()
         self.logprint("Number of messages received:", len(msgs))
         for m in msgs:
+            # Trigger handleShoutMessage event
+            m = self.trigger_plugin_event('ShoutMessage', m)
+
             text = self.clean_message(m.text)
             if self.cfg.show_time == "True" and self.cfg.show_nick == "True":
                 text = "%s <%s> %s" % (m.time, m.name, text)

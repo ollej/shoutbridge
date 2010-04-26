@@ -36,7 +36,7 @@ def main():
     import sys
     import string
     from time import time
-    from conf import Conf
+    from Conf import Conf
     import shoutbox
     cfg = Conf('config.ini', 'LOCAL')
     shout = shoutbox.Shout(1, 4711, 'Test', 'A quick brown fox...', time())

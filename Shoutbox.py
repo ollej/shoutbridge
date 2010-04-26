@@ -4,6 +4,7 @@ import string
 import types
 from datetime import date
 from datetime import datetime
+
 from BridgeClass import *
 
 class ShoutboxError(Exception):
@@ -131,7 +132,7 @@ class Shoutbox(BridgeClass):
 def main():
     import sys
     import string
-    from conf import Conf
+    from Conf import Conf
     ## MixIn testing:
     #import time
     #from MixIn import MixIn

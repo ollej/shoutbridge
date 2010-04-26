@@ -54,10 +54,10 @@ def main():
     import sys
     import string
     from time import time
-    from conf import Conf
-    import shoutbox
+    from Conf import Conf
+    import Shoutbox
     cfg = Conf('config.ini', 'LOCAL')
-    shout = shoutbox.Shout(1, 4711, 'Test', 'A quick brown fox...', time())
+    shout = Shoutbox.Shout(1, 4711, 'Test', 'A quick brown fox...', time())
     plug = Plugin('')
     plug.setup()
     print plug.handleShoutMessage(shout)

@@ -142,7 +142,7 @@ class MysqlShoutbox(XmppBridge):
 def main():
     import sys
     import string
-    from conf import Conf
+    from Conf import Conf
     cfg = Conf('config.ini', 'LOCAL')
     sbox = Shoutbox(cfg)
     if len(sys.argv) > 1:

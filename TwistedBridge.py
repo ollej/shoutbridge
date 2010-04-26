@@ -268,8 +268,7 @@ class TwistedBridge(XmppBridge):
             user = self.get_from_roster(nick, fromstr)
             self.logprint("Relaying message to shoutbox:", user.id, user.jid, user.name, "\n", body)
             self.update_last_time()
-            #self.shoutbox.sendShout(user, body)
-            self.logprint("NOT sending shout:", user, body)
+            self.shoutbox.sendShout(user, body)
         else:
             self.logprint("Unknown message:", mess.toXml())
 

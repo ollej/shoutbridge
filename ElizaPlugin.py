@@ -31,12 +31,14 @@ class ElizaPlugin(Plugin):
         Method called on every received XMPP message stanza.
         """
         body = getElStr(message.body)
+        self.sender_nick = message['nick']
         self.ask_eliza(body)
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
+        self.sender_nick = shout.name
         self.ask_eliza(shout.text)
 
     def ask_eliza(self, text):
@@ -48,6 +50,7 @@ class ElizaPlugin(Plugin):
             text = text[len(self.command):].strip()
             response = self.eliza.respond(text)
             if response:
+                response = self.prepend_sender(response)
                 self.bridge.send_and_shout(response, "Eliza")
 
 def main():
@@ -61,7 +64,7 @@ def main():
     msg = ' '.join(args[1:])
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
-    plug = Plugin([bridge])
+    plug = ElizaPlugin([bridge])
     plug.setup()
     print plug.handleShoutMessage(shout)
 

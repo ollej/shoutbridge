@@ -17,6 +17,7 @@ class DicePlugin(Plugin):
     author = "Olle Johansson"
     description = "Dice roller plugin."
     command = '!dice'
+    max_printed_rolls = 10
 
     def setup(self):
         """
@@ -46,7 +47,7 @@ class DicePlugin(Plugin):
         Parse message body and send message with dice roll.
         """
         self.logprint("DicePlugin: Handling message:", text)
-        if text.startswith(self.command):
+        if self.command == '' or text.startswith(self.command):
             newstr = self.d.replaceDieStrings(text, self.replace_roll)
 
     def replace_roll(self, m):
@@ -56,8 +57,9 @@ class DicePlugin(Plugin):
         die = Die(m.group('die'), m.group('rolls'), m.group('op'), m.group('val'), m.group('type'))
         die.roll()
         str = die.getResultString()
-        str += " " + repr(die.list)
-        self.bridge.send_and_shout(str)
+        if int(m.group('rolls')) <= self.max_printed_rolls:
+            str += " " + repr(die.list)
+        self.bridge.send_and_shout(str, "Dicey")
         return str
 
         

@@ -49,7 +49,7 @@ class ElizaPlugin(Plugin):
         """
         self.logprint("ElizaPlugin: Handling message:", text)
         if text.startswith(self.command):
-            text = text[len(self.command):]
+            text = text[len(self.command):].strip()
             response = self.eliza.respond(text)
             if response:
                 self.bridge.send_and_shout(response, "Eliza")

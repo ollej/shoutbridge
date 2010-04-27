@@ -77,13 +77,10 @@ TODO
 Some ideas for future development.
 
  * If UBB.threads user has XMPP login details saved, messages should be sent using these.
- * Move date formats into configuration.
  * Possibly change to a transport gateway using XEP-0100: Gateway Interaction
- * Plugins for message hooks, to allow simple bot-like behavior.
- * Dice Bot which can roll dice, e.g. "/dice 3d6" gives "Dice roll result: 12 (5 + 3 + 4)"
- * /me 
  * When time is the same as the current time, don't prepend time to message.
  * If room hasn't been created when joining, accept default room configuration.
- * Answer to presence requests from server, or whatever is necessary not to be disconnected.
- * Add functionality to sendShout for MessageShoutbox
- * Links don't show in relayed shoutbox messages.
+ * Move plugin command matching code to XmppBridge.trigger_plugin_event
+ * Add priority sorting to plugin triggering.
+ * BUG: Plugin responses from shoutbox are sent before original message.
+ * BUG: Plugin responses are doubled for commands sent from shoutbox.

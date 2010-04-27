@@ -82,6 +82,17 @@ Some ideas for future development.
  * If room hasn't been created when joining, accept default room configuration.
  * Move plugin command matching code to XmppBridge.trigger_plugin_event
  * Add priority sorting to plugin triggering.
- * BUG: Plugin responses from shoutbox are sent before original message.
- * DicePlugin - Roll stats for rpg's automatically. DoD = STY, KRO, STO, INT, KRA, SKI och KAR
- * Catch all errors when triggering plugin events, and log them instead.
+ * DicePlugin - Allow for more rpg rolls, via a lookup hash.
+ * away presence could hide user on forum
+ * Possibly allow several commands for a single plugin.
+ * Maybe plugin should register handlers for events, with command.
+ * Add help information for plugins.
+ * Plugin ideas:
+   * !seen <user> - showing last online time for user
+   * !vecka - Displays week number
+   * !namn - Displays the names from Swedish calendar
+   * !help - Display help information from all plugins.
+   * !spank <user> - Spank user with hilarious items.
+   * !calc - calculator
+   * Possibly convert !trivia, !weather, !translate, !google etc from other bots.
+

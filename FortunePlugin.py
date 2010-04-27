@@ -14,7 +14,7 @@ class FortunePlugin(Plugin):
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Fortune cookie plugin."
     command = '!fortune'
-    nick = "Fortune"
+    nick = "FortuneTeller"
     max_length = 60
 
     def setup(self):
@@ -28,23 +28,25 @@ class FortunePlugin(Plugin):
         Method called on every received XMPP message stanza.
         """
         body = getElStr(message.body)
-        self.tell_fortune(body)
+        self.tell_fortune(body, message['nick'])
         return message
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
-        self.tell_fortune(shout.text)
+        self.tell_fortune(shout.text, shout.name)
         return shout
 
-    def tell_fortune(self, text):
+    def tell_fortune(self, text, nick):
         """
         Parse message body and send message with dice roll.
         """
         self.logprint("FortunePlugin: Handling message:", text)
         if self.command == '' or text.startswith(self.command):
             newstr = commands.getoutput('fortune -s -n ' + str(self.max_length))
+            if nick:
+                newstr = nick + ': ' + newstr
             self.bridge.send_and_shout(newstr, self.nick)
 
 def main():

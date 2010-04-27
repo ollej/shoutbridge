@@ -29,19 +29,15 @@ class DicePlugin(Plugin):
     def handleXmppMessage(self, message):
         """
         Method called on every received XMPP message stanza.
-        Message can be modified and must be returned.
         """
         body = getElStr(message.body)
         self.dice_roller(body)
-        return message
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
-        Shout message can be modified, and must be returned.
         """
         self.dice_roller(shout.text)
-        return shout
 
     def dice_roller(self, text):
         """
@@ -95,7 +91,8 @@ def main():
     args = sys.argv
     msg = ' '.join(args[1:])
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
-    plug = DicePlugin([shout])
+    bridge = FakeBridge()
+    plug = DicePlugin([bridge])
     plug.setup()
     print "Returned:", plug.handleShoutMessage(shout)
 

@@ -29,19 +29,15 @@ class ElizaPlugin(Plugin):
     def handleXmppMessage(self, message):
         """
         Method called on every received XMPP message stanza.
-        Message can be modified and must be returned.
         """
         body = getElStr(message.body)
         self.ask_eliza(body)
-        return message
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
-        Shout message can be modified, and must be returned.
         """
         self.ask_eliza(shout.text)
-        return shout
 
     def ask_eliza(self, text):
         """
@@ -61,8 +57,11 @@ def main():
     from Conf import Conf
     import Shoutbox
     cfg = Conf('config.ini', 'LOCAL')
-    shout = Shoutbox.Shout(1, 4711, 'Test', 'Eliza, A quick brown fox...', time())
-    plug = Plugin()
+    args = sys.argv
+    msg = ' '.join(args[1:])
+    shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
+    bridge = FakeBridge()
+    plug = Plugin([bridge])
     plug.setup()
     print plug.handleShoutMessage(shout)
 

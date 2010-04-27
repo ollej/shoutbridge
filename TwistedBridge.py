@@ -257,9 +257,6 @@ class TwistedBridge(XmppBridge):
             self.logprint("Got message from myself, skipping...")
             return
 
-        # Trigger handleXmppMessage event
-        mess = self.trigger_plugin_event('XmppMessage', mess)
-
         # Get message body.
         body = getElStr(mess.body)
 
@@ -271,6 +268,11 @@ class TwistedBridge(XmppBridge):
             self.shoutbox.sendShout(user, body)
         else:
             self.logprint("Unknown message:", mess.toXml())
+
+        # Trigger handleXmppMessage event
+        mess['nick'] = nick
+        self.trigger_plugin_event('XmppMessage', mess)
+
 
     def send_message(self, tojid, text, nick=None):
         """

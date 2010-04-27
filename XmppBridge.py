@@ -27,13 +27,6 @@ class BridgeMissingAttributeError(BridgeError):
 class BridgeNoXmlStream(BridgeError):
     "No active xml stream available."
 
-class FakeBridge:
-    """
-    Fake bridge used for running plugins from command line.
-    """
-    def send_and_shout(self, text):
-        print "Message: " + text
-
 class XmppBridge(BridgeClass):
     client_name = "Shoutbridge"
     client_version = "0.1"
@@ -111,8 +104,10 @@ class XmppBridge(BridgeClass):
             except AttributeError:
                 pass
             else:
-                obj = func(obj)
-        return obj
+                try:
+                    obj = func(obj)
+                except Exception, e:
+                    self.logprint("Plugin raised exception:", plugin_name, "\n", e)
 
     def make_connection(self):
         """
@@ -401,7 +396,7 @@ class XmppBridge(BridgeClass):
         self.logprint("Number of messages received:", len(msgs))
         for m in msgs:
             # Trigger handleShoutMessage event
-            m = self.trigger_plugin_event('ShoutMessage', m)
+            self.trigger_plugin_event('ShoutMessage', m)
 
             text = self.clean_message(m.text)
             if self.cfg.show_time == "True" and self.cfg.show_nick == "True":

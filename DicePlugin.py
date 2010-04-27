@@ -18,6 +18,7 @@ class DicePlugin(Plugin):
     description = "Dice roller plugin."
     command = '!dice'
     max_printed_rolls = 10
+    nick = "Dicey"
 
     def setup(self):
         """
@@ -48,7 +49,25 @@ class DicePlugin(Plugin):
         """
         self.logprint("DicePlugin: Handling message:", text)
         if self.command == '' or text.startswith(self.command):
-            newstr = self.d.replaceDieStrings(text, self.replace_roll)
+            diestr = ''
+            if text.find('DoD') >= 0:
+                diestr = self.roll_character('DoD')
+                self.bridge.send_and_shout(diestr, self.nick)
+            else:
+                diestr = self.d.replaceDieStrings(text, self.replace_roll)
+
+    def roll_character(self, rpg):
+        """
+        Roll character for rpg.
+        Currenty always rolls for DoD.
+        """
+        diestr = ''
+        die = Die(6, 3)
+        for roll in ['STY', 'KRO', 'STO', 'INT', 'KRA', 'SKI', 'KAR']:
+            die.resetResult()
+            die.roll()
+            diestr += roll + ": " + str(die.result) + ' '
+        return diestr
 
     def replace_roll(self, m):
         """
@@ -59,10 +78,8 @@ class DicePlugin(Plugin):
         str = die.getResultString()
         if int(m.group('rolls')) <= self.max_printed_rolls:
             str += " " + repr(die.list)
-        self.bridge.send_and_shout(str, "Dicey")
+        self.bridge.send_and_shout(str, self.nick)
         return str
-
-        
 
 def main():
     import sys
@@ -71,10 +88,12 @@ def main():
     from Conf import Conf
     import Shoutbox
     cfg = Conf('config.ini', 'LOCAL')
-    shout = Shoutbox.Shout(1, 4711, 'Test', 'A quick brown fox...', time())
-    plug = Plugin()
+    args = sys.argv
+    msg = ' '.join(args[1:])
+    shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
+    plug = DicePlugin([shout])
     plug.setup()
-    print plug.handleShoutMessage(shout)
+    print "Returned:", plug.handleShoutMessage(shout)
 
 # Call the main function.
 if __name__ == '__main__':

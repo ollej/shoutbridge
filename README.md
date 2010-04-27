@@ -84,3 +84,4 @@ Some ideas for future development.
  * Add priority sorting to plugin triggering.
  * BUG: Plugin responses from shoutbox are sent before original message.
  * BUG: Plugin responses are doubled for commands sent from shoutbox.
+ * DicePlugin - Roll stats for rpg's automatically. DoD = STY, KRO, STO, INT, KRA, SKI och KAR

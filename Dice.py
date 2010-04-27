@@ -57,6 +57,8 @@ class Die:
         result = random.randint(1, sides) 
         self.list.append(result)
         return result
+    def resetResult(self):
+        self.result = 0
     def getResultString(self):
         return unicode("Resultatet av tärningsslaget " + str(self.dieroll) + " blev: " + str(self.result), 'utf-8')
         #return "You rolled " + repr(self.dieroll) + " and got: " + repr(self.result)

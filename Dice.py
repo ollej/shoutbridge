@@ -10,6 +10,8 @@ class Die:
     def __init__(self, die, rolls=1, op='', val=0, type=''):
         self.die = int(die) if die else 0
         self.rolls = int(rolls) if rolls else 1
+        if self.rolls > 1000:
+            self.rolls = 1
         self.op = op if op in ('+', '-') else ''
         self.val = int(val) if val else 0
         self.type = type if type and type in ('Ob', 'Open') else ''

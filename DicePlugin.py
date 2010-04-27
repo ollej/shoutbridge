@@ -76,7 +76,11 @@ class DicePlugin(Plugin):
         die = Die(m.group('die'), m.group('rolls'), m.group('op'), m.group('val'), m.group('type'))
         die.roll()
         str = die.getResultString()
-        if int(m.group('rolls')) <= self.max_printed_rolls:
+        if not m.group('rolls'):
+            rolls = 1
+        else:
+            rolls = int(m.group('rolls'))
+        if rolls <= self.max_printed_rolls:
             str += " " + repr(die.list)
         self.bridge.send_and_shout(str, self.nick)
         return str

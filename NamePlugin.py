@@ -4,44 +4,47 @@ from datetime import date
 from Plugin import *
 from utilities import *
 
-class WeekPlugin(Plugin):
+class NamePlugin(Plugin):
     """
-    Returns the ISO week number.
+    Returns the names of today in the Swedish calendar.
     """
     priority = 0
-    name = "WeekPlugin"
+    name = "NamePlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
-    description = "Simple plugin to display current ISO week number."
-    command = '!vecka'
+    description = "Plugin that prints names from the Swedish calendar."
+    command = '!namn'
     nick = "Bot"
+    names = []
 
     def setup(self):
         """
         Setup method which is called once before any triggers methods are called.
         """
-        pass
+        self.names = read_file("extras/names.dat")
 
     def handleXmppMessage(self, message):
         """
         Method called on every received XMPP message stanza.
         """
         body = getElStr(message.body)
-        self.send_weeknr(body)
+        self.send_names(body)
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
-        self.send_weeknr(shout.text)
+        self.send_names(shout.text)
 
-    def send_weeknr(self, text):
+    def send_names(self, text):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("WeekPlugin: Handling message.")
+        self.logprint("NamePlugin: Handling message.")
         if self.command == '' or text.startswith(self.command):
-            (isoyear, isoweek, isoweekday) = date.today().isocalendar()
-            self.bridge.send_and_shout(isoweek)
+            d = date.today()
+            day = int(d.strftime("%j")) - 1
+            names = self.names[day]
+            self.bridge.send_and_shout(names)
 
 def main():
     import sys
@@ -54,7 +57,7 @@ def main():
     msg = ' '.join(args[1:])
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
-    plug = WeekPlugin([bridge])
+    plug = NamePlugin([bridge])
     plug.setup()
     print "Returned:", plug.handleShoutMessage(shout)
 

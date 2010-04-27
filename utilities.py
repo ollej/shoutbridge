@@ -74,6 +74,13 @@ def unescape(text):
 def getElStr(el):
     return unicode(unescape(el.__str__().strip()))
 
+def read_file(filename):
+    lines = []
+    f = open (filename,"r")
+    for line in f.readlines():
+        lines.append(line)
+    return lines
+
 if __name__ == '__main__':
     xml = loadUrl('http://www.rollspel.nu/forum/ubbthreads.php?ubb=listshouts')
     parser = ElementParser()

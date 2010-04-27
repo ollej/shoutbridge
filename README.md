@@ -88,7 +88,6 @@ Some ideas for future development.
  * Add help information for plugins.
  * Plugin ideas:
    * !seen <user> - showing last online time for user
-   * !vecka - Displays week number
    * !namn - Displays the names from Swedish calendar
    * !help - Display help information from all plugins.
    * !spank <user> - Spank user with hilarious items.

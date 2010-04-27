@@ -18,6 +18,7 @@ class ElizaPlugin(Plugin):
     name = "ElizaPlugin"
     author = "Olle Johansson"
     description = "Eliza, the psychatrist"
+    command = "Eliza,"
 
     def setup(self):
         """
@@ -47,8 +48,8 @@ class ElizaPlugin(Plugin):
         Parse message body and send message with dice roll.
         """
         self.logprint("ElizaPlugin: Handling message:", text)
-        if text.startswith('Eliza,'):
-            text = text[6:]
+        if text.startswith(self.command):
+            text = text[len(self.command):]
             response = self.eliza.respond(text)
             if response:
                 self.bridge.send_and_shout(response, "Eliza")

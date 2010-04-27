@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #! /usr/bin/python
 
 import re
@@ -56,7 +58,8 @@ class Die:
         self.list.append(result)
         return result
     def getResultString(self):
-        return "You rolled " + repr(self.dieroll) + " and got: " + repr(self.result)
+        return unicode("Resultatet av tärningsslaget " + repr(self.dieroll) + " blev: " + repr(self.result), 'utf-8')
+        #return "You rolled " + repr(self.dieroll) + " and got: " + repr(self.result)
         
 class Dicey:
     """Dicey can replace die roll text in strings with results of the rolls."""

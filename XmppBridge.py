@@ -91,7 +91,7 @@ class XmppBridge(BridgeClass):
         for p in pluginlist:
             plug = self.of.create(p + "Plugin", 'Plugin', self)
             plug.setup()
-            self.logprint("Loaded plugin:", plug)
+            self.logprint("Loaded plugin:", plug.name)
             self.plugins[p] = plug
 
     def trigger_plugin_event(self, event, obj):

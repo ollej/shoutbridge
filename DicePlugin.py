@@ -8,7 +8,7 @@ class DicePlugin(Plugin):
     """
     Makes die rolls requested by users.
     If someone writes a message like:
-    /dice 3d6 
+    !dice 3d6 
     This plugin will send a message of its own with the result:
     You rolled '3d6' and got: 9 [1, 3, 5]
     """
@@ -16,6 +16,7 @@ class DicePlugin(Plugin):
     name = "DicePlugin"
     author = "Olle Johansson"
     description = "Dice roller plugin."
+    command = '!dice'
 
     def setup(self):
         """
@@ -45,7 +46,7 @@ class DicePlugin(Plugin):
         Parse message body and send message with dice roll.
         """
         self.logprint("DicePlugin: Handling message:", text)
-        if text.startswith('/dice '):
+        if text.startswith(self.command):
             newstr = self.d.replaceDieStrings(text, self.replace_roll)
 
     def replace_roll(self, m):

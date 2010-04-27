@@ -23,7 +23,6 @@ class Plugin(BridgeClass):
     def __init__(self, args):
         try:
             self.bridge = args[0]
-            self.logprint("Bridge:", self.bridge)
         except AttributeError:
             self.logprint("No bridge object given.")
             raise PluginError

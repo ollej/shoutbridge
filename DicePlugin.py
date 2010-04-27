@@ -30,12 +30,12 @@ class DicePlugin(Plugin):
             ('KAR', '3d6'),
         ]),
         ('dnd', [
-            ('STR', '3d6'),
-            ('CON', '3d6'),
-            ('DEX', '3d6'),
-            ('INT', '3d6'),
-            ('WIS', '3d6'),
-            ('CHA', '3d6'),
+            ('STR', '4d6h3'),
+            ('CON', '4d6h3'),
+            ('DEX', '4d6h3'),
+            ('INT', '4d6h3'),
+            ('WIS', '4d6h3'),
+            ('CHA', '4d6h3'),
         ]),
         ('twerps', [
             ('Styrka', '1d10'),

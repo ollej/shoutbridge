@@ -98,6 +98,8 @@ class XmppBridge(BridgeClass):
         """
         Triggers given event on all loaded plugins with obj as argument.
         """
+        if not obj:
+            return
         for plugin_name, plugin in self.plugins.items():
             try:
                 func = getattr(plugin, "handle" + event)
@@ -105,7 +107,7 @@ class XmppBridge(BridgeClass):
                 pass
             else:
                 try:
-                    obj = func(obj)
+                    func(obj)
                 except Exception, e:
                     self.logprint("Plugin raised exception:", plugin_name, "\n", e)
 

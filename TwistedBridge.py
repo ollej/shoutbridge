@@ -241,9 +241,6 @@ class TwistedBridge(XmppBridge):
                     self.logprint("Anonymous room message, skipping.")
                     return
 
-        # Trigger handleXmppMessage event
-        mess = self.trigger_plugin_event('XmppMessage', mess)
-
         fromstr = mess.getAttribute('from')
         fromjid = jid.JID(fromstr)
 
@@ -259,6 +256,9 @@ class TwistedBridge(XmppBridge):
         if fromuser and fromuser.name == self.login or nick == self.current_nick:
             self.logprint("Got message from myself, skipping...")
             return
+
+        # Trigger handleXmppMessage event
+        mess = self.trigger_plugin_event('XmppMessage', mess)
 
         # Get message body.
         body = getElStr(mess.body)

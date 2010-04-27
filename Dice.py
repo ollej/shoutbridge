@@ -41,7 +41,6 @@ class Die(object):
         # If die is a string, parse it to get all values.
         if type(die).__name__ == 'str':
             (die, rolls, op, val, rolltype, seltype, nrofresults) = self.parseDice(die)
-        print "Values: ", die, rolls, op, val, rolltype, seltype, nrofresults
         self.die = int(die) if die else 0
         self.rolls = int(rolls) if rolls else 1
         if seltype:
@@ -133,12 +132,16 @@ class Die(object):
         """
         Return the count lowest items from lst.
         """
-        lst.sort().reverse()
+        lst.sort()
+        lst.reverse()
         lowest = lst[-count:]
         lowest.reverse()
         return lowest
 
     def rollOpenDie(self, sides):
+        """
+        Roll an open die. If the roll is the highest value, roll again and add the result.
+        """
         result = self.rollDie(sides)
         if result == sides:
             return result + self.rollOpenDie(sides)
@@ -146,6 +149,9 @@ class Die(object):
             return result
 
     def rollObDie(self, sides):
+        """
+        An unlimited die roll. If the roll is the maximum value, replace it with two new dice.
+        """
         result = self.rollDie(sides)
         if result == sides:
             self.list.pop()

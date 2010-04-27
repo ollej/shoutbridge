@@ -29,6 +29,14 @@ class DicePlugin(Plugin):
             ('SKI', '3d6'),
             ('KAR', '3d6'),
         ]),
+        ('dnd', [
+            ('STR', '3d6'),
+            ('CON', '3d6'),
+            ('DEX', '3d6'),
+            ('INT', '3d6'),
+            ('WIS', '3d6'),
+            ('CHA', '3d6'),
+        ]),
         ('twerps', [
             ('Styrka', '1d10'),
         ]),
@@ -82,14 +90,14 @@ class DicePlugin(Plugin):
         for name, roll in self.rpgs[rpg]:
             die = Die(roll)
             die.roll(True)
-            diestr += roll + ": " + str(die.result) + ' '
+            diestr += name + ": " + str(die.result) + ' '
         return diestr
 
     def replace_roll(self, m):
         """
         Replace die rolls in text, and sends message/shout with result for each roll.
         """
-        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'))
+        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'))
         die.roll()
         newstr = die.getResultString()
         if not m.group('rolls'):

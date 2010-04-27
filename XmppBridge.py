@@ -397,9 +397,6 @@ class XmppBridge(BridgeClass):
         msgs = self.shoutbox.readShouts()
         self.logprint("Number of messages received:", len(msgs))
         for m in msgs:
-            # Trigger handleShoutMessage event
-            self.trigger_plugin_event('ShoutMessage', m)
-
             text = self.clean_message(m.text)
             if self.cfg.show_time == "True" and self.cfg.show_nick == "True":
                 text = "%s <%s> %s" % (m.time, m.name, text)
@@ -408,6 +405,9 @@ class XmppBridge(BridgeClass):
             elif self.cfg.show_nick == "True":
                 text = "<%s> %s" % (m.name, text)
             self.send_message(self.room, text, nick=m.name)
+
+            # Trigger handleShoutMessage event
+            self.trigger_plugin_event('ShoutMessage', m)
 
     def listen(self):
         """

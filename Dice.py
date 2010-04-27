@@ -58,7 +58,7 @@ class Die:
         self.list.append(result)
         return result
     def getResultString(self):
-        return unicode("Resultatet av tärningsslaget " + repr(self.dieroll) + " blev: " + repr(self.result), 'utf-8')
+        return unicode("Resultatet av tärningsslaget " + str(self.dieroll) + " blev: " + str(self.result), 'utf-8')
         #return "You rolled " + repr(self.dieroll) + " and got: " + repr(self.result)
         
 class Dicey:

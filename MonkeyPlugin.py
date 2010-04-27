@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import commands
 from Plugin import *
 from utilities import *
 
-class FortunePlugin(Plugin):
+class MonkeyPlugin(Plugin):
     """
-    Displays a short fortune message.
-    Requires the fortune command line program.
+    Displays a monkey.
     """
     priority = 0
-    name = "FortunePlugin"
+    name = "MonkeyPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
-    description = "Fortune cookie plugin."
-    command = '!fortune'
-    nick = "FortuneTeller"
-    max_length = 60
+    description = "Simple plugin to display a monkey."
+    command = '!apa'
+    nick = "Apa"
 
     def setup(self):
         """
@@ -28,24 +25,21 @@ class FortunePlugin(Plugin):
         Method called on every received XMPP message stanza.
         """
         body = getElStr(message.body)
-        self.tell_fortune(body, message['nick'])
+        self.monkey(body)
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
-        self.tell_fortune(shout.text, shout.name)
+        self.monkey(shout.text)
 
-    def tell_fortune(self, text, nick):
+    def monkey(self, text):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("FortunePlugin: Handling message:", text)
+        self.logprint("MonkeyPlugin: Handling message:")
         if self.command == '' or text.startswith(self.command):
-            newstr = commands.getoutput('fortune -s -n ' + str(self.max_length))
-            if nick:
-                newstr = nick + ': ' + newstr
-            self.bridge.send_and_shout(newstr, self.nick)
+            self.bridge.send_and_shout("@({-_-})@", self.nick)
 
 def main():
     import sys
@@ -58,7 +52,7 @@ def main():
     msg = ' '.join(args[1:])
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
-    plug = FortunePlugin([bridge])
+    plug = MonkeyPlugin([bridge])
     plug.setup()
     print "Returned:", plug.handleShoutMessage(shout)
 

@@ -19,6 +19,22 @@ class DicePlugin(Plugin):
     command = '!dice'
     max_printed_rolls = 10
     nick = "Dicey"
+    rpgs = dict([
+        ('dod', [
+            ('STY', '3d6'),
+            ('KRO', '3d6'),
+            ('STO', '3d6'),
+            ('INT', '3d6'),
+            ('KRA', '3d6'),
+            ('SKI', '3d6'),
+            ('KAR', '3d6'),
+        ]),
+        ('twerps', [
+            ('Styrka', '1d10'),
+        ]),
+    ])
+    #('', []),
+
 
     def setup(self):
         """
@@ -31,23 +47,28 @@ class DicePlugin(Plugin):
         Method called on every received XMPP message stanza.
         """
         body = getElStr(message.body)
-        self.dice_roller(body)
+        self.sender_nick = message['nick']
+        self.dice_roller(body, message['nick'])
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
-        self.dice_roller(shout.text)
+        self.sender_nick = shout.name
+        self.dice_roller(shout.text, shout.name)
 
-    def dice_roller(self, text):
+    def dice_roller(self, text, nick):
         """
         Parse message body and send message with dice roll.
         """
         self.logprint("DicePlugin: Handling message:", text)
         if self.command == '' or text.startswith(self.command):
             diestr = ''
-            if text.find('DoD') >= 0:
-                diestr = self.roll_character('DoD')
+            words = text.split()
+            rpg = words[1].lower()
+            if rpg in self.rpgs:
+                diestr = self.roll_character(rpg)
+                diestr = self.prepend_sender(diestr)
                 self.bridge.send_and_shout(diestr, self.nick)
             else:
                 diestr = self.d.replaceDieStrings(text, self.replace_roll)
@@ -58,10 +79,9 @@ class DicePlugin(Plugin):
         Currenty always rolls for DoD.
         """
         diestr = ''
-        die = Die(6, 3)
-        for roll in ['STY', 'KRO', 'STO', 'INT', 'KRA', 'SKI', 'KAR']:
-            die.resetResult()
-            die.roll()
+        for name, roll in self.rpgs[rpg]:
+            die = Die(roll)
+            die.roll(True)
             diestr += roll + ": " + str(die.result) + ' '
         return diestr
 
@@ -69,17 +89,20 @@ class DicePlugin(Plugin):
         """
         Replace die rolls in text, and sends message/shout with result for each roll.
         """
-        die = Die(m.group('die'), m.group('rolls'), m.group('op'), m.group('val'), m.group('type'))
+        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'))
         die.roll()
-        str = die.getResultString()
+        newstr = die.getResultString()
         if not m.group('rolls'):
             rolls = 1
         else:
             rolls = int(m.group('rolls'))
-        if rolls <= self.max_printed_rolls:
-            str += " " + repr(die.list)
-        self.bridge.send_and_shout(str, self.nick)
-        return str
+        if rolls > 1 and rolls <= self.max_printed_rolls:
+            newstr += " " + repr(die.list)
+            if die.op and die.val > 0:
+                newstr += " " + die.op + " " + str(die.val)
+        newstr = self.prepend_sender(newstr)
+        self.bridge.send_and_shout(newstr, self.nick)
+        return newstr
 
 def main():
     import sys

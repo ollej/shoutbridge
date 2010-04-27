@@ -26,6 +26,7 @@ class Plugin(BridgeClass):
     author = "Olle Johansson"
     description = "Default Shoutbridge plugin interface."
     bridge = None
+    sender_nick = ''
 
     def __init__(self, args):
         try:
@@ -39,6 +40,15 @@ class Plugin(BridgeClass):
         Setup method which is called once before any triggers methods are called.
         """
         pass
+
+    def prepend_sender(self, text):
+        """
+        Prepends name of sender of message if available.
+        """
+        if self.sender_nick:
+            text = self.sender_nick + ': ' + text
+        return text
+
 
     def handleXmppMessage(self, message):
         """

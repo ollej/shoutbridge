@@ -82,7 +82,6 @@ Some ideas for future development.
  * If room hasn't been created when joining, accept default room configuration.
  * Move plugin command matching code to XmppBridge.trigger_plugin_event
  * Add priority sorting to plugin triggering.
- * DicePlugin - Allow for more rpg rolls, via a lookup hash.
  * away presence could hide user on forum
  * Possibly allow several commands for a single plugin.
  * Maybe plugin should register handlers for events, with command.

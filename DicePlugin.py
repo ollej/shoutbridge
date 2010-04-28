@@ -18,6 +18,7 @@ class DicePlugin(Plugin):
     description = "Dice roller plugin."
     command = '!dice'
     max_printed_rolls = 10
+    max_responses = 5
     nick = "Dicey"
     rpgs = dict([
         ('dod', [
@@ -79,7 +80,7 @@ class DicePlugin(Plugin):
                 diestr = self.prepend_sender(diestr)
                 self.bridge.send_and_shout(diestr, self.nick)
             else:
-                diestr = self.d.replaceDieStrings(text, self.replace_roll)
+                diestr = self.d.replaceDieStrings(text, self.replace_roll, self.max_responses)
 
     def roll_character(self, rpg):
         """

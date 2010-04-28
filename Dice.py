@@ -187,11 +187,11 @@ class Dicey(object):
         html += "</div>"
         return html
 
-    def replaceDieStrings(self, diestring, roll_call=None):
+    def replaceDieStrings(self, diestring, roll_call=None, max_responses=None):
         """Finds all die roll texts in string and replaces them with result information."""
         if not roll_call:
             roll_call = self.replaceDieRoll
-        newstring = re.sub(Die.dice_pattern, roll_call, diestring)
+        newstring = re.sub(Die.dice_pattern, roll_call, diestring, max_responses)
         return newstring
 
 if __name__ == '__main__':

@@ -75,6 +75,11 @@ def getElStr(el):
     return unicode(unescape(el.__str__().strip()))
 
 def read_file(filename, separator=None):
+    """
+    Loads the lines in the file into an array.
+    If separator is given, those characters by themselves on a line will separate
+    each element in the array, otherwise each line will be an element.
+    """
     lines = []
     text = ""
     f = open (filename, "r")

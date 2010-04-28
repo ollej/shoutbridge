@@ -76,6 +76,7 @@ class DicePlugin(Plugin):
             rpg = words[1].lower()
             if rpg in self.rpgs:
                 diestr = self.roll_character(rpg)
+                diestr = words[1] + " - " + diestr
                 diestr = self.prepend_sender(diestr)
                 self.bridge.send_and_shout(diestr, self.nick)
             else:

@@ -384,8 +384,8 @@ class XmppBridge(BridgeClass):
         if not nick:
             nick = self.resource
         user = User(1, nick, self.login)
+        text = str(text)
         self.shoutbox.sendShout(user, text)
-        self.logprint('The die is cast:', text, nick)
         self.send_message(self.room, text, nick)
 
     def process_shoutbox_messages(self):

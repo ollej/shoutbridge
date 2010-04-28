@@ -41,7 +41,7 @@ class WeekPlugin(Plugin):
         self.logprint("WeekPlugin: Handling message.")
         if self.command == '' or text.startswith(self.command):
             (isoyear, isoweek, isoweekday) = date.today().isocalendar()
-            self.bridge.send_and_shout(isoweek, self.nick)
+            self.bridge.send_and_shout("Vecka: " + str(isoweek), self.nick)
 
 def main():
     import sys

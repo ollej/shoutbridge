@@ -74,11 +74,22 @@ def unescape(text):
 def getElStr(el):
     return unicode(unescape(el.__str__().strip()))
 
-def read_file(filename):
+def read_file(filename, separator=None):
     lines = []
-    f = open (filename,"r")
+    text = ""
+    f = open (filename, "r")
     for line in f.readlines():
-        lines.append(line)
+        if separator and line.strip() == separator:
+            lines.append(text)
+            text = ""
+            continue
+        if separator:
+            text += line
+        else:
+            lines.append(line)
+    if text:
+        lines.append(text)
+
     return lines
 
 if __name__ == '__main__':

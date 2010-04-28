@@ -13,7 +13,7 @@ class WeekPlugin(Plugin):
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Simple plugin to display current ISO week number."
     command = '!vecka'
-    nick = "Bot"
+    nick = "HALiBot"
 
     def setup(self):
         """
@@ -41,7 +41,7 @@ class WeekPlugin(Plugin):
         self.logprint("WeekPlugin: Handling message.")
         if self.command == '' or text.startswith(self.command):
             (isoyear, isoweek, isoweekday) = date.today().isocalendar()
-            self.bridge.send_and_shout(isoweek)
+            self.bridge.send_and_shout(isoweek, self.nick)
 
 def main():
     import sys

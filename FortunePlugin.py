@@ -14,7 +14,7 @@ class FortunePlugin(Plugin):
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Fortune cookie plugin."
     command = '!fortune'
-    nick = "FortuneTeller"
+    nick = "HALiBot"
     max_length = 60
 
     def setup(self):

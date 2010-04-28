@@ -108,7 +108,7 @@ class XmppBridge(BridgeClass):
             else:
                 try:
                     func(obj)
-                except (Error, Exception), e:
+                except (Exception), e:
                     self.logprint("Plugin raised exception:", plugin_name, "\n", e)
 
     def make_connection(self):

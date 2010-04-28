@@ -384,7 +384,6 @@ class XmppBridge(BridgeClass):
         if not nick:
             nick = self.resource
         user = User(1, nick, self.login)
-        text = str(text)
         self.shoutbox.sendShout(user, text)
         self.send_message(self.room, text, nick)
 

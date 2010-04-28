@@ -37,6 +37,17 @@ class DicePlugin(Plugin):
             ('WIS', '4d6h3'),
             ('CHA', '4d6h3'),
         ]),
+        ('eon', [
+            (u'STY', '3d6'),
+            (u'TÅL', '3d6'),
+            (u'RÖR', '3d6'),
+            (u'PER', '3d6'),
+            (u'PSY', '3d6'),
+            (u'VIL', '3d6'),
+            (u'BIL', '3d6'),
+            (u'SYN', '3d6'),
+            (u'HÖR', '3d6'),
+        ]),
         ('twerps', [
             ('Styrka', '1d10'),
         ]),

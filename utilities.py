@@ -4,6 +4,7 @@ import urllib2
 import re
 import htmlentitydefs
 from twisted.words.xish import domish
+import codecs
 
 class ElementParser(object):
     "callable class to parse XML string into Element"
@@ -82,7 +83,8 @@ def read_file(filename, separator=None):
     """
     lines = []
     text = ""
-    f = open (filename, "r")
+    #f = open (filename, "r", "utf-8")
+    f = codecs.open(filename, "r", "utf-8")
     for line in f.readlines():
         if separator and line.strip() == separator:
             lines.append(text)
@@ -94,8 +96,16 @@ def read_file(filename, separator=None):
             lines.append(line)
     if text:
         lines.append(text)
-
     return lines
+
+def file_len(filename):
+    """
+    Returns the number of lines in the given file.
+    """
+    with open(filename) as f:
+        for i, l in enumerate(f):
+            pass
+    return i
 
 if __name__ == '__main__':
     xml = loadUrl('http://www.rollspel.nu/forum/ubbthreads.php?ubb=listshouts')

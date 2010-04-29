@@ -83,14 +83,20 @@ Some ideas for future development.
  * Move plugin command matching code to XmppBridge.trigger_plugin_event
  * Add priority sorting to plugin triggering.
  * away presence could hide user on forum
- * Possibly allow several commands for a single plugin.
- * Maybe plugin should register handlers for events, with command.
- * Add help information for plugins.
+ * Load plugin method should use reflection on plugins to find out commands, and handler methods.
+ * HelpPlugin
+     * Add help information for plugins. Read using reflection by HelpPlugin
+     * HelpPlugin should list all available commands if no argument is given.
+     * If a command is given to !help, print doc string for that command.
+ * Add support to choose config section via command line for shoutbridge.py
+ * BUG: Exception raised if plugin not found: ImportError: No module named NamnPlugin
+ * BUG: When loadUrl fails, reactor stops running that loop.
+ * Move plugins into plugin sub-directory.
+ * Move xmpp bridges into bridges/ and shoutbox classes into shoutbox/
+ * Consolidate all quote plugins.
  * Plugin ideas:
    * !seen <user> - showing last online time for user
-   * !namn - Displays the names from Swedish calendar
    * !help - Display help information from all plugins.
-   * !spank <user> - Spank user with hilarious items.
    * !calc - calculator
    * Possibly convert !trivia, !weather, !translate, !google etc from other bots.
 

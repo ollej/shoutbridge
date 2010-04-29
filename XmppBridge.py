@@ -108,7 +108,7 @@ class XmppBridge(BridgeClass):
             else:
                 try:
                     func(obj)
-                except (Error, Exception), e:
+                except (Exception), e:
                     self.logprint("Plugin raised exception:", plugin_name, "\n", e)
 
     def make_connection(self):
@@ -385,7 +385,6 @@ class XmppBridge(BridgeClass):
             nick = self.resource
         user = User(1, nick, self.login)
         self.shoutbox.sendShout(user, text)
-        self.logprint('The die is cast:', text, nick)
         self.send_message(self.room, text, nick)
 
     def process_shoutbox_messages(self):

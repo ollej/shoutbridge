@@ -38,6 +38,17 @@ class DicePlugin(Plugin):
             ('WIS', '4d6h3'),
             ('CHA', '4d6h3'),
         ]),
+        ('eon', [
+            (u'STY', '3d6'),
+            (u'TÅL', '3d6'),
+            (u'RÖR', '3d6'),
+            (u'PER', '3d6'),
+            (u'PSY', '3d6'),
+            (u'VIL', '3d6'),
+            (u'BIL', '3d6'),
+            (u'SYN', '3d6'),
+            (u'HÖR', '3d6'),
+        ]),
         ('twerps', [
             ('Styrka', '1d10'),
         ]),
@@ -77,6 +88,7 @@ class DicePlugin(Plugin):
             rpg = words[1].lower()
             if rpg in self.rpgs:
                 diestr = self.roll_character(rpg)
+                diestr = words[1] + " - " + diestr
                 diestr = self.prepend_sender(diestr)
                 self.bridge.send_and_shout(diestr, self.nick)
             else:

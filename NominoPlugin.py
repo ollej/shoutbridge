@@ -28,8 +28,6 @@ class NominoPlugin(Plugin):
         """
         self.firstnames = self.read_list_files("_names.txt")
         self.surnames = self.read_list_files("_surnames.txt")
-        self.logprint("Firstnames:", self.firstnames)
-        self.logprint("Surnames:", self.surnames)
 
     def read_list_files(self, listtype):
         namelist = dict()
@@ -41,7 +39,6 @@ class NominoPlugin(Plugin):
             linecount = file_len(infile)
             if linecount:
                 namelist[listname] = dict(linecount=linecount, filename=infile)
-            print "Namefile:", infile, listname, linecount
         return namelist
 
     def handleXmppMessage(self, message):
@@ -70,15 +67,12 @@ class NominoPlugin(Plugin):
             snlist = fnlist
             if len(words) > 2:
                 snlist = words[2] 
-            self.logprint("Selections:", fnlist, snlist)
             firstname = self.get_random_line(self.firstnames, fnlist).strip()
             surname = self.get_random_line(self.surnames, snlist).strip()
-            self.logprint("Namn:", firstname, surname)
             name = "Slumpat namn: " + firstname + ' ' + surname
             self.bridge.send_and_shout(name, self.nick)
 
     def get_random_line(self, lists, listname='*'):
-        self.logprint("Lists:", lists)
         if listname == '*':
             file = lists[random.choice(lists.keys())]
         else:
@@ -88,9 +82,7 @@ class NominoPlugin(Plugin):
                 return self.get_random_line(lists, '*')
         if not file:
             return None
-        self.logprint("File.", file)
         lineno = random.randint(0, file['linecount']-1)
-        self.logprint("Selection:", file['filename'], lineno)
         return linecache.getline(file['filename'], lineno)
 
 

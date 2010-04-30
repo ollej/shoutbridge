@@ -18,11 +18,11 @@ class QuotesPlugin(Plugin):
     separator = '%'
     commands = [
         dict(
-            command = '!citat add',
+            command = ['!citat add', '!quote add'],
             handler = 'add_quote',
         ),
         dict(
-            command = '!citat',
+            command = ['!citat', '!quote'],
             handler = 'random_quote',
         ),
     ]
@@ -32,19 +32,6 @@ class QuotesPlugin(Plugin):
         Setup method which is called once before any triggers methods are called.
         """
         self.quotes = read_file(self.filename, self.separator)
-
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.handle_shout(body, message['nick'])
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.handle_shout(shout.text, shout.name)
 
     def add_quote(self, text, nick, command):
         newquote = text.replace(command, '', 1).strip()

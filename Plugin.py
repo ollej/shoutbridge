@@ -25,7 +25,7 @@ class Plugin(BridgeClass):
     name = "Plugin"
     author = "Olle Johansson"
     description = "Default Shoutbridge plugin interface."
-    nick = ''
+    nick = 'HALiBot'
     bridge = None
     commands = []
 
@@ -50,18 +50,18 @@ class Plugin(BridgeClass):
             text = self.sender_nick + ': ' + text
         return text
 
-
     def handleXmppMessage(self, message):
         """
         Method called on every received XMPP message stanza.
         """
-        pass
+        body = getElStr(message.body)
+        self.handle_shout(body, message['nick'])
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
-        pass
+        self.handle_shout(shout.text, shout.name)
 
     def handleXmppIq(self, iq):
         """
@@ -81,11 +81,12 @@ class Plugin(BridgeClass):
         """
         self.logprint(self.name + ": Handling message:", nick, text)
         #text = unicode(text, 'utf-8')
-        for cmd in self.commands:
-            if not cmd['command'] or text.startswith(cmd['command']):
-                handler = getattr(self, cmd['handler'])
-                handler(text, nick, cmd['command'])
-                break
+        for cmds in self.commands:
+            for cmd in cmds['command']:
+                if not cmd or text.startswith(cmd):
+                    handler = getattr(self, cmds['handler'])
+                    handler(text, nick, cmd)
+                    break
 
 def main():
     import sys

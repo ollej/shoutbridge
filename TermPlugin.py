@@ -23,11 +23,11 @@ class TermPlugin(Plugin):
     separator = '%'
     commands = [
         dict(
-            command='!term add',
+            command=['!define', '!term add'],
             handler='add_term',
         ),
         dict(
-            command='!term',
+            command=['!term'],
             handler='define_term',
         ),
     ]
@@ -69,7 +69,11 @@ class TermPlugin(Plugin):
     def add_term(self, text, nick, command):
         newterm = text.replace(command, '', 1).strip()
         if newterm:
-            (term, definition) = newterm.split('=', 1)
+            try:
+                (term, definition) = newterm.split('=', 1)
+            except ValueError:
+                self.bridge.send_and_shout("Couldn't add definition.", self.nick)
+                return
             newdefinition = term.strip() + '=' + definition.strip()
             add_line_to_file(self.filename_newdefinitions, newdefinition, separator=self.separator)
             self.bridge.send_and_shout("New definition added for review: " + newdefinition, self.nick)

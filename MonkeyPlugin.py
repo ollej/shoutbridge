@@ -11,8 +11,21 @@ class MonkeyPlugin(Plugin):
     name = "MonkeyPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Simple plugin to display a monkey."
-    command = '!apa'
-    nick = "Apa"
+    nick = "HALiBot"
+    commands = [
+        dict(
+            command = ['!apa', '!monkey'],
+            handler = 'show_monkey',
+        ),
+        dict(
+            command = ['!tits', '!boobs', '!boobies'],
+            handler = 'show_tits',
+        ),
+        dict(
+            command = ['!fallos', '!snopp', '!penis'],
+            handler = 'show_fallos',
+        ),
+    ]
 
     def setup(self):
         """
@@ -20,26 +33,23 @@ class MonkeyPlugin(Plugin):
         """
         pass
 
-    def handleXmppMessage(self, message):
+    def show_monkey(self, text, nick, command=None):
         """
-        Method called on every received XMPP message stanza.
+        Send a message with a cute monkey.
         """
-        body = getElStr(message.body)
-        self.monkey(body)
+        self.bridge.send_and_shout("@({-_-})@", "Apa")
 
-    def handleShoutMessage(self, shout):
+    def show_tits(self, text, nick, command=None):
         """
-        Method called on every new message from the Shoutbox.
+        Show tits!
         """
-        self.monkey(shout.text)
+        self.bridge.send_and_shout("( . )( . )", self.nick)
 
-    def monkey(self, text):
+    def show_fallos(self, text, nick, command=None):
         """
-        Parse message body and send message with dice roll.
+        Show tits!
         """
-        self.logprint("MonkeyPlugin: Handling message:")
-        if self.command == '' or text.startswith(self.command):
-            self.bridge.send_and_shout("@({-_-})@", self.nick)
+        self.bridge.send_and_shout("8========D", self.nick)
 
 def main():
     import sys

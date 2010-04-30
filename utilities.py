@@ -107,6 +107,17 @@ def file_len(filename):
             pass
     return i
 
+def add_line_to_file(filename, text, separator=None, newline="\n"):
+    """
+    Writes text to filename.
+    Prepends a line with separator if given.
+    """
+    f = codecs.open(filename, "a+", "utf-8")
+    f.seek(0, 2)
+    if separator and f.tell() > 0:
+        f.write(separator + newline)
+    f.write(text + newline)
+
 if __name__ == '__main__':
     xml = loadUrl('http://www.rollspel.nu/forum/ubbthreads.php?ubb=listshouts')
     parser = ElementParser()

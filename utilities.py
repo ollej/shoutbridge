@@ -116,6 +116,7 @@ def add_line_to_file(filename, text, separator=None, newline="\n"):
     f.seek(0, 2)
     if separator and f.tell() > 0:
         f.write(separator + newline)
+    #f.write(unicode(text, 'utf-8') + newline)
     f.write(text + newline)
 
 if __name__ == '__main__':

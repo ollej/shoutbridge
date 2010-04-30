@@ -18,22 +18,39 @@ class TermPlugin(Plugin):
     description = "Term bot can print definitions of terms, or print a random definition."
     command = '!term'
     nick = "HALiBot"
-    path = "extras/definitions.dat"
+    filename = "extras/definitions.dat"
+    filename_newdefinitions = "extras/definitions_new.dat"
+    separator = '%'
+    commands = [
+        dict(
+            command='!term add',
+            handler='add_term',
+        ),
+        dict(
+            command='!term',
+            handler='define_term',
+        ),
+    ]
     definitions = dict()
 
     def setup(self):
         """
         Setup method which is called once before any triggers methods are called.
         """
-        self.definitions = self.read_definitions(self.path)
+        self.definitions = self.read_definitions(self.filename)
 
     def read_definitions(self, file):
         definitions = dict()
         lines = read_file(file)
         for line in lines:
             # TODO: Maybe send a function ref to read_file for handling each line.
-            (term, definition) = line.split("=", 1)
-            definitions[term.lower()] = definition.strip()
+            try:
+                (term, definition) = line.split("=", 1)
+            except ValueError:
+                self.logprint("Couldn't add definition:", line)
+                continue
+            for t in term.split(','):
+                definitions[t.lower()] = definition.strip()
         return definitions
 
     def handleXmppMessage(self, message):
@@ -41,33 +58,41 @@ class TermPlugin(Plugin):
         Method called on every received XMPP message stanza.
         """
         body = getElStr(message.body)
-        self.randomize_name(body, message['nick'])
+        self.handle_shout(body, message['nick'])
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
-        self.randomize_name(shout.text, shout.name)
+        self.handle_shout(shout.text, shout.name)
 
-    def randomize_name(self, text, nick):
+    def add_term(self, text, nick, command):
+        newterm = text.replace(command, '', 1).strip()
+        if newterm:
+            (term, definition) = newterm.split('=', 1)
+            newdefinition = term.strip() + '=' + definition.strip()
+            add_line_to_file(self.filename_newdefinitions, newdefinition, separator=self.separator)
+            self.bridge.send_and_shout("New definition added for review: " + newdefinition, self.nick)
+
+    def define_term(self, text, nick, command=None):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("TermPlugin: Handling message:", nick, text)
-        if self.command == '' or text.startswith(self.command):
-            if not text:
-                return
-            words = text.split()[1:]
-            if not words:
-                words = [random.choice(self.definitions.keys())]
-            answers = ""
-            for w in words:
-                self.logprint('Handling term:', w)
-                try:
-                    answers += "Definition av '" + w + "': " + self.definitions[w.lower()] + "\n"
-                except KeyError:
-                    pass
-            self.bridge.send_and_shout(answers.strip(), self.nick)
+        if not text:
+            return
+        words = text.split()[1:]
+        if not words:
+            words = [random.choice(self.definitions.keys())]
+        answers = ""
+        for w in words:
+            self.logprint('Handling term:', w)
+            try:
+                answers += "Definition av '" + w + "': " + self.definitions[w.lower()] + "\n"
+            except KeyError:
+                pass
+        if not answers.strip():
+            answers = "Hittade inga definitioner."
+        self.bridge.send_and_shout(answers.strip(), self.nick)
 
 def main():
     import sys
@@ -77,7 +102,7 @@ def main():
     import Shoutbox
     cfg = Conf('config.ini', 'LOCAL')
     args = sys.argv
-    msg = ' '.join(args[1:])
+    msg = unicode(' '.join(args[1:]), 'utf-8')
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
     plug = TermPlugin([bridge])

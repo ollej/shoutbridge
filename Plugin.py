@@ -25,8 +25,9 @@ class Plugin(BridgeClass):
     name = "Plugin"
     author = "Olle Johansson"
     description = "Default Shoutbridge plugin interface."
+    nick = ''
     bridge = None
-    sender_nick = ''
+    commands = []
 
     def __init__(self, args):
         try:
@@ -73,6 +74,18 @@ class Plugin(BridgeClass):
         Method called on every received XMPP Presence stanza.
         """
         pass
+
+    def handle_shout(self, text, nick):
+        """
+        Parses the text and matches against command handlers.
+        """
+        self.logprint(self.name + ": Handling message:", nick, text)
+        #text = unicode(text, 'utf-8')
+        for cmd in self.commands:
+            if not cmd['command'] or text.startswith(cmd['command']):
+                handler = getattr(self, cmd['handler'])
+                handler(text, nick, cmd['command'])
+                break
 
 def main():
     import sys

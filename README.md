@@ -94,6 +94,7 @@ Some ideas for future development.
  * Move plugins into plugin sub-directory.
  * Move xmpp bridges into bridges/ and shoutbox classes into shoutbox/
  * Consolidate all quote plugins.
+ * Plugin commands should not be case sensitive.
  * Plugin ideas:
    * !seen <user> - showing last online time for user
    * !help - Display help information from all plugins.

@@ -42,7 +42,8 @@ class FortunePlugin(Plugin):
         """
         self.logprint("FortunePlugin: Handling message:", text)
         if self.command == '' or text.startswith(self.command):
-            newstr = commands.getoutput('fortune -s -n ' + str(self.max_length))
+            #newstr = commands.getoutput('fortune -a -s -n ' + str(self.max_length))
+            newstr = commands.getoutput('fortune -a -s')
             if nick:
                 newstr = nick + ': ' + newstr
             self.bridge.send_and_shout(newstr, self.nick)

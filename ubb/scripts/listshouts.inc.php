@@ -46,6 +46,7 @@ class ShoutList {
     private $graemlin_code = array();
     private $graemlin_type = '';
     private $pass = 'u3nzcxvu8m34';
+    private $max_word_len = 29;
 
     public function __construct($graemlin_type='') {
         global $dbh, $config, $html;
@@ -72,6 +73,50 @@ class ShoutList {
         }
     }
 
+    private function getUserInfo($username) {
+        global $config, $dbh;
+        $query = "
+            SELECT u.USER_ID, u.USER_DISPLAY_NAME 
+            FROM   {$config['TABLE_PREFIX']}USERS u, {$config['TABLE_PREFIX']}USER_PROFILE p
+            WHERE  u.USER_ID = p.USER_ID
+            AND    p.USER_EXTRA_FIELD_1 = ?
+            ORDER BY u.USER_ID ASC
+            LIMIT 1
+        ";
+        $sth = $dbh->do_placeholder_query($query, array($username), __LINE__, __FILE__);
+        while ($row = $dbh->fetch_array($sth)) {
+            $user_id = $row[0];
+            $user_name = $row[1];
+        }
+        if (!$user_id) {
+            return false;
+        }
+        return array($user_id, $user_name);
+    }
+
+    private function parseMessage($text) {
+        global $dbh, $config, $html, $ubbt_lang;
+
+        // Long words should be wrapped in shoutbox messages.
+        $text = htmlspecialchars(trim($text));
+        $words = explode(" ", $text);
+        foreach ($words as $i =>$w) {
+            if (strlen(html_entity_decode($words[$i])) > $this->max_word_len) {
+                $words[$i] = $html->utf8_wordwrap($words[$i], $this->max_word_len, "<br />", 1);
+            } // end if
+        } // end if
+        $text = implode(" ", $words);
+
+        // Handle markup code.
+        $text = $html->do_markup($text,"shoutbox","markup");
+
+        // Should text be censored?
+        if ($config['DO_CENSOR']) {
+            $text = $html->do_censor($text);
+        }
+        return $text;
+    }
+
     public function sendShout($post) {
         global $dbh, $config, $html, $ubbt_lang;
         if ($post['secret'] != $this->pass) {
@@ -80,18 +125,8 @@ class ShoutList {
 
         // Get username and userid based on JID
         if (strpos($post['user_name'], '@') !== false) {
-            $query = "
-                SELECT u.USER_ID, u.USER_DISPLAY_NAME 
-                FROM   {$config['TABLE_PREFIX']}USERS u, {$config['TABLE_PREFIX']}USER_PROFILE p
-                WHERE  u.USER_ID = p.USER_ID
-                AND    p.USER_EXTRA_FIELD_1 = ?
-                ORDER BY u.USER_ID ASC
-                LIMIT 1
-            ";
-            $sth = $dbh->do_placeholder_query($query, array($post['user_name']), __LINE__, __FILE__);
-            while ($row = $dbh->fetch_array($sth)) {
-                $post['user_id'] = $row[0];
-                $post['user_name'] = $row[1];
+            if ($userinfo = $this->getUserInfo($post['user_name'])) {
+                list($post['user_id'], $post['user_name']) = $userinfo;
             }
         }
 
@@ -103,6 +138,7 @@ class ShoutList {
         ";
         $username = $post['user_name'] ? $post['user_name'] : $ubbt_lang['ANON_TEXT'];
         $id = $post['user_id'] ? intval($post['user_id']) : 1;
+        $post['message'] = $this->parseMessage($post['message']);
         $values = array($id, $username, $post['message']);
         $dbh->do_placeholder_query($query, $values, __LINE__, __FILE__);
 

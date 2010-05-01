@@ -385,7 +385,7 @@ class XmppBridge(BridgeClass):
             nick = self.resource
         user = User(1, nick, self.login)
         self.send_message(self.room, text, nick)
-        text = text.replace("\n", "<br />\n")
+        #text = text.replace("\n", "<br />\n")
         self.shoutbox.sendShout(user, text)
 
     def process_shoutbox_messages(self):

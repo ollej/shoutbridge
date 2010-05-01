@@ -16,11 +16,16 @@ class NominoPlugin(Plugin):
     name = "NominoPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Nomino bot can generate random names from different lists."
-    command = '!nomino'
     nick = "HALiBot"
     path = "extras/nomino/"
     firstnames = dict()
     surnames = dict()
+    commands = [
+        dict(
+            command=['!nomino', '!namn', '!name'],
+            handler='randomize_name',
+        ),
+    ]
 
     def setup(self):
         """
@@ -41,36 +46,21 @@ class NominoPlugin(Plugin):
                 namelist[listname] = dict(linecount=linecount, filename=infile)
         return namelist
 
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.randomize_name(body, message['nick'])
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.randomize_name(shout.text, shout.name)
-
-    def randomize_name(self, text, nick):
+    def randomize_name(self, text, nick, command, cmd):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("NominoPlugin: Handling message:", nick, text)
-        if self.command == '' or text.startswith(self.command):
-            words = text.lower().split()
-            fnlist = '*'
-            if len(words) > 1:
-                fnlist = words[1] 
-            snlist = fnlist
-            if len(words) > 2:
-                snlist = words[2] 
-            firstname = self.get_random_line(self.firstnames, fnlist).strip()
-            surname = self.get_random_line(self.surnames, snlist).strip()
-            name = "Slumpat namn: " + firstname + ' ' + surname
-            self.bridge.send_and_shout(name, self.nick)
+        words = text.lower().split()
+        fnlist = '*'
+        if len(words) > 1:
+            fnlist = words[1] 
+        snlist = fnlist
+        if len(words) > 2:
+            snlist = words[2] 
+        firstname = self.get_random_line(self.firstnames, fnlist).strip()
+        surname = self.get_random_line(self.surnames, snlist).strip()
+        name = "Slumpat namn: " + firstname + ' ' + surname
+        self.bridge.send_and_shout(name, self.nick)
 
     def get_random_line(self, lists, listname='*'):
         if listname == '*':

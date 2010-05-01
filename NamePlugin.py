@@ -12,8 +12,12 @@ class NamePlugin(Plugin):
     name = "NamePlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Plugin that prints names from the Swedish calendar."
-    command = '!namn'
-    nick = "HALiBot"
+    commands = [
+        dict(
+            command=['!dagensnamn'],
+            handler='send_names',
+        ),
+    ]
     names = []
 
     def setup(self):
@@ -22,29 +26,14 @@ class NamePlugin(Plugin):
         """
         self.names = read_file("extras/names.dat")
 
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.send_names(body)
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.send_names(shout.text)
-
-    def send_names(self, text):
+    def send_names(self, text, nick, command, cmd):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("NamePlugin: Handling message.")
-        if self.command == '' or text.startswith(self.command):
-            d = date.today()
-            day = int(d.strftime("%j")) - 1
-            names = self.names[day]
-            self.bridge.send_and_shout(names, self.nick)
+        d = date.today()
+        day = int(d.strftime("%j")) - 1
+        names = self.names[day]
+        self.bridge.send_and_shout(names, self.nick)
 
 def main():
     import sys

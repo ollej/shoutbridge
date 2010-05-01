@@ -23,11 +23,11 @@ class TermPlugin(Plugin):
     separator = '%'
     commands = [
         dict(
-            command=['!define', '!term add'],
+            command=['!definiera', '!define', '!term add'],
             handler='add_term',
         ),
         dict(
-            command=['!term'],
+            command=['!term', '!definition'],
             handler='define_term',
         ),
     ]
@@ -84,19 +84,19 @@ class TermPlugin(Plugin):
         """
         if not text:
             return
-        words = text.split()[1:]
-        if not words:
-            words = [random.choice(self.definitions.keys())]
-        answers = ""
-        for w in words:
-            self.logprint('Handling term:', w)
-            try:
-                answers += "Definition av '" + w + "': " + self.definitions[w.lower()] + "\n"
-            except KeyError:
-                pass
-        if not answers.strip():
-            answers = "Hittade inga definitioner."
-        self.bridge.send_and_shout(answers.strip(), self.nick)
+        #words = text.split()[1:]
+        word = text.replace(command, '', 1).strip()
+        if not word:
+            word = [random.choice(self.definitions.keys())]
+        answer = ""
+        self.logprint('Handling term:', word)
+        try:
+            answer += "Definition av '" + word + "': " + self.definitions[word.lower()] + "\n"
+        except KeyError:
+            pass
+        if not answer.strip():
+            answer = "Hittade inga definitioner."
+        self.bridge.send_and_shout(answer.strip(), self.nick)
 
 def main():
     import sys

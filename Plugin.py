@@ -47,8 +47,10 @@ class Plugin(BridgeClass):
         """
         Prepends name of sender of message if available.
         """
-        if self.sender_nick:
+        try:
             text = self.sender_nick + ': ' + text
+        except AttributeError:
+            pass
         return text
 
     def handleXmppMessage(self, message):
@@ -81,7 +83,6 @@ class Plugin(BridgeClass):
         Parses the text and matches against command handlers.
         """
         self.logprint(self.name + ": Handling message:", nick, text)
-        #text = unicode(text, 'utf-8')
         for cmds in self.commands:
             for cmd in cmds['command']:
                 if not cmd or text.startswith(cmd):

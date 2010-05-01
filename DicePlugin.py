@@ -16,10 +16,15 @@ class DicePlugin(Plugin):
     name = "DicePlugin"
     author = "Olle Johansson"
     description = "Dice roller plugin."
-    command = '!dice'
     max_printed_rolls = 10
     max_responses = 5
     nick = "Dicey"
+    commands = [
+        dict(
+            command=['!dice', '!dicey', '!roll', '!rulla', u'!tärning', '!kasta'],
+            handler='dice_roller',
+        ),
+    ]
     rpgs = dict([
         ('dod', [
             ('STY', '3d6'),
@@ -62,37 +67,24 @@ class DicePlugin(Plugin):
         """
         self.d = Dicey()
 
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.sender_nick = message['nick']
-        self.dice_roller(body, message['nick'])
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.sender_nick = shout.name
-        self.dice_roller(shout.text, shout.name)
-
-    def dice_roller(self, text, nick):
+    def dice_roller(self, text, nick, command, cmd):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("DicePlugin: Handling message:", text)
-        if self.command == '' or text.startswith(self.command):
-            diestr = ''
-            words = text.split()
+        self.sender_nick = nick
+        diestr = ''
+        words = text.split()
+        try:
             rpg = words[1].lower()
-            if rpg in self.rpgs:
-                diestr = self.roll_character(rpg)
-                diestr = words[1] + " - " + diestr
-                diestr = self.prepend_sender(diestr)
-                self.bridge.send_and_shout(diestr, self.nick)
-            else:
-                diestr = self.d.replaceDieStrings(text, self.replace_roll, self.max_responses)
+        except IndexError:
+            return
+        if rpg in self.rpgs:
+            diestr = self.roll_character(rpg)
+            diestr = words[1] + " - " + diestr
+            diestr = self.prepend_sender(diestr)
+            self.bridge.send_and_shout(diestr, self.nick)
+        else:
+            diestr = self.d.replaceDieStrings(text, self.replace_roll, self.max_responses)
 
     def roll_character(self, rpg):
         """
@@ -134,6 +126,7 @@ def main():
     cfg = Conf('config.ini', 'LOCAL')
     args = sys.argv
     msg = ' '.join(args[1:])
+    msg = unicode(msg, 'utf-8')
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
     plug = DicePlugin([bridge])

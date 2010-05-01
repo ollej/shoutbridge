@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from BridgeClass import *
+from utilities import *
 
 class PluginError(Exception):
     """
@@ -85,8 +86,8 @@ class Plugin(BridgeClass):
             for cmd in cmds['command']:
                 if not cmd or text.startswith(cmd):
                     handler = getattr(self, cmds['handler'])
-                    handler(text, nick, cmd)
-                    break
+                    handler(text, nick, cmd, cmds)
+                    return
 
 def main():
     import sys

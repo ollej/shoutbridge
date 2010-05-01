@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import random
+
 from Plugin import *
 from utilities import *
 
@@ -15,41 +17,76 @@ class MonkeyPlugin(Plugin):
     commands = [
         dict(
             command = ['!apa', '!monkey'],
-            handler = 'show_monkey',
+            handler = 'show_text',
+            text = ['@({-_-})@'],
+            nick = "Apa",
         ),
         dict(
             command = ['!tits', '!boobs', '!boobies'],
-            handler = 'show_tits',
+            handler = 'show_text',
+            text = ['( . )( . )', '( . Y .)'],
         ),
         dict(
             command = ['!fallos', '!snopp', '!penis'],
-            handler = 'show_fallos',
+            handler = 'show_text',
+            text = ["8========D"],
+        ),
+        dict(
+            command = ['!koala'],
+            handler = 'show_text',
+            text = ["@( * O * )@"],
+        ),
+        dict(
+            command = ['!fisk', '!fish'],
+            handler = 'show_text',
+            text = ["<`)))><", "><(((('>", "><>"],
+        ),
+        dict(
+            command = ['!sheep', '!får'],
+            handler = 'show_text',
+            text = ["°l°(,,,,);", "/o\*"],
+        ),
+        dict(
+            command = ['!spindel', '!spider'],
+            handler = 'show_text',
+            text = ["///\oo/\\\\\\"],
+        ),
+        dict(
+            command = ['!cat', '!katt'],
+            handler = 'show_text',
+            text = ["<(^.^)>", "=^..^="],
+        ),
+        dict(
+            command = ['!rose', '!ros'],
+            handler = 'show_text',
+            text = ["@->-->---", "@->-", "@--,--'---", "--------{---(@", "@}}>-----"],
+        ),
+        dict(
+            command = ['!mus', '!mouse'],
+            handler = 'show_text',
+            text = ['----{,_,">', '<^__)~~'],
+        ),
+        dict(
+            command = ['!sword', '!svärd'],
+            handler = 'show_text',
+            text = ["o==}=======>>", "(===||:::::::::::::::>"],
+        ),
+        dict(
+            command = ['!snigel', '!snail'],
+            handler = 'show_text',
+            text = ["__@/"],
         ),
     ]
 
-    def setup(self):
-        """
-        Setup method which is called once before any triggers methods are called.
-        """
-        pass
-
-    def show_monkey(self, text, nick, command=None):
-        """
-        Send a message with a cute monkey.
-        """
-        self.bridge.send_and_shout("@({-_-})@", "Apa")
-
-    def show_tits(self, text, nick, command=None):
+    def show_text(self, text, nick, command=None, cmd=None):
         """
         Show tits!
         """
-        self.bridge.send_and_shout("( . )( . )", self.nick)
-
-    def show_fallos(self, text, nick, command=None):
-        """
-        Show tits!
-        """
-        self.bridge.send_and_shout("8========D", self.nick)
+        try:
+            nick = cmd['nick']
+        except KeyError:
+            nick = self.nick
+        self.bridge.send_and_shout(random.choice(cmd['text']), nick)
 
 def main():
     import sys

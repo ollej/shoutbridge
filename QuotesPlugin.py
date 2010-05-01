@@ -33,13 +33,13 @@ class QuotesPlugin(Plugin):
         """
         self.quotes = read_file(self.filename, self.separator)
 
-    def add_quote(self, text, nick, command):
+    def add_quote(self, text, nick, command, cmd):
         newquote = text.replace(command, '', 1).strip()
         if newquote:
             add_line_to_file(self.filename_newquotes, newquote, separator=self.separator)
             self.bridge.send_and_shout("Quote added for review: " + newquote, self.nick)
 
-    def random_quote(self, text, nick, command=None):
+    def random_quote(self, text, nick, command, cmd):
         self.bridge.send_and_shout(random.choice(self.quotes), self.nick)
 
 def main():

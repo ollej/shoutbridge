@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import urllib2
 from datetime import date
 from datetime import datetime
 from twisted.words.xish import domish
@@ -25,8 +24,8 @@ class ExternalShoutbox(Shoutbox):
                 title="Skriven:\ (?P<time>[^"]*)" .*
                 id="shout(?P<id>\d+)"> .*
                 (?:<span class="standouttext">\*)?
-                <a\ href="/forum/ubbthreads.php/users/(?P<userid>\d*)/(?:.*).html">
-                <span(?:[^>]*?)>(?P<username>[^<]+)</span></a>:?&nbsp;
+                <a\ href="/forum/ubbthreads.php/users/(?P<userid>\d+)(?:/.*)?.html">
+                <span(?:[^>]*?)>(?P<username>[^<]+)</span></a>:?(\s*|&nbsp;)
                 (?P<content>.*?)
                 \n(?:<\/span>)?<\/div>
             """,
@@ -51,11 +50,12 @@ class ExternalShoutbox(Shoutbox):
         return shouts
 
     def loadShouts(self, start):
-        params = urlencode({
+        params = dict({
             "ubb": "getshouts",
             "start": start,
         })
         shoutxml = loadUrl(self.base_url, params)
+        print "shoutxml:", shoutxml
         #shoutxml = unicode(shoutxml, 'utf-8').encode('ascii', 'xmlcharrefreplace')
         #shoutxml = shoutxml.replace('<?xml version="1.0" encoding="UTF-8" ?>\n', '')
         return self.parseShouts(shoutxml)
@@ -70,6 +70,8 @@ class ExternalShoutbox(Shoutbox):
 
     def parseShouts(self, shoutxml):
         dom = self.parser(shoutxml)
+        if not dom:
+            return []
         shouts = []
         oldershouts = self.latest_shout
         for e in dom.elements():
@@ -81,6 +83,9 @@ class ExternalShoutbox(Shoutbox):
                 for f in e.elements('', 'shoutdata'):
                     shout = self.parseShout(getElStr(f))
                     if shout and shout['id'] > oldershouts:
+                        if not shout['time'].isdigit():
+                            # TODO: Not able to parse string relative time at this time.
+                            shout['time'] = 0
                         shouts.append(shout)
         return shouts
 

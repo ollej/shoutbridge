@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import urllib2
+import urllib
 import re
 import htmlentitydefs
 from twisted.words.xish import domish
@@ -18,28 +19,50 @@ class ElementParser(object):
         def onElement(el):
             self.result.addChild(el)
 
-        xmldef = '<?xml version="1.0" encoding="utf-8"?>\n'
-        if s.startswith(xmldef):
-            s = s.replace(xmldef, '', 1)
+        s = re.sub(r"\<\?xml.*\?\>\n", '', s, 1)
         s = s.encode('ascii', 'xmlcharrefreplace')
         parser = domish.elementStream()
         parser.DocumentStartEvent = onStart
         parser.ElementEvent = onElement
         parser.DocumentEndEvent = onEnd
         tmp = domish.Element(("", "s"))
-        tmp.addRawXml(s)
-        parser.parse(tmp.toXml())
+        try:
+            tmp.addRawXml(s)
+            parser.parse(tmp.toXml())
+        except twisted.words.xish.domish.ParserError:
+            return None
         return self.result.firstChildElement()
 
-def loadUrl(url, params=None, method="GET"):
-    if params and method == "GET":
-        url = url + "?%s" % params
-        params = None
+def loadUrl(url, params=None, method="GET", timeout=5.0):
+    """
+    Loads url with added params urlencoded.
+    If method is empty or "GET", params are added to the url after a '?'.
+    If params is set and method isn't GET, the method will be POST.
+    An optional timeout on the request can be set.
+    """
+    if params:
+        params = urllib.urlencode(params)
+        if method == "GET":
+            url = url + "?" + params
+            params = None
     try:
-        f = urllib2.urlopen(url, params)
+        print "Loading URL:", url, params
+        print "-----------------------------------------------------------"
+        f = urllib2.urlopen(url, params, timeout)
+        response_info = f.info()
         s = f.read()
         f.close()
+        print "Response Info:", response_info
         s = unicode(s, 'utf-8')
+    except urllib2.HTTPError as he:
+        # Request casued a non 200 OK status response.
+        print "An error occured when loading URL."
+        print "URL:", url
+        if params:
+            print "Params:", param
+        print "HTTP Error:", he
+        print "-----------------------------------------------------------"
+        return ""
     except urllib2.URLError:
         # For now, just ignore URL errors and return empty string.
         return ""

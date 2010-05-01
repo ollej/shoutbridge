@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-from urllib import urlencode
-import urllib2
 from datetime import date
 from datetime import datetime
 from twisted.words.xish import domish
@@ -38,11 +36,10 @@ class MessageShoutbox(Shoutbox):
         return []
 
     def loadShouts(self, start):
-        params = urlencode({
+        params = dict({
             "ubb": "listshouts",
             "start": start,
         })
-        self.logprint("Loading shouts:\n", "%s?%s" % (self.cfg.base_url, params))
         shoutxml = loadUrl(self.cfg.base_url, params)
         #self.logprint(shoutxml)
         return shoutxml

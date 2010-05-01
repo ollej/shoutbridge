@@ -66,7 +66,7 @@ class TermPlugin(Plugin):
         """
         self.handle_shout(shout.text, shout.name)
 
-    def add_term(self, text, nick, command):
+    def add_term(self, text, nick, command, cmd):
         newterm = text.replace(command, '', 1).strip()
         if newterm:
             try:
@@ -78,7 +78,7 @@ class TermPlugin(Plugin):
             add_line_to_file(self.filename_newdefinitions, newdefinition, separator=self.separator)
             self.bridge.send_and_shout("New definition added for review: " + newdefinition, self.nick)
 
-    def define_term(self, text, nick, command=None):
+    def define_term(self, text, nick, command, cmd):
         """
         Parse message body and send message with dice roll.
         """

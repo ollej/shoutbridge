@@ -84,6 +84,7 @@ Some ideas for future development.
  * Add priority sorting to plugin triggering.
  * away presence could hide user on forum
  * Load plugin method should use reflection on plugins to find out commands, and handler methods.
+ * Log all exceptions to file.
  * HelpPlugin
      * Add help information for plugins. Read using reflection by HelpPlugin
      * HelpPlugin should list all available commands if no argument is given.

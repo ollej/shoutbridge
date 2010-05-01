@@ -18,69 +18,69 @@ class MonkeyPlugin(Plugin):
         dict(
             command = ['!apa', '!monkey'],
             handler = 'show_text',
-            text = ['@({-_-})@'],
+            text = [u'@({-_-})@'],
             nick = "Apa",
         ),
         dict(
             command = ['!tits', '!boobs', '!boobies'],
             handler = 'show_text',
-            text = ['( . )( . )', '( . Y .)'],
+            text = [u'( . )( . )', u'( . Y .)'],
         ),
         dict(
             command = ['!fallos', '!snopp', '!penis'],
             handler = 'show_text',
-            text = ["8========D"],
+            text = [u"8========D"],
         ),
         dict(
             command = ['!koala'],
             handler = 'show_text',
-            text = ["@( * O * )@"],
+            text = [u"@( * O * )@"],
         ),
         dict(
             command = ['!fisk', '!fish'],
             handler = 'show_text',
-            text = ["<`)))><", "><(((('>", "><>"],
+            text = [u"<`)))><", u"><(((('>", u"><>"],
         ),
         dict(
             command = ['!sheep', '!får'],
             handler = 'show_text',
-            text = ["°l°(,,,,);", "/o\*"],
+            text = [u"°l°(,,,,);", u"/o\*"],
         ),
         dict(
             command = ['!spindel', '!spider'],
             handler = 'show_text',
-            text = ["///\oo/\\\\\\"],
+            text = [u"///\oo/\\\\\\"],
         ),
         dict(
             command = ['!cat', '!katt'],
             handler = 'show_text',
-            text = ["<(^.^)>", "=^..^="],
+            text = [u"<(^.^)>", u"=^..^="],
         ),
         dict(
             command = ['!rose', '!ros'],
             handler = 'show_text',
-            text = ["@->-->---", "@->-", "@--,--'---", "--------{---(@", "@}}>-----"],
+            text = [u"@->-->---", u"@->-", u"@--,--'---", u"--------{---(@", u"@}}>-----"],
         ),
         dict(
             command = ['!mus', '!mouse'],
             handler = 'show_text',
-            text = ['----{,_,">', '<^__)~~'],
+            text = [u'----{,_,">', u'<^__)~~'],
         ),
         dict(
             command = ['!sword', '!svärd'],
             handler = 'show_text',
-            text = ["o==}=======>>", "(===||:::::::::::::::>"],
+            text = [u"o==}=======>>", u"(===||:::::::::::::::>"],
         ),
         dict(
             command = ['!snigel', '!snail'],
             handler = 'show_text',
-            text = ["__@/"],
+            text = [u"__@/"],
         ),
     ]
 
     def show_text(self, text, nick, command=None, cmd=None):
         """
-        Show tits!
+        Display text from command.
         """
         try:
             nick = cmd['nick']

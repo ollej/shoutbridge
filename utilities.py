@@ -33,7 +33,7 @@ class ElementParser(object):
             return None
         return self.result.firstChildElement()
 
-def loadUrl(url, params=None, method="GET", timeout=5.0):
+def loadUrl(url, params=None, method="GET", timeout=10.0):
     """
     Loads url with added params urlencoded.
     If method is empty or "GET", params are added to the url after a '?'.
@@ -52,14 +52,13 @@ def loadUrl(url, params=None, method="GET", timeout=5.0):
         response_info = f.info()
         s = f.read()
         f.close()
-        print "Response Info:", response_info
         s = unicode(s, 'utf-8')
     except urllib2.HTTPError as he:
         # Request casued a non 200 OK status response.
         print "An error occured when loading URL."
         print "URL:", url
         if params:
-            print "Params:", param
+            print "Params:", params
         print "HTTP Error:", he
         print "-----------------------------------------------------------"
         return ""

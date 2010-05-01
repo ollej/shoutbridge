@@ -48,7 +48,7 @@ class MessageShoutbox(Shoutbox):
         return Shout(s['id'], s['from_id'], s['from'], getElStr(s.body), s['time'])
 
     def sendShout(self, user, message):
-        params = urlencode({
+        params = dict({
             "ubb": "listshouts",
             "action": "send",
             "secret": self.cfg.secret,

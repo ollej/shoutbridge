@@ -14,12 +14,17 @@ class QuotesPlugin(Plugin):
     description = "Quotes bot prints a random quote."
     nick = "HALiBot"
     filename = "extras/quotes.dat"
+    filename_kim = "extras/kimjongil_quotes.dat"
     filename_newquotes = "extras/quotes_new.dat"
     separator = '%'
     commands = [
         dict(
-            command = ['!citat add', '!quote add'],
+            command = ['!citera', '!citat add', '!quote add'],
             handler = 'add_quote',
+        ),
+        dict(
+            command = ['!kimjongil'],
+            handler = 'random_kim',
         ),
         dict(
             command = ['!citat', '!quote'],
@@ -32,12 +37,16 @@ class QuotesPlugin(Plugin):
         Setup method which is called once before any triggers methods are called.
         """
         self.quotes = read_file(self.filename, self.separator)
+        self.quotes_kim = read_file(self.filename_kim, self.separator)
 
     def add_quote(self, text, nick, command, cmd):
         newquote = text.replace(command, '', 1).strip()
         if newquote:
             add_line_to_file(self.filename_newquotes, newquote, separator=self.separator)
             self.bridge.send_and_shout("Quote added for review: " + newquote, self.nick)
+
+    def random_kim(self, text, nick, command, cmd):
+        self.bridge.send_and_shout(random.choice(self.quotes_kim), self.nick)
 
     def random_quote(self, text, nick, command, cmd):
         self.bridge.send_and_shout(random.choice(self.quotes), self.nick)

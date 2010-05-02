@@ -22,6 +22,10 @@ class NominoPlugin(Plugin):
     surnames = dict()
     commands = [
         dict(
+            command=['!nomino list', '!namn list', '!name list', '!nomino help', '!namn help', '!name help'],
+            handler='list_lists',
+        ),
+        dict(
             command=['!nomino', '!namn', '!name'],
             handler='randomize_name',
         ),
@@ -46,21 +50,60 @@ class NominoPlugin(Plugin):
                 namelist[listname] = dict(linecount=linecount, filename=infile)
         return namelist
 
+    def list_lists(self, text, nick, command, cmd):
+        info = "Förnamnslistor: "
+        info += ' '.join(self.firstnames.keys())
+        info += "\nEfternamnslistor: "
+        info += ' '.join(self.surnames.keys())
+        self.bridge.send_and_shout(info, self.nick)
+
     def randomize_name(self, text, nick, command, cmd):
         """
         Parse message body and send message with dice roll.
         """
         words = text.lower().split()
+        count = 1
+        gender = None
+        remove = []
+        for w in words:
+            if w in ('female', 'females', 'kvinna', 'kvinnor'):
+                gender = 'F'
+                remove.append(w)
+            elif w in ('male', 'males', 'man', u'män'):
+                gender = 'M'
+                remove.append(w)
+            elif w.isdigit():
+                count = int(w)
+                remove.append(w)
+        for r in remove:
+            words.remove(r)
         fnlist = '*'
         if len(words) > 1:
             fnlist = words[1] 
         snlist = fnlist
         if len(words) > 2:
             snlist = words[2] 
-        firstname = self.get_random_line(self.firstnames, fnlist).strip()
-        surname = self.get_random_line(self.surnames, snlist).strip()
-        name = "Slumpat namn: " + firstname + ' ' + surname
+        name = "Namn:" 
+        for c in range(count):
+            name += " " + self.get_random_name(fnlist, snlist, gender)
         self.bridge.send_and_shout(name, self.nick)
+
+    def get_random_name(self, fnlist, snlist, onlygender=None):
+        firstname = self.get_random_line(self.firstnames, fnlist).strip()
+        try:
+            (gender, firstname) = firstname.split(' ', 1)
+        except ValueError:
+            gender = "Unknown"
+        if onlygender and onlygender in ('M', 'F') and onlygender != gender:
+            # Inefficient way to make sure a correct gender is returned.
+            return self.get_random_name(fnlist, snlist, onlygender)
+        if gender == 'M':
+            gender = 'Male'
+        else:
+            gender = 'Female'
+        surname = self.get_random_line(self.surnames, snlist).strip()
+        name = "%s %s (%s)" % (firstname, surname, gender)
+        return name
 
     def get_random_line(self, lists, listname='*'):
         if listname == '*':

@@ -96,7 +96,12 @@ class TwistedBridge(XmppBridge):
         to = iq.getAttribute('to')
         id = iq.getAttribute('id')
         type = iq.getAttribute('type')
+
+        # Call the relevant iq handler method.
         self.lookup_iq_method(type)(frm=frm, to=to, id=id, query=iq.query)
+
+        # Trigger handleXmppIq  event
+        self.trigger_plugin_event('XmppIq', iq)
 
     def handle_iq_GET(self, frm=None, to=None, id=None, query=None):
         if query.defaultUri == 'jabber:iq:last':
@@ -192,6 +197,10 @@ class TwistedBridge(XmppBridge):
                                                       login=login, nick=nick)
         else:
             self.handle_presence_AVAILABLE(pres, fromstr=fromstr, nick=nick)
+
+        # Trigger handleXmppPresence event
+        self.trigger_plugin_event('XmppPresence', pres)
+
 
     def handle_presence_DEFAULT(self, pres, fromjid=None, **kwargs):
         print "Received unknown presence:", pres.toXml()

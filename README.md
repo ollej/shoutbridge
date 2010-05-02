@@ -101,4 +101,5 @@ Some ideas for future development.
    * !help - Display help information from all plugins.
    * !calc - calculator
    * Possibly convert !trivia, !weather, !translate, !google etc from other bots.
+ * Plugin handlers should always receive a generic object instead of the raw twisted domish object. For messages, this can be a Shout object.
 

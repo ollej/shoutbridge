@@ -51,9 +51,9 @@ class NominoPlugin(Plugin):
         return namelist
 
     def list_lists(self, text, nick, command, cmd):
-        info = "Förnamnslistor: "
+        info = u"Förnamnslistor: "
         info += ' '.join(self.firstnames.keys())
-        info += "\nEfternamnslistor: "
+        info += u"\nEfternamnslistor: "
         info += ' '.join(self.surnames.keys())
         self.bridge.send_and_shout(info, self.nick)
 
@@ -66,10 +66,10 @@ class NominoPlugin(Plugin):
         gender = None
         remove = []
         for w in words:
-            if w in ('female', 'females', 'kvinna', 'kvinnor'):
+            if w in ('woman', 'women', 'female', 'females', 'kvinna', 'kvinnor'):
                 gender = 'F'
                 remove.append(w)
-            elif w in ('male', 'males', 'man', u'män'):
+            elif w in ('male', 'males', 'men', 'man', u'män'):
                 gender = 'M'
                 remove.append(w)
             elif w.isdigit():
@@ -93,16 +93,16 @@ class NominoPlugin(Plugin):
         try:
             (gender, firstname) = firstname.split(' ', 1)
         except ValueError:
-            gender = "Unknown"
+            gender = u"Unknown"
         if onlygender and onlygender in ('M', 'F') and onlygender != gender:
             # Inefficient way to make sure a correct gender is returned.
             return self.get_random_name(fnlist, snlist, onlygender)
         if gender == 'M':
-            gender = 'Male'
+            gender = u'Male'
         else:
-            gender = 'Female'
+            gender = u'Female'
         surname = self.get_random_line(self.surnames, snlist).strip()
-        name = "%s %s (%s)" % (firstname, surname, gender)
+        name = u"%s %s (%s)" % (firstname, surname, gender)
         return name
 
     def get_random_line(self, lists, listname='*'):
@@ -116,7 +116,7 @@ class NominoPlugin(Plugin):
         if not file:
             return None
         lineno = random.randint(0, file['linecount']-1)
-        return linecache.getline(file['filename'], lineno)
+        return unicode(linecache.getline(file['filename'], lineno), "utf-8")
 
 
 def main():

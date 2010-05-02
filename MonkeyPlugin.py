@@ -16,63 +16,63 @@ class MonkeyPlugin(Plugin):
     nick = "HALiBot"
     commands = [
         dict(
-            command = ['!apa', '!monkey'],
+            command = [u'!apa', u'!monkey'],
             handler = 'show_text',
             text = [u'@({-_-})@'],
             nick = "Apa",
         ),
         dict(
-            command = ['!tits', '!boobs', '!boobies'],
+            command = [u'!tits', u'!boobs', u'!boobies'],
             handler = 'show_text',
             text = [u'( . )( . )', u'( . Y .)'],
         ),
         dict(
-            command = ['!fallos', '!snopp', '!penis'],
+            command = [u'!fallos', u'!snopp', u'!penis'],
             handler = 'show_text',
             text = [u"8========D"],
         ),
         dict(
-            command = ['!koala'],
+            command = [u'!koala'],
             handler = 'show_text',
             text = [u"@( * O * )@"],
         ),
         dict(
-            command = ['!fisk', '!fish'],
+            command = [u'!fisk', u'!fish'],
             handler = 'show_text',
             text = [u"<`)))><", u"><(((('>", u"><>"],
         ),
         dict(
-            command = ['!sheep', '!får'],
+            command = [u'!sheep', u'!får'],
             handler = 'show_text',
             text = [u"°l°(,,,,);", u"/o\*"],
         ),
         dict(
-            command = ['!spindel', '!spider'],
+            command = [u'!spindel', u'!spider'],
             handler = 'show_text',
             text = [u"///\oo/\\\\\\"],
         ),
         dict(
-            command = ['!cat', '!katt'],
+            command = [u'!cat', u'!katt'],
             handler = 'show_text',
             text = [u"<(^.^)>", u"=^..^="],
         ),
         dict(
-            command = ['!rose', '!ros'],
+            command = [u'!rose', u'!ros'],
             handler = 'show_text',
             text = [u"@->-->---", u"@->-", u"@--,--'---", u"--------{---(@", u"@}}>-----"],
         ),
         dict(
-            command = ['!mus', '!mouse'],
+            command = [u'!mus', u'!mouse'],
             handler = 'show_text',
             text = [u'----{,_,">', u'<^__)~~'],
         ),
         dict(
-            command = ['!sword', '!svärd'],
+            command = [u'!sword', u'!svärd'],
             handler = 'show_text',
             text = [u"o==}=======>>", u"(===||:::::::::::::::>"],
         ),
         dict(
-            command = ['!snigel', '!snail'],
+            command = [u'!snigel', u'!snail'],
             handler = 'show_text',
             text = [u"__@/"],
         ),
@@ -96,7 +96,7 @@ def main():
     import Shoutbox
     cfg = Conf('config.ini', 'LOCAL')
     args = sys.argv
-    msg = ' '.join(args[1:])
+    msg = unicode(' '.join(args[1:]), 'utf-8')
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
     plug = MonkeyPlugin([bridge])

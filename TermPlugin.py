@@ -87,11 +87,11 @@ class TermPlugin(Plugin):
         #words = text.split()[1:]
         word = text.replace(command, '', 1).strip()
         if not word:
-            word = [random.choice(self.definitions.keys())]
+            word = random.choice(self.definitions.keys())
         answer = ""
         self.logprint('Handling term:', word)
         try:
-            answer += "Definition av '" + word + "': " + self.definitions[word.lower()] + "\n"
+            answer += u"Definition av '%s': %s" % (word, self.definitions[word.lower()])
         except KeyError:
             pass
         if not answer.strip():

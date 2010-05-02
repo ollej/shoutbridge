@@ -5,16 +5,22 @@ from utilities import *
 
 class KraetyzPlugin(Plugin):
     """
-    If Kraetyz writes an opinion, he will be fake insta-banned.
+    Match texts from a list of users and returns a message.
+    If any of the nicks in onsender writes a message that contains the text
+    in textmatch, then the bot will send the text as a message, substituting
+    %s for the nick of the sender.
     """
     priority = 0
     name = "KraetyzPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
-    description = "If Kraetyz writes an opinion, he will be fake insta-banned."
+    description = "Match texts from a list of users and returns a message."
     commands = [
         dict(
             command=[''],
             handler='send_warning',
+            onsender = ['Kraetyz'],
+            textmatch = 'jag tycker',
+            text = u"/me bannar %s för uttryckande av åsikt.",
         ),
     ]
 
@@ -22,8 +28,8 @@ class KraetyzPlugin(Plugin):
         """
         Parse message body and send message with dice roll.
         """
-        if nick == "Kraetyz" and text.lower().find("jag tycker") >= 0:
-            self.bridge.send_and_shout(u"/me bannar Kraetyz för uttryckande av åsikt.", self.nick)
+        if nick in cmd['onsender'] and text.lower().find(cmd['textmatch']) >= 0:
+            self.bridge.send_and_shout(cmd['text'] % (nick), self.nick)
 
 def main():
     import sys

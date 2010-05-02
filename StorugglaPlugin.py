@@ -14,7 +14,7 @@ class StorugglaPlugin(Plugin):
     description = "Storuggla bot prints a random quote from Storuggla's sign-out messages."
     commands = [
         dict(
-            command = '!storuggla',
+            command = ['!storuggla'],
             handler = 'send_quote',
         ),
     ]

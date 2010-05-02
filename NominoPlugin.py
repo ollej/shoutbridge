@@ -83,6 +83,8 @@ class NominoPlugin(Plugin):
         snlist = fnlist
         if len(words) > 2:
             snlist = words[2] 
+        if count > 10:
+            count = 10
         name = "Namn:" 
         for c in range(count):
             name += " " + self.get_random_name(fnlist, snlist, gender)

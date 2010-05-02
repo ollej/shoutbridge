@@ -12,8 +12,12 @@ class StorugglaPlugin(Plugin):
     name = "StorugglaPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Storuggla bot prints a random quote from Storuggla's sign-out messages."
-    command = '!storuggla'
-    nick = "HALiBot"
+    commands = [
+        dict(
+            command = '!storuggla',
+            handler = 'send_quote',
+        ),
+    ]
 
     def setup(self):
         """
@@ -21,27 +25,11 @@ class StorugglaPlugin(Plugin):
         """
         self.quotes = read_file("extras/storuggla.dat", "%")
 
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.send_quote(body, message['nick'])
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.send_quote(shout.text, shout.name)
-
-    def send_quote(self, text, nick):
+    def send_quote(self, text, nick, command, cmd):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("StorugglaPlugin: Handling message:", nick, text)
-        if not self.quotes:
-            return
-        if self.command == '' or text.startswith(self.command):
+        if self.quotes:
             self.bridge.send_and_shout(random.choice(self.quotes), self.nick)
 
 def main():

@@ -43,7 +43,7 @@ class QuotesPlugin(Plugin):
         newquote = text.replace(command, '', 1).strip()
         if newquote:
             add_line_to_file(self.filename_newquotes, newquote, separator=self.separator)
-            self.bridge.send_and_shout("Quote added for review: " + newquote, self.nick)
+            self.bridge.send_and_shout("Quote added for review.", self.nick)
 
     def random_kim(self, text, nick, command, cmd):
         self.bridge.send_and_shout(random.choice(self.quotes_kim), self.nick)

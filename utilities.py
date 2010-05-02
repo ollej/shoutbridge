@@ -53,6 +53,10 @@ def loadUrl(url, params=None, method="GET", timeout=10.0):
         s = f.read()
         f.close()
         s = unicode(s, 'utf-8')
+    except socket.timeout as sock:
+        print "Socket timed out.", sock
+        print "-----------------------------------------------------------"
+        return ""
     except urllib2.HTTPError as he:
         # Request casued a non 200 OK status response.
         print "An error occured when loading URL."

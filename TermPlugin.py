@@ -76,7 +76,7 @@ class TermPlugin(Plugin):
                 return
             newdefinition = term.strip() + '=' + definition.strip()
             add_line_to_file(self.filename_newdefinitions, newdefinition, separator=self.separator)
-            self.bridge.send_and_shout("New definition added for review: " + newdefinition, self.nick)
+            self.bridge.send_and_shout("New definition added for review.", self.nick)
 
     def define_term(self, text, nick, command, cmd):
         """

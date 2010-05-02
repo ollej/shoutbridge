@@ -85,6 +85,7 @@ class Plugin(BridgeClass):
         self.logprint(self.name + ": Handling message:", nick, text)
         for cmds in self.commands:
             for cmd in cmds['command']:
+                #print "cmd:", cmd, "text:", text
                 if cmd == '' or text.lower().startswith(cmd.lower()):
                     handler = getattr(self, cmds['handler'])
                     handler(text, nick, cmd, cmds)

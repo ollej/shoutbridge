@@ -103,3 +103,12 @@ Some ideas for future development.
    * Possibly convert !trivia, !weather, !translate, !google etc from other bots.
  * Plugin handlers should always receive a generic object instead of the raw twisted domish object. For messages, this can be a Shout object.
 
+ * Send ping instead of presence:
+ <iq type='get' id='purple522f9ecd'>
+    <ping xmlns='urn:xmpp:ping'/>
+ </iq>
+ 
+ * Have the possibility to not have shoutbox bridge at all.
+ * Command line argument to select configuration file.
+ * Command line arguments for configurations.
+ * Doesn't seem to be able to join rooms on some servers.

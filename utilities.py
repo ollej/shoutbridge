@@ -30,7 +30,7 @@ class ElementParser(object):
         try:
             tmp.addRawXml(s)
             parser.parse(tmp.toXml())
-        except twisted.words.xish.domish.ParserError:
+        except domish.ParserError:
             return None
         return self.result.firstChildElement()
 

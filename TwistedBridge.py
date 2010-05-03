@@ -44,10 +44,6 @@ class TwistedBridge(XmppBridge):
         """
         self.jid = jid.JID(self.login)
         f = client.XMPPClientFactory(self.jid, self.passwd)
-        #ConnectAuthenticator
-        #a = XMPPAuthenticator(jid, password)
-        #a = xmlstream.ConnectAuthenticator(self.jid, self.passwd)
-        #f = xmlstream.XmlStreamFactory(a)
         f.addBootstrap(xmlstream.STREAM_CONNECTED_EVENT, self.connected)
         f.addBootstrap(xmlstream.STREAM_END_EVENT, self.disconnected)
         f.addBootstrap(xmlstream.STREAM_AUTHD_EVENT, self.authenticated)

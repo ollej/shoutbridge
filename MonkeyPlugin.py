@@ -27,9 +27,9 @@ class MonkeyPlugin(Plugin):
             text = [u'( . )( . )', u'( . Y .)'],
         ),
         dict(
-            command = [u'!fallos', u'!snopp', u'!penis'],
+            command = [u'!fallos', u'!snopp', u'!penis', u'!dick', u'!cock'],
             handler = 'show_text',
-            text = [u"8========D"],
+            text = [u"8=====D"],
         ),
         dict(
             command = [u'!koala'],

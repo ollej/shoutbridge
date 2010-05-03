@@ -29,6 +29,7 @@ Requirements
  * UBB.threads v7
  * Twisted
  * MySQLdb (for direct connection to shoutbox)
+ * pyOpenSSL for secure connections
 
 
 Installation
@@ -44,6 +45,7 @@ Install necessary modules:
 
     $ sudo easy_install Twisted
     $ sudo easy_install MySQLdb
+    $ sudo easy_install pyOpenSSL
 
 Next, create a configuration file from the example.
 
@@ -94,21 +96,20 @@ Some ideas for future development.
  * BUG: When loadUrl fails, reactor stops running that loop.
  * Move plugins into plugin sub-directory.
  * Move xmpp bridges into bridges/ and shoutbox classes into shoutbox/
- * Consolidate all quote plugins.
- * Plugin commands should not be case sensitive.
+ * Consolidate all quote plugins. IN PROGRESS
+ * Plugin commands should not be case sensitive. IN PROGRESS
  * Plugin ideas:
    * !seen <user> - showing last online time for user
    * !help - Display help information from all plugins.
    * !calc - calculator
    * Possibly convert !trivia, !weather, !translate, !google etc from other bots.
+   * Use people's dictionary and synlist.
  * Plugin handlers should always receive a generic object instead of the raw twisted domish object. For messages, this can be a Shout object.
-
- * Send ping instead of presence:
- <iq type='get' id='purple522f9ecd'>
-    <ping xmlns='urn:xmpp:ping'/>
- </iq>
- 
  * Have the possibility to not have shoutbox bridge at all.
- * Command line argument to select configuration file.
- * Command line arguments for configurations.
- * Add TLS support on xml streams.
+ * Add __init__.py file
+ * Keep connection open on server-side script and read new shout messages immediately.
+ * Follow verbose and quiet options.
+   * debug = print raw send/recv stanzas.
+   * quiet = no output
+   * verbose = print logprints
+

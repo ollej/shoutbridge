@@ -385,7 +385,9 @@ class XmppBridge(BridgeClass):
         updating last active time.
         """
         self.update_last_time()
-        self.send_presence_status()
+        pingnode = domish.Element(('urn:xmpp:ping', 'ping'))
+        self.logprint("Sending ping and updating last active time.", pingnode)
+        self.send_iq('get', children=[pingnode])
 
     def send_and_shout(self, text, nick=None):
         """
@@ -406,7 +408,7 @@ class XmppBridge(BridgeClass):
         # Read shoutbox messages.
         # TODO: Should possibly use E-tag and options to see if anything has changed.
         msgs = self.shoutbox.readShouts()
-        self.logprint("Number of messages received:", len(msgs))
+        #self.logprint("Number of messages received:", len(msgs))
         for m in msgs:
             text = self.clean_message(m.text)
             if self.cfg.show_time == "True" and self.cfg.show_nick == "True":

@@ -44,6 +44,10 @@ class TwistedBridge(XmppBridge):
         """
         self.jid = jid.JID(self.login)
         f = client.XMPPClientFactory(self.jid, self.passwd)
+        #ConnectAuthenticator
+        #a = XMPPAuthenticator(jid, password)
+        #a = xmlstream.ConnectAuthenticator(self.jid, self.passwd)
+        #f = xmlstream.XmlStreamFactory(a)
         f.addBootstrap(xmlstream.STREAM_CONNECTED_EVENT, self.connected)
         f.addBootstrap(xmlstream.STREAM_END_EVENT, self.disconnected)
         f.addBootstrap(xmlstream.STREAM_AUTHD_EVENT, self.authenticated)
@@ -52,7 +56,7 @@ class TwistedBridge(XmppBridge):
         connector.connect()
 
     def close_connection(self):
-        self.send_presence(type="unavailable", reason="Quitting...")
+        self.send_presence(ptype="unavailable", reason="Quitting...")
         self.xmlstream.sendFooter()
 
     def connected(self, xs):
@@ -84,7 +88,7 @@ class TwistedBridge(XmppBridge):
     def send_stanza(self, stanza):
         if not self.xmlstream:
             self.logprint("Stanza not sent, no xml stream:\n", stanza.toXml())
-            return False
+            return
         self.logprint("Sending stanza:\n", stanza.toXml())
         self.xmlstream.send(stanza)
 
@@ -95,10 +99,10 @@ class TwistedBridge(XmppBridge):
         frm = iq.getAttribute('from')
         to = iq.getAttribute('to')
         id = iq.getAttribute('id')
-        type = iq.getAttribute('type')
+        iqtype = iq.getAttribute('type')
 
         # Call the relevant iq handler method.
-        self.lookup_iq_method(type)(frm=frm, to=to, id=id, query=iq.query)
+        self.lookup_iq_method(iqtype)(frm=frm, to=to, id=id, query=iq.query)
 
         # Trigger handleXmppIq  event
         self.trigger_plugin_event('XmppIq', iq)
@@ -143,16 +147,16 @@ class TwistedBridge(XmppBridge):
             resultquery.addChild(feature)
         self.send_iq("result", id, to=to, children=[resultquery])
 
-    def send_iq_error(self, to=None, id=None, type=None, query=None, condition=None):
+    def send_iq_error(self, to=None, id=None, iqtype=None, query=None, condition=None):
         """
         Build and send IQ error stanza.
         """
         errornode = domish.Element((None, 'error'))
-        if not type:
-            type = 'cancel'
-        if type not in ['cancel', 'continue', 'modify', 'auth', 'wait']:
+        if not iqtype:
+            iqtype = 'cancel'
+        if iqtype not in ['cancel', 'continue', 'modify', 'auth', 'wait']:
             raise BridgeWrongTypeError
-        errornode['type'] = type
+        errornode['type'] = iqtype
         if not condition:
             condition = 'feature-not-implemented'
         errornode.addElement(condition, defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas')
@@ -160,19 +164,22 @@ class TwistedBridge(XmppBridge):
             errornode.addElement('text', defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas', content=reason)
         self.send_iq("error", id, to=to, children=[query, errornode])
 
-    def send_iq(self, type, id, frm=None, to=None, children=None, querytype=None):
+    def send_iq(self, iqtype, id=None, frm=None, to=None, children=None):
         """
         Sends an IQ stanza on the xml stream.
         """
-        if type not in ['set', 'get', 'result', 'error']:
+        if iqtype not in ['set', 'get', 'result', 'error']:
             raise BridgeWrongTypeError
 
         iq = domish.Element((None, 'iq'))
-        iq['type'] = type
+        iq['type'] = iqtype
         if not frm:
             frm = self.login + '/' + self.current_nick
         iq['from'] = frm
-        iq['id'] = id
+        if id:
+            iq['id'] = id
+        else:
+            iq.addUniqueId()
         if to:
             iq['to'] = to
         if children:
@@ -213,7 +220,7 @@ class TwistedBridge(XmppBridge):
             # Nick taken, default to original nick.
             self.change_nick(self.resource)
 
-    def send_presence(self, xmlns=None, type=None, status=None, show=None,
+    def send_presence(self, xmlns=None, ptype=None, status=None, show=None,
                      frm=None, to=None, children=None):
         """
         Build and send presence stanza.
@@ -223,8 +230,8 @@ class TwistedBridge(XmppBridge):
             presence['from'] = frm
         if to:
             presence['to'] = to
-        if type:
-            presence['type'] = type
+        if ptype:
+            presence['type'] = ptype
         if status:
             presence.addElement('status', content=status)
         if show in ('chat', 'dnd', 'away', 'xa'):

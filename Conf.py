@@ -2,16 +2,17 @@
 
 import sys
 import ConfigParser
+from BridgeClass import BridgeClass
 
 class ConfSectionNotFound(Exception):
     "Couldn't find configuration section."
 
-class Conf(object):
+class Conf(BridgeClass):
     _RAW = 1
     _SAFE = 2
     _DEFAULT = 3
     _cfg = None
-    _items = None
+    _items = dict()
 
     def __init__(self, file, section, type=1):
         self._file = file
@@ -36,16 +37,19 @@ class Conf(object):
     def read_all(self, section):
         if not self._cfg.has_section(section):
             raise ConfSectionNotFound
-        self._items = self._cfg.items(section)
-        for k, v in self._items:
-            setattr(self, k, v)
+        self.set_items(dict(self._cfg.items(section)))
 
     def get(self, name):
-        #return self._items[name]
-        return self._cfg.get(self._section, name)
+        return self._items[name]
 
     def get_items(self):
         return self._items
+
+    def set_items(self, items):
+        for k, v in items.items():
+            if v:
+                self._items[k] = v
+                setattr(self, k, v)
 
 # Call the main function.
 if __name__ == '__main__':

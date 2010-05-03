@@ -138,11 +138,22 @@ class XmppBridge(BridgeClass):
         self.join_room(self.roomjid)
 
     def join_room(self, room):
+        #frm=self.login + '/' + self.cfg.xmpp_resource,
         self.send_presence(
-            frm=self.login + '/' + self.cfg.xmpp_resource,
             to=room,
             children=dict(
-                x=u'http://jabber.org/protocol/muc',
+                x=dict(
+                    defaultUri=u'http://jabber.org/protocol/muc',
+                    content='',
+                ),
+                status=dict(
+                    defaultUri=None,
+                    content="I'm not here right now.",
+                ),
+                priority=dict(
+                    defaultUri=None,
+                    content='1',
+                ),
             ),
         )
         # TODO: Answer room configuration request.

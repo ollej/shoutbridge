@@ -231,7 +231,7 @@ class TwistedBridge(XmppBridge):
             presence.addElement('show', content=show)
         if children:
             for k, v in children.items():
-                presence.addElement(k, content=v)
+                presence.addElement(k, defaultUri=v['defaultUri'], content=v['content'])
         self.send_stanza(presence)
 
     def handle_message(self, mess):

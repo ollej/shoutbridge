@@ -14,6 +14,7 @@ class QuotesPlugin(Plugin):
     description = "Quotes bot prints a random quote."
     nick = "HALiBot"
     filename = "extras/quotes.dat"
+    filename_jeff = "extras/jeff_quotes.dat"
     filename_kim = "extras/kimjongil_quotes.dat"
     filename_newquotes = "extras/quotes_new.dat"
     separator = '%'
@@ -27,6 +28,10 @@ class QuotesPlugin(Plugin):
             handler = 'random_kim',
         ),
         dict(
+            command = ['!jeff', '!coupling'],
+            handler = 'random_jeff',
+        ),
+        dict(
             command = ['!citat', '!quote'],
             handler = 'random_quote',
         ),
@@ -38,6 +43,7 @@ class QuotesPlugin(Plugin):
         """
         self.quotes = read_file(self.filename, self.separator)
         self.quotes_kim = read_file(self.filename_kim, self.separator)
+        self.quotes_jeff = read_file(self.filename_jeff, self.separator)
 
     def add_quote(self, text, nick, command, cmd):
         newquote = text.replace(command, '', 1).strip()
@@ -47,6 +53,9 @@ class QuotesPlugin(Plugin):
 
     def random_kim(self, text, nick, command, cmd):
         self.bridge.send_and_shout(random.choice(self.quotes_kim), self.nick)
+
+    def random_jeff(self, text, nick, command, cmd):
+        self.bridge.send_and_shout(random.choice(self.quotes_jeff), self.nick)
 
     def random_quote(self, text, nick, command, cmd):
         self.bridge.send_and_shout(random.choice(self.quotes), self.nick)

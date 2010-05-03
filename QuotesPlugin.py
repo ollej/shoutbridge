@@ -50,7 +50,7 @@ class QuotesPlugin(Plugin):
             self.bridge.send_and_shout("Quote added for review.", self.nick)
 
     def random_quote(self, text, nick, command, cmd):
-        self.bridge.send_and_shout(random.choice(cmd['quotes']), self.nick)
+        self.bridge.send_and_shout(random.choice(cmd['quotes']).strip(), self.nick)
 
 def main():
     import sys

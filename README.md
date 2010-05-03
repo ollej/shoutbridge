@@ -111,4 +111,4 @@ Some ideas for future development.
  * Have the possibility to not have shoutbox bridge at all.
  * Command line argument to select configuration file.
  * Command line arguments for configurations.
- * Doesn't seem to be able to join rooms on some servers.
+ * Add TLS support on xml streams.

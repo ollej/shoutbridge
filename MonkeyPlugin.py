@@ -81,6 +81,11 @@ class MonkeyPlugin(Plugin):
             handler = 'show_text',
             text = [u"[_]3"],
         ),
+        dict(
+            command = [u'!ass', u'!arse', u'!arsle'],
+            handler = 'show_text',
+            text = [u"(  )x(  )", u"(  )O(  )", u"(_O_)", u"(_*_)", u"{_x_}"],
+        ),
     ]
 
     def show_text(self, text, nick, command=None, cmd=None):

@@ -136,55 +136,55 @@ section than the default.
 There are also three options to change how much information shoutbridge
 should output on the terminal: debug, quiet and verbose
 
-Options:
-      --version             show program's version number and exit
-      -h, --help            show this help message and exit
-      -c FILE, --config=FILE
-                            Read configuration from FILE
-      -S SECTION, --section=SECTION
-                            Read configuration from SECTION
-      -D, --debug           Print RAW data sent and received on the stream.
-      -q, --quiet           Don't print status messages to stdout
-      -v, --verbose         make lots of noise [default]
-      -s START, --start=START
-                            Start reading shouts from START
-      -l JID, --login=JID   XMPP login JID.
-      -p PASSWD, --pass=PASSWD
-                            XMPP password.
-      -r ROOM, --room=ROOM  Join this XMPP room.
-      -d HOST, --host=HOST  Set XMPP host.
-      -o PORT, --port=PORT  Set XMPP port.
-      -A STATUS, --status=STATUS
-                            Set default XMPP away status message.
-      -R RESOURCE, --resource=RESOURCE
-                            Set XMPP resource for this client instance.
-      -L SECS, --loop=SECS  Read shoutbox messages every SECS.
-      -X PLUGINS, --plugins=PLUGINS
-                            Load comma separated extensions/plugins.
-      -u URL, --url=URL     Read shoutbox messages from this URL.
-      -t SHOW_TIME, --show-time=SHOW_TIME
-                            Prepend time to each message.
-      -n SHOW_NICK, --show-nick=SHOW_NICK
-                            Prepend originating nick to each message.
-      -b BRIDGE, --bridge=BRIDGE
-                            Use this XMPP bridge class.
-      -B SHOUTBOX, --shoutbox=SHOUTBOX
-                            Use this shoutbox connector class.
-      -H HOST, --db-host=HOST
-                            Host for DB connector.
-      -N NAME, --db-name=NAME
-                            Name for DB connector.
-      -U USER, --db-user=USER
-                            User for DB connector.
-      -P PASS, --db-pass=PASS
-                            Password for DB connector.
-      -f FIELD, --jid-field=FIELD
-                            UBB.threads profile table field containing user JID.
-      -C SECRET, --secret=SECRET
-                            Use this secret word to connect to MessageShoutbox
-                            server script.
-      -F FORMAT, --date-format=FORMAT
-                            Use this date format when logging.
+### Options: ###
+    --version             show program's version number and exit
+    -h, --help            show this help message and exit
+    -c FILE, --config=FILE
+                          Read configuration from FILE
+    -S SECTION, --section=SECTION
+                          Read configuration from SECTION
+    -D, --debug           Print RAW data sent and received on the stream.
+    -q, --quiet           Don't print status messages to stdout
+    -v, --verbose         make lots of noise [default]
+    -s START, --start=START
+                          Start reading shouts from START
+    -l JID, --login=JID   XMPP login JID.
+    -p PASSWD, --pass=PASSWD
+                          XMPP password.
+    -r ROOM, --room=ROOM  Join this XMPP room.
+    -d HOST, --host=HOST  Set XMPP host.
+    -o PORT, --port=PORT  Set XMPP port.
+    -A STATUS, --status=STATUS
+                          Set default XMPP away status message.
+    -R RESOURCE, --resource=RESOURCE
+                          Set XMPP resource for this client instance.
+    -L SECS, --loop=SECS  Read shoutbox messages every SECS.
+    -X PLUGINS, --plugins=PLUGINS
+                          Load comma separated extensions/plugins.
+    -u URL, --url=URL     Read shoutbox messages from this URL.
+    -t SHOW_TIME, --show-time=SHOW_TIME
+                          Prepend time to each message.
+    -n SHOW_NICK, --show-nick=SHOW_NICK
+                          Prepend originating nick to each message.
+    -b BRIDGE, --bridge=BRIDGE
+                          Use this XMPP bridge class.
+    -B SHOUTBOX, --shoutbox=SHOUTBOX
+                          Use this shoutbox connector class.
+    -H HOST, --db-host=HOST
+                          Host for DB connector.
+    -N NAME, --db-name=NAME
+                          Name for DB connector.
+    -U USER, --db-user=USER
+                          User for DB connector.
+    -P PASS, --db-pass=PASS
+                          Password for DB connector.
+    -f FIELD, --jid-field=FIELD
+                          UBB.threads profile table field containing user JID.
+    -C SECRET, --secret=SECRET
+                          Use this secret word to connect to MessageShoutbox
+                          server script.
+    -F FORMAT, --date-format=FORMAT
+                          Use this date format when logging.
 
 Plugins
 -------
@@ -203,36 +203,59 @@ commands.
 By default, it has a lot of commands that returns simple one-line ascii art.
 
 The name of the plugin comes from the command !monkey which returns the following
-message: @({-_-})@
+message:
+
+    @({-_-})@
 
 If there are several return messages for a command, one of the messages is selected
 by random and sent.
 
 At the time of writing, this plugin has the following commands available:
-!monkey, !tits, !penis, !koala, !fish, !sheep, !spider, !cat, !rose, !mouse,
-!sword, !snail, !coffee
+
+    !monkey, !tits, !penis, !koala, !fish, !sheep, !spider, !cat, !rose, !mouse,
+    !sword, !snail, !coffee
 
 ### DiceyPlugin ###
 The DiceyPlugin is called Dicey and can roll dice and return the results.
 
-Command: !dicey
+#### Commands ####
+Dicey understands the following commands.
+
+##### Command: #####
+
+    !dicey
 
 Roll three 6-sided dice and add 4 to the result.
-Example: !dicey 3d6+4
+
+##### Example: #####
+
+    !dicey 3d6+4
 
 Up to five sets of rolls can be rolled at the same time:
-Example: !dicey 3d6 5d8 6d10 2d12 d100
+
+##### Example: #####
+
+    !dicey 3d6 5d8 6d10 2d12 d100
 
 To roll five 8-sided dice and return the 4 highest:
-Example: !dicey 5d8h4
+
+##### Example: #####
+
+    !dicey 5d8h4
 
 To roll an open ended die, where the another die is rolled and added to the 
 result if the die roll is the highest possible value of the die.
-Example: !dicey OpenD20
+
+##### Example: #####
+
+    !dicey OpenD20
 
 Exploding, or infinite, die like those in games from Neogames. Every die that
 rolls the maximum value is replaced by two dice and re-rerolled.
-Example: Ob3d6
+
+##### Example: #####
+
+    Ob3d6
 
 #### Character Generation ####
 
@@ -240,20 +263,31 @@ Additionally, Dicey can automatically make the rolls needed to create
 characters in a few roleplaying games.
 
 Roll 4 d6 and choose the 3 highest for: STR, CON, DEX, INT, WIS and CHA
-Example: !dicey DnD
+
+##### Example: #####
+
+    !dicey DnD
 
 Roll 3d6 for the following values: STY, KRO, STO, INT, KRA, SKI, KAR
-Example: !dicey DoD
+
+##### Example: #####
+
+    !dicey DoD
 
 Roll 3d6 for each of these values: STY, TÅL, RÖR, PER, PSY, VIL, BIL, SYN, HÖR
-Example: !dicey eon
+
+##### Example: #####
+
+    !dicey eon
 
 ### FortunePlugin ###
 Prints a random fortune cookie, tidbit or quote.
 
 Requires the fortune program installed on the computer running the jabber bot.
 
-Command: !fortune
+#### Command: ####
+
+    !fortune
 
 ### KraetyzPlugin ###
 A bot that sends a pre-defined message whenever one of a configured list of users'
@@ -278,28 +312,38 @@ to the list of available plugins in the configuration.
 The original script is written by Jez Higgins and is available from this URL:
 http://www.jezuk.co.uk/cgi-bin/view/software/eliza
 
-Command: Eliza, who are you?
+#### Command: ####
+
+    Eliza, who are you?
 
 Remember to prepend all messages to Eliza with "Eliza, " or she won't answer.
 
 ### NamePlugin ###
 Return a message with the names of the day in the Swedish calendar.
 
-Command: !dagensnamn
+#### Command: ####
+
+    !dagensnamn
 
 ### NominoPlugin ###
 Nomino is a random name generator.
 
-Command: !name
+#### Command: ####
+
+    !name
 
 It is also possible to define name list to use, as well as how many names to generate,
 and which gender they should be.
 
-Example: !name 5 scottish women
+#### Example: ####
+
+    !name 5 scottish women
 
 You can also choose different lists for given name and surname.
 
-Example: !name chinese gaelic
+#### Example: ####
+
+    !name chinese gaelic
 
 #### Available name lists ####
 Arabic, Chinese, Czech, English1500ce, English, French, Gaelic, German, Hindu, Irish,
@@ -308,9 +352,12 @@ Japanese, Mutant, Russian, Scottish, Spanish, Svenska2000ce, Venetarian1300ce
 ### QuotesPlugin ###
 Sends a random quote from different quote files.
 
-Command: !quote
+#### Command: ####
 
-Additional quote files:
+    !quote
+
+#### Additional quote files: ####
+
  * !jeff - Quotes by Jeff Murdoch from TV series Coupling
  * !murphy - Random Murphy's Law
  * !kimjongil - Swedish silly Kim Jong Il messages.
@@ -322,13 +369,15 @@ Additional quote files:
 It is also possible to add new quotes which are added to a temporary file. These
 have to be added to used quote file by hand later.
 
-Command: !quote add "New quote to add here."
+##### Command: #####
+    !quote add "New quote to add here."
 
 #### Quote file format ####
 The quote files should be encoded in UTF-8. Each quote should be separated by a
 line containing only a percentage sign:
 
-Example:
+##### Example: #####
+
     First quote.
     %
     Second quote.
@@ -337,24 +386,37 @@ Example:
 ### SlapPlugin ###
 Writes a possibly hilarious slapping message.
 
-Command: !slap username
+#### Command: ####
+
+    !slap username
 
 ### TermPlugin ###
 Returns definitions of given term, prints a random definition and allows adding
 new definitions.
 
-Command: !term
+#### Commands ####
+List of commands available for the Term plugin.
 
-Command: !term 'dnd'
+##### Command: #####
 
-Command: !term add Term=Definition
+    !term
+
+##### Command: #####
+
+    !term 'dnd'
+
+##### Command: #####
+
+    !term add Term=Definition
 
 New terms are added to a separate file and needs to be added to the main file by hand.
 
 ### WeekPlugin ###
 Returns the week number according to the ISO date standard, commonly used in Scandinavia.
 
-Command: !week
+#### Command: ####
+
+    !week
 
 
 Write your own plugin

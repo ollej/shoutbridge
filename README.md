@@ -1,11 +1,11 @@
 Shoutbridge
 ===========
 
-UBB.threads Shoutbox <-> XMPP Bridge
+Jabber chat bot with a bridge to the shoutbox in the UBB.threads forum software.
 
 Description
 -----------
-A bridge software that allows discussions in a UBB.threads shoutbox to be mirrored to an XMPP chat.
+A bridge software that allows discussions in a UBB.threads shoutbox to be mirrored to an XMPP chat. Can also run independantly and work as a generic jabber chat bot with pluggable commands.
 
 
 Main features
@@ -20,6 +20,9 @@ These are the main features of Shoutbridge:
  * Keep track of roster via prescence, read user info only once.
  * Connect to an xmpp conference room instead of just sending messages to a user
  * Can read shoutbox info directly via MySQL database, or over http.
+ * Plugins with bot commands can easily be written.
+ * Easily configured using command line options or config file.
+ * Includes several plugins: Quotes, Definitions, Dice roller, Name generator, Eliza, Slap etc.
 
 
 Requirements
@@ -29,7 +32,7 @@ Requirements
  * UBB.threads v7
  * Twisted
  * MySQLdb (for direct connection to shoutbox)
- * pyOpenSSL for secure connections
+ * pyOpenSSL (for secure connections)
 
 
 Installation

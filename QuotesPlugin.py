@@ -39,6 +39,21 @@ class QuotesPlugin(Plugin):
             handler = 'random_quote',
             quotefile = 'extras/kjell_quotes.dat',
         ),
+        dict(
+            command = ['!murphy', '!law'],
+            handler = 'random_quote',
+            quotefile = 'extras/murphy.dat',
+        ),
+        dict(
+            command = ['!evaemma'],
+            handler = 'random_quote',
+            quotefile = 'extras/evaemma.dat',
+        ),
+        dict(
+            command = ['!storuggla'],
+            handler = 'random_quote',
+            quotefile = 'extras/storuggla.dat',
+        ),
     ]
 
     def setup(self):

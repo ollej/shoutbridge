@@ -119,7 +119,7 @@ class Shoutbox(BridgeClass):
         """
         Read shoutbox messages, all or newer than "start".
         """
-        pass
+        return []
 
     def replace_graemlins(self, text):
         if text.find('<<GRAEMLIN_URL>>') < 0:

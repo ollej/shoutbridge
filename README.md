@@ -112,4 +112,5 @@ Some ideas for future development.
    * debug = print raw send/recv stanzas.
    * quiet = no output
    * verbose = print logprints
-
+ * BUG: Graemlin replacement should be done before html stripping.
+ * BUG: HTML-stripping not quite up to par.

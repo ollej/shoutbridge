@@ -77,7 +77,7 @@ class MonkeyPlugin(Plugin):
             text = [u"__@/"],
         ),
         dict(
-            command = [u'!coffee', u'!kaffe', u'!kopp'],
+            command = [u'!coffee', u'!cup', u'!kaffe', u'!kopp'],
             handler = 'show_text',
             text = [u"[_]3"],
         ),

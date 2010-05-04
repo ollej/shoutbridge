@@ -4,7 +4,7 @@ from Dice import *
 from Plugin import *
 from utilities import *
 
-class DicePlugin(Plugin):
+class DiceyPlugin(Plugin):
     """
     Makes die rolls requested by users.
     If someone writes a message like:
@@ -13,7 +13,7 @@ class DicePlugin(Plugin):
     You rolled '3d6' and got: 9 [1, 3, 5]
     """
     priority = 0
-    name = "DicePlugin"
+    name = "DiceyPlugin"
     author = "Olle Johansson"
     description = "Dice roller plugin."
     max_printed_rolls = 10
@@ -21,7 +21,7 @@ class DicePlugin(Plugin):
     nick = "Dicey"
     commands = [
         dict(
-            command=['!dice', '!dicey', '!roll', '!rulla', u'!tärning', '!kasta'],
+            command=['!dicey', '!dice', '!roll', '!rulla', u'!tärning', '!kasta'],
             handler='dice_roller',
         ),
     ]
@@ -129,7 +129,7 @@ def main():
     msg = unicode(msg, 'utf-8')
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
-    plug = DicePlugin([bridge])
+    plug = DiceyPlugin([bridge])
     plug.setup()
     print "Returned:", plug.handleShoutMessage(shout)
 

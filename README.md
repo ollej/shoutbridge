@@ -444,10 +444,12 @@ The class should have some attributes describing the class.
 
 The most important attribute is "commands", which contains a list of commands
 and matching method handlers, as well as additional information needed for the command.
+
 Each dict() element in the commands list is the description of a single command. A command
 can have several different bot trigger commands, in this case only "!hello" is used.
 This means that when a user writes a message starting with this text, the method in the
 "handler" is called.
+
 The entire command dictionary is sent to the handler method. This means that any extra
 information is available in the method.
 
@@ -460,11 +462,15 @@ information is available in the method.
 
 Finally, we need to define the handler method. The name should be the same as the "handler"
 in the commands list.
+
 The method will receive four arguments, text, nick, command and cmd.
+
  * text - Text of message that triggered this method.
  * nick - Nick (username) of user who sent message.
  * command - Command that matched, will be one of the text strings in "command" in the dictionary.
  * cmd - The entire command dictionary.
+
+First the method definition.
 
     def hello_world(self, text, nick, command, cmd):
 

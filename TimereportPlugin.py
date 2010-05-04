@@ -2,85 +2,89 @@
 
 import os
 import glob
-import random
 import linecache
 
 from Plugin import *
 from utilities import *
 
-class TermPlugin(Plugin):
+class TimereportPlugin(Plugin):
     """
-    Term bot can print definitions of terms, or print a random definition. 
+    Timereport bot allows you to report time on projects.
     """
     priority = 0
-    name = "TermPlugin"
+    name = "TimereportPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
-    description = "Term bot can print definitions of terms, or print a random definition."
-    filename = "extras/definitions.dat"
-    filename_newdefinitions = "extras/definitions_new.dat"
+    description = "Timereport bot allows you to report time on projects."
+    filename = "extras/timereports.dat"
     separator = '%'
     commands = [
         dict(
-            command=['!definiera', '!define', '!term add'],
-            handler='add_term',
+            command=['!timereport'],
+            handler='timereport',
         ),
         dict(
-            command=['!term', '!definition'],
-            handler='define_term',
+            command=['!printreport'],
+            handler='printreport',
         ),
     ]
-    definitions = dict()
+    reports = dict()
 
     def setup(self):
         """
         Setup method which is called once before any triggers methods are called.
         """
-        self.definitions = self.read_definitions(self.filename)
+        self.reports = self.read_reports(self.filename)
 
-    def read_definitions(self, file):
-        definitions = dict()
+    def read_reports(self, file):
+        """
+        Read reported times.
+        """
+        reports = dict()
         lines = read_file(file)
         for line in lines:
             # TODO: Maybe send a function ref to read_file for handling each line.
             try:
                 (term, definition) = line.split("=", 1)
             except ValueError:
-                self.logprint("Couldn't add definition:", line)
+                self.logprint("Couldn't load report line:", line)
                 continue
             for t in term.split(','):
-                definitions[t.lower()] = definition.strip()
-        return definitions
+                reports[t.lower()] = definition.strip()
+        return reports
 
-    def add_term(self, text, nick, command, cmd):
+    def timereport(self, text, nick, command, cmd):
+        """
+        Add new timereport.
+        """
         newterm = text.replace(command, '', 1).strip()
         if newterm:
             try:
                 (term, definition) = newterm.split('=', 1)
             except ValueError:
-                self.bridge.send_and_shout("Couldn't add definition.", self.nick)
+                self.bridge.send_and_shout("Couldn't add timereport.", self.nick)
                 return
             newdefinition = term.strip() + '=' + definition.strip()
-            add_line_to_file(self.filename_newdefinitions, newdefinition, separator=self.separator)
-            self.bridge.send_and_shout("New definition added for review.", self.nick)
+            add_line_to_file(self.filename, newdefinition, separator=self.separator)
+            self.bridge.send_and_shout("Time reported", self.nick)
 
-    def define_term(self, text, nick, command, cmd):
+    def printreport(self, text, nick, command, cmd):
         """
-        Parse message body and send message with dice roll.
+        Print reported time.
         """
         if not text:
             return
         #words = text.split()[1:]
         word = text.replace(command, '', 1).strip()
         if not word:
-            word = random.choice(self.definitions.keys())
+            word = random.choice(self.reports.keys())
         answer = ""
         self.logprint('Handling term:', word)
         try:
-            answer += u"Definition av '%s': %s" % (word, self.definitions[word.lower()])
+            answer += u"Time report '%s': %s" % (word, self.reports[word.lower()])
         except KeyError:
             pass
         if not answer.strip():
-            answer = "Hittade inga definitioner."
+            answer = "Found no timereport."
         self.bridge.send_and_shout(answer.strip(), self.nick)
 
 def main():
@@ -94,7 +98,7 @@ def main():
     msg = unicode(' '.join(args[1:]), 'utf-8')
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
-    plug = TermPlugin([bridge])
+    plug = TimereportPlugin([bridge])
     plug.setup()
     print "Returned:", plug.handleShoutMessage(shout)
 

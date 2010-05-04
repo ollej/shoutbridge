@@ -34,6 +34,11 @@ class QuotesPlugin(Plugin):
             handler = 'random_quote',
             quotefile = 'extras/quotes.dat',
         ),
+        dict(
+            command = ['!kjell'],
+            handler = 'random_quote',
+            quotefile = 'extras/kjell_quotes.dat',
+        ),
     ]
 
     def setup(self):

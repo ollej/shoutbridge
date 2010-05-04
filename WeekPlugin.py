@@ -12,36 +12,19 @@ class WeekPlugin(Plugin):
     name = "WeekPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Simple plugin to display current ISO week number."
-    command = '!vecka'
-    nick = "HALiBot"
+    commands = [
+        dict(
+            command=['!week', '!vecka'],
+            handler='send_weeknr',
+        ),
+    ]
 
-    def setup(self):
+    def send_weeknr(self, text, nick, command, cmd):
         """
-        Setup method which is called once before any triggers methods are called.
+        Return the current ISO week number.
         """
-        pass
-
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.send_weeknr(body)
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.send_weeknr(shout.text)
-
-    def send_weeknr(self, text):
-        """
-        Parse message body and send message with dice roll.
-        """
-        self.logprint("WeekPlugin: Handling message.")
-        if self.command == '' or text.startswith(self.command):
-            (isoyear, isoweek, isoweekday) = date.today().isocalendar()
-            self.bridge.send_and_shout("Vecka: " + str(isoweek), self.nick)
+        (isoyear, isoweek, isoweekday) = date.today().isocalendar()
+        self.bridge.send_and_shout("Vecka: " + str(isoweek), self.nick)
 
 def main():
     import sys
@@ -51,7 +34,7 @@ def main():
     import Shoutbox
     cfg = Conf('config.ini', 'LOCAL')
     args = sys.argv
-    msg = ' '.join(args[1:])
+    msg = unicode(' '.join(args[1:]), 'utf-8')
     shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
     bridge = FakeBridge()
     plug = WeekPlugin([bridge])

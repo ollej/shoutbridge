@@ -12,11 +12,11 @@ def start_shoutbridge():
                       help="Read configuration from FILE", metavar="FILE")
     parser.add_option("-S", "--section", dest="section", default="LOCAL",
                       help="Read configuration from SECTION", metavar="SECTION")
-    parser.add_option("-q", "--debug",
+    parser.add_option("-D", "--debug",
                       action="store_false", dest="debug", default=False,
                       help="Print RAW data sent and received on the stream.")
     parser.add_option("-q", "--quiet",
-                      action="store_false", dest="verbose", default=True,
+                      action="store_false", dest="quiet", default=True,
                       help="Don't print status messages to stdout")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=True,

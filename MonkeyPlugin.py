@@ -28,8 +28,7 @@ class MonkeyPlugin(Plugin):
         ),
         dict(
             command = [u'!fallos', u'!snopp', u'!penis', u'!dick', u'!cock'],
-            handler = 'show_text',
-            text = [u"8=====D"],
+            handler = 'show_cock',
         ),
         dict(
             command = [u'!koala'],
@@ -87,6 +86,13 @@ class MonkeyPlugin(Plugin):
             text = [u"(  )x(  )", u"(  )O(  )", u"(_O_)", u"(_*_)", u"{_x_}"],
         ),
     ]
+
+    def show_cock(self, text, nick, command=None, cmd=None):
+        """
+        Display text from command.
+        """
+        text = u'8' + ''.ljust(random.randint(1, 10), '=') + u"D"
+        self.bridge.send_and_shout(text, self.nick)
 
     def show_text(self, text, nick, command=None, cmd=None):
         """

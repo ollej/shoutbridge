@@ -537,14 +537,25 @@ Some ideas for future development.
  * BUG: When loadUrl fails, reactor stops running that loop.
  * Move plugins into plugin sub-directory.
  * Move xmpp bridges into bridges/ and shoutbox classes into shoutbox/
- * Consolidate all quote plugins. IN PROGRESS
- * Plugin commands should not be case sensitive. IN PROGRESS
+ * Allow commands to be sent as direct messages as well.
  * Plugin ideas:
    * !seen <user> - showing last online time for user
    * !help - Display help information from all plugins.
    * !calc - calculator
-   * Possibly convert !trivia, !weather, !translate, !google etc from other bots.
+   * !memory - display used memory
+   * !tell <user> <text> - When <user> is seen next, send message with <text>
+   * !cyborg <word> - cyborgify <word> - http://www.brunching.com/
+   * !techify <word> - techify <word> - http://www.brunching.com/
+   * Possibly convert !trivia, !weather, !translate, !google, !wiki etc from other bots.
    * Use people's dictionary and synlist.
+ * Direct message commands:
+   * !say - make bot say something.
+   * !die - make bot disconnect and shutdown
+   * !reconnect - make bot reconnect
+   * !reload - make bot reload all plugins
+   * !jump - make bot move to another conference room
+   * !rehash - make bot reload configuration
+ * Create unit tests for all code.
  * Plugin handlers should always receive a generic object instead of the raw twisted domish object. For messages, this can be a Shout object.
  * Have the possibility to not have shoutbox bridge at all.
  * Add __init__.py file
@@ -555,3 +566,4 @@ Some ideas for future development.
    * verbose = print logprints
  * BUG: Graemlin replacement should be done before html stripping.
  * BUG: HTML-stripping not quite up to par.
+ * Add language support for easy translation.

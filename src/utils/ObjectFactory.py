@@ -40,13 +40,13 @@ class ObjectFactory:
 
         # Check that module has classname defined.
         moddir = dir(module)
-        print "moddir:", moddir
+        #print "moddir:", moddir
         if classname not in moddir:
             raise OFClassNotInModuleError
 
         # Dynamically create a class reference.
         cls = getattr(module, classname)
-        print "dircls:", dir(cls)
+        #print "dircls:", dir(cls)
         if not cls:
             raise OFClassNotFoundError
 

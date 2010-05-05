@@ -293,7 +293,7 @@ Roll a D10 for the value Strength.
     !dicey Twerps
 
 ### FortunePlugin ###
-Prints a random fortune cookie, tidbit or quote.
+Prints a random fortune cookie, quote or amusing tidbit of information.
 
 Requires the fortune program installed on the computer running the jabber bot.
 

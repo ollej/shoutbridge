@@ -221,6 +221,21 @@ The DiceyPlugin can roll dice and return the results.
 #### Commands ####
 Dicey understands the following commands.
 
+##### Available dice #####
+Dicey can roll dice with the following number of sides:
+
+    2, 4, 6, 8, 10, 12, 100
+
+##### Roll one die #####
+Added "d" or "D" in front of the number of sides the die should have.
+
+    !dicey d10
+
+##### Multiple dice #####
+Roll multiple dice with the same number of sides and add up the results.
+
+    !dicey 3d6
+
 ##### Modifications #####
 Roll three 6-sided dice and add 4 to the result. Also works with subtraction.
 
@@ -232,7 +247,9 @@ Up to five sets of rolls can be rolled at the same time:
     !dicey 3d6 5d8 6d10 2d12 d100
 
 ##### Choose highest #####
-To roll five 8-sided dice and return the 4 highest:
+Add an "h" and a number to the end of the die roll to choose the that number of 
+dice with the highest values. Use "l" (lower case L) to instead choose the lowest 
+results. E.g. Roll five 8-sided dice and return the 4 highest. 
 
     !dicey 5d8h4
 

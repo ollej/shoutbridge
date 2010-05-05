@@ -498,7 +498,7 @@ can be done. For more information, check the Plugin base class.
 
 #### Full example ####
 
-    from Plugin import *
+    from plugins.Plugin import *
 
     class HelloWorldPlugin(Plugin):
         name = "HelloWorldPlugin"
@@ -525,18 +525,15 @@ Some ideas for future development.
  * If room hasn't been created when joining, accept default room configuration.
  * Move plugin command matching code to XmppBridge.trigger_plugin_event
  * Add priority sorting to plugin triggering.
- * away presence could hide user on forum
  * Load plugin method should use reflection on plugins to find out commands, and handler methods.
+ * Away presence could hide user on forum
  * Log all exceptions to file.
  * HelpPlugin
      * Add help information for plugins. Read using reflection by HelpPlugin
      * HelpPlugin should list all available commands if no argument is given.
      * If a command is given to !help, print doc string for that command.
- * Add support to choose config section via command line for shoutbridge.py
  * BUG: Exception raised if plugin not found: ImportError: No module named NamnPlugin
  * BUG: When loadUrl fails, reactor stops running that loop.
- * Move plugins into plugin sub-directory.
- * Move xmpp bridges into bridges/ and shoutbox classes into shoutbox/
  * Allow commands to be sent as direct messages as well.
  * Plugin ideas:
    * !seen <user> - showing last online time for user

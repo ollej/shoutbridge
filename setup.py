@@ -1,0 +1,32 @@
+from setuptools import setup, find_packages
+
+setup(name = 'shoutbridge',
+      description = 'Jabber chat bot with a bridge to the shoutbox in the UBB.threads forum software.',
+      long_description = open('README.md').read(),
+      author = ['Olle Johansson'],
+      author_email = 'Olle@Johansson.com',
+      url = 'http://github.com/gurkmannen/shoutbridge',
+      license = 'MIT',
+      version = '1.0',
+      platforms = ['any'],
+      #packages = find_packages('src'),
+      package_dir = {'':'src'},
+      packages = ['bridge', 'shoutbox', 'plugins', 'utils'],
+      package_data = {
+          '': ['extras/nomino/*.txt', 'extras/*.*', 'ubb/scripts/listshouts.inc.php'],
+      },
+      scripts = ['src/shoutbridge.py'],
+      data_files = [('src', ['src/config-example.ini'])],
+      zip_safe = False,
+      classifiers = [
+          'License :: OSI Approved :: MIT License',
+          'Operating System :: MacOS',
+          'Operating System :: Microsoft :: Windows',
+          'Operating System :: POSIX',
+          'Topic :: Communications :: Chat',
+          'Topic :: Communications :: Conferencing',
+          'Programming Language :: Python',
+          'Development Status :: 4 - Beta',
+      ],
+      install_requires = ['twisted', 'pyopenssl', 'setuptools'],
+    )

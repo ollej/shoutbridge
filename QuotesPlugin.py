@@ -54,6 +54,11 @@ class QuotesPlugin(Plugin):
             handler = 'random_quote',
             quotefile = 'extras/storuggla.dat',
         ),
+        dict(
+            command = ['!hoahoa'],
+            handler = 'random_quote',
+            quotefile = 'extras/hoahoa.dat',
+        ),
     ]
 
     def setup(self):

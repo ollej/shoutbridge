@@ -216,44 +216,35 @@ At the time of writing, this plugin has the following commands available:
     !sword, !snail, !coffee
 
 ### DiceyPlugin ###
-The DiceyPlugin is called Dicey and can roll dice and return the results.
+The DiceyPlugin can roll dice and return the results.
 
 #### Commands ####
 Dicey understands the following commands.
 
-##### Command: #####
-
-    !dicey
-
-Roll three 6-sided dice and add 4 to the result.
-
-##### Example: #####
+##### Modifications #####
+Roll three 6-sided dice and add 4 to the result. Also works with subtraction.
 
     !dicey 3d6+4
 
+##### Multiple rolls #####
 Up to five sets of rolls can be rolled at the same time:
-
-##### Example: #####
 
     !dicey 3d6 5d8 6d10 2d12 d100
 
+##### Choose highest #####
 To roll five 8-sided dice and return the 4 highest:
-
-##### Example: #####
 
     !dicey 5d8h4
 
+##### Open ended rolls #####
 To roll an open ended die, where the another die is rolled and added to the 
 result if the die roll is the highest possible value of the die.
 
-##### Example: #####
-
     !dicey OpenD20
 
-Exploding, or infinite, die like those in games from Neogames. Every die that
+##### Exploding rolls #####
+Exploding, or limitless, dice like those in games from Neogames. Every die that
 rolls the maximum value is replaced by two dice and re-rerolled.
-
-##### Example: #####
 
     Ob3d6
 
@@ -262,23 +253,25 @@ rolls the maximum value is replaced by two dice and re-rerolled.
 Additionally, Dicey can automatically make the rolls needed to create 
 characters in a few roleplaying games.
 
+##### Dngeons & Dragons #####
 Roll 4 d6 and choose the 3 highest for: STR, CON, DEX, INT, WIS and CHA
-
-##### Example: #####
 
     !dicey DnD
 
+##### Drakar och Demoner #####
 Roll 3d6 for the following values: STY, KRO, STO, INT, KRA, SKI, KAR
-
-##### Example: #####
 
     !dicey DoD
 
+##### Eon #####
 Roll 3d6 for each of these values: STY, TÅL, RÖR, PER, PSY, VIL, BIL, SYN, HÖR
 
-##### Example: #####
-
     !dicey eon
+
+##### Twerps #####
+Roll a D10 for the value Strength.
+
+    !dicey Twerps
 
 ### FortunePlugin ###
 Prints a random fortune cookie, tidbit or quote.

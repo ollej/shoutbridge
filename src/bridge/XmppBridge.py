@@ -89,7 +89,11 @@ class XmppBridge(BridgeClass):
             self.of = ObjectFactory()
         pluginlist = plugs.split(',')
         for p in pluginlist:
-            plug = self.of.create(p + "Plugin", mod='plugins', inst='Plugin', args=[self])
+            try:
+                plug = self.of.create(p + "Plugin", mod='plugins', inst='Plugin', args=[self])
+            except ImportError:
+                self.logprint("Couldn't load plugin:", p)
+                continue
             plug.setup()
             self.logprint("Loaded plugin:", plug.name, "\n", plug.description)
             self.plugins[p] = plug

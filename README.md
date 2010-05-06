@@ -546,7 +546,6 @@ Some ideas for future development.
      * Add help information for plugins. Read using reflection by HelpPlugin
      * HelpPlugin should list all available commands if no argument is given.
      * If a command is given to !help, print doc string for that command.
- * BUG: Exception raised if plugin not found: ImportError: No module named NamnPlugin
  * BUG: When loadUrl fails, reactor stops running that loop.
  * Allow commands to be sent as direct messages as well.
  * Plugin ideas:

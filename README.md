@@ -539,9 +539,7 @@ Some ideas for future development.
  * Possibly change to a transport gateway using XEP-0100: Gateway Interaction
  * When time is the same as the current time, don't prepend time to message.
  * If room hasn't been created when joining, accept default room configuration.
- * Move plugin command matching code to XmppBridge.trigger_plugin_event
  * Add priority sorting to plugin triggering.
- * Load plugin method should use reflection on plugins to find out commands, and handler methods.
  * Away presence could hide user on forum
  * Log all exceptions to file.
  * HelpPlugin
@@ -569,9 +567,7 @@ Some ideas for future development.
    * !jump - make bot move to another conference room
    * !rehash - make bot reload configuration
  * Create unit tests for all code.
- * Plugin handlers should always receive a generic object instead of the raw twisted domish object. For messages, this can be a Shout object.
  * Have the possibility to not have shoutbox bridge at all.
- * Add __init__.py file
  * Keep connection open on server-side script and read new shout messages immediately.
  * Follow verbose and quiet options.
    * debug = print raw send/recv stanzas.

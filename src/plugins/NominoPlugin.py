@@ -24,10 +24,12 @@ class NominoPlugin(Plugin):
         dict(
             command=['!nomino list', '!namn list', '!name list', '!nomino help', '!namn help', '!name help'],
             handler='list_lists',
+            onevents=['Message'],
         ),
         dict(
             command=['!nomino', '!namn', '!name'],
             handler='randomize_name',
+            onevents=['Message'],
         ),
     ]
 
@@ -50,18 +52,18 @@ class NominoPlugin(Plugin):
                 namelist[listname] = dict(linecount=linecount, filename=infile)
         return namelist
 
-    def list_lists(self, text, nick, command, cmd):
-        info = u"Förnamnslistor: "
-        info += ' '.join(self.firstnames.keys())
-        info += u"\nEfternamnslistor: "
+    def list_lists(self, shout, command, comobj):
+        #info = u"Förnamnslistor: "
+        #info += ' '.join(self.firstnames.keys())
+        info = u"Namnlistor: "
         info += ' '.join(self.surnames.keys())
         self.bridge.send_and_shout(info, self.nick)
 
-    def randomize_name(self, text, nick, command, cmd):
+    def randomize_name(self, shout, command, comobj):
         """
         Parse message body and send message with dice roll.
         """
-        words = text.lower().split()
+        words = shout.text.lower().split()
         count = 1
         gender = None
         remove = []

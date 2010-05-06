@@ -23,6 +23,7 @@ class DiceyPlugin(Plugin):
         dict(
             command=['!dicey', '!dice', '!roll', '!rulla', u'!tärning', '!kasta'],
             handler='dice_roller',
+            onevents=['Message'],
         ),
     ]
     rpgs = dict([
@@ -58,8 +59,6 @@ class DiceyPlugin(Plugin):
             ('Styrka', '1d10'),
         ]),
     ])
-    #('', []),
-
 
     def setup(self):
         """
@@ -67,13 +66,13 @@ class DiceyPlugin(Plugin):
         """
         self.d = Dicey()
 
-    def dice_roller(self, text, nick, command, cmd):
+    def dice_roller(self, shout, command, comobj):
         """
         Parse message body and send message with dice roll.
         """
-        self.sender_nick = nick
+        self.sender_nick = shout.name
         diestr = ''
-        words = text.split()
+        words = shout.text.split()
         try:
             rpg = words[1].lower()
         except IndexError:
@@ -81,10 +80,10 @@ class DiceyPlugin(Plugin):
         if rpg in self.rpgs:
             diestr = self.roll_character(rpg)
             diestr = words[1] + " - " + diestr
-            diestr = self.prepend_sender(diestr)
+            diestr = shout.name + ': ' + diestr
             self.bridge.send_and_shout(diestr, self.nick)
         else:
-            diestr = self.d.replaceDieStrings(text, self.replace_roll, self.max_responses)
+            diestr = self.d.replaceDieStrings(shout.text, self.replace_roll, self.max_responses)
 
     def roll_character(self, rpg):
         """

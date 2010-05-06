@@ -17,6 +17,7 @@ class NamePlugin(Plugin):
         dict(
             command=['!dagensnamn'],
             handler='send_names',
+            onevents=['Message'],
         ),
     ]
     names = []
@@ -27,7 +28,7 @@ class NamePlugin(Plugin):
         """
         self.names = read_file("extras/names.dat")
 
-    def send_names(self, text, nick, command, cmd):
+    def send_names(self, shout, command, comobj):
         """
         Parse message body and send message with dice roll.
         """

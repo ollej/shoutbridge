@@ -23,10 +23,12 @@ class TermPlugin(Plugin):
         dict(
             command=['!definiera', '!define', '!term add'],
             handler='add_term',
+            onevents=['Message'],
         ),
         dict(
             command=['!term', '!definition'],
             handler='define_term',
+            onevents=['Message'],
         ),
     ]
     definitions = dict()
@@ -51,8 +53,8 @@ class TermPlugin(Plugin):
                 definitions[t.lower()] = definition.strip()
         return definitions
 
-    def add_term(self, text, nick, command, cmd):
-        newterm = text.replace(command, '', 1).strip()
+    def add_term(self, shout, command, comobj):
+        newterm = shout.text.replace(command, '', 1).strip()
         if newterm:
             try:
                 (term, definition) = newterm.split('=', 1)
@@ -63,14 +65,14 @@ class TermPlugin(Plugin):
             add_line_to_file(self.filename_newdefinitions, newdefinition, separator=self.separator)
             self.bridge.send_and_shout("New definition added for review.", self.nick)
 
-    def define_term(self, text, nick, command, cmd):
+    def define_term(self, shout, command, comobj):
         """
         Parse message body and send message with dice roll.
         """
-        if not text:
+        if not shout.text:
             return
         #words = text.split()[1:]
-        word = text.replace(command, '', 1).strip()
+        word = shout.text.replace(command, '', 1).strip()
         if not word:
             word = random.choice(self.definitions.keys())
         answer = ""

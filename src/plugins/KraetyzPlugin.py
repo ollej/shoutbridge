@@ -18,18 +18,19 @@ class KraetyzPlugin(Plugin):
         dict(
             command=[''],
             handler='send_warning',
+            onevents=['Message'],
             onsender = ['Kraetyz'],
             textmatch = 'jag tycker',
             text = u"/me bannar %s för uttryckande av åsikt.",
         ),
     ]
 
-    def send_warning(self, text, nick, command, cmd):
+    def send_warning(self, shout, command, comobj):
         """
         Parse message body and send message with dice roll.
         """
-        if nick in cmd['onsender'] and text.lower().find(cmd['textmatch']) >= 0:
-            self.bridge.send_and_shout(cmd['text'] % (nick), self.nick)
+        if shout.name in comobj['onsender'] and shout.text.lower().find(comobj['textmatch']) >= 0:
+            self.bridge.send_and_shout(comobj['text'] % (shout.name), self.nick)
 
 def main():
     import sys

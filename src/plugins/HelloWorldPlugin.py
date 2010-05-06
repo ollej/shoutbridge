@@ -10,11 +10,12 @@ class HelloWorldPlugin(Plugin):
         dict(
             command = ['!hello'],
             handler = 'hello_world',
+            onevents = ['Message'],
         )
     ]
 
-    def hello_world(self, text, nick, command, cmd):
-        self.bridge.send_and_shout("Hello World!", self.nick)
+    def hello_world(self, shout, command, comobj):
+        self.bridge.send_and_shout(shout.name + ": Hello World!", self.nick)
 
 def main():
     import sys

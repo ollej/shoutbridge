@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import platform
-from time import time
+import time
 from datetime import datetime, date
 
 from utils.ObjectFactory import *
@@ -91,7 +91,7 @@ class XmppBridge(BridgeClass):
         for p in pluginlist:
             plug = self.of.create(p + "Plugin", mod='plugins', inst='Plugin', args=[self])
             plug.setup()
-            self.logprint("Loaded plugin:", plug.name)
+            self.logprint("Loaded plugin:", plug.name, "\n", plug.description)
             self.plugins[p] = plug
 
     def trigger_plugin_event(self, event, obj):
@@ -102,14 +102,35 @@ class XmppBridge(BridgeClass):
             return
         for plugin_name, plugin in self.plugins.items():
             try:
-                func = getattr(plugin, "handle" + event)
+                text = obj.text
             except AttributeError:
-                pass
-            else:
-                try:
-                    func(obj)
-                except Exception as e:
-                    self.logprint("Plugin raised exception:", plugin_name, "\n", e)
+                text = obj
+            try:
+                (cmd, comobj, func) = self.get_plugin_handler(plugin, event, text)
+            except AttributeError:
+                self.logprint("Attribute Error encountered in plugin:", plugin_name)
+                continue
+            try:
+                if func:
+                    self.logprint("Calling plugin:", plugin_name, event, cmd)
+                    func(obj, cmd, comobj)
+            except Exception as e:
+                self.logprint("Plugin raised exception:", plugin_name, "\n", e)
+
+    def get_plugin_handler(self, plugin, event, text):
+        text = text.lower()
+        for comobj in plugin.commands:
+            if event in comobj['onevents']:
+                for cmd in comobj['command']:
+                    if cmd == '' or text.startswith(cmd.lower()):
+                        return [cmd, comobj, getattr(plugin, comobj['handler'])]
+        return [None, None, None]
+
+    def is_type(self, obj, cls):
+        if type(obj).__name__ == 'instance':
+            if obj.__class__.__name__ == cls:
+                return True
+        return False
 
     def make_connection(self):
         """
@@ -225,10 +246,10 @@ class XmppBridge(BridgeClass):
         return text
 
     def update_last_time(self):
-        self.last_time = time()
+        self.last_time = time.time()
 
     def get_last_activity(self):
-        return str(int(time() - self.last_time))
+        return str(int(time.time() - self.last_time))
 
     def change_nick(self, nick):
         if self.cfg.show_nick == "True":
@@ -422,6 +443,7 @@ class XmppBridge(BridgeClass):
             self.send_message(self.room, text, nick=m.name)
 
             # Trigger handleShoutMessage event
+            self.trigger_plugin_event('Message', m)
             self.trigger_plugin_event('ShoutMessage', m)
 
     def listen(self):

@@ -462,6 +462,16 @@ can have several different bot trigger commands, in this case only "!hello" is u
 This means that when a user writes a message starting with this text, the method in the
 "handler" is called.
 
+In the onevents list, you should list each of the events that should trigger this handler.
+The available events are:
+
+ * Message - Triggered on both Shoutbox messages and XMPP messages. First argument is a Shout object.
+ * ShoutMessage - Trsggered on Shoutbox messages. First argument is a Shout object.
+ * XmppMessage - Triggered only on XMPP messages. First argument to method is stanza as xml string.
+ * XmppPresence - Triggered on XMPP Presence stanzas. First argument to method is stanza as xml string.
+ * XmppIq - Triggered on XMPP IQ stanzas, first argument to method is stanza as xml string.
+
+
 The entire command dictionary is sent to the handler method. This means that any extra
 information is available in the method.
 
@@ -469,6 +479,7 @@ information is available in the method.
         dict(
             command = ['!hello'],
             handler = 'hello_world',
+            onevents = ['Message'],
         )
     ]
 
@@ -477,14 +488,18 @@ in the commands list.
 
 The method will receive four arguments, text, nick, command and cmd.
 
- * text - Text of message that triggered this method.
- * nick - Nick (username) of user who sent message.
+ * shout - A Shout object with information about message.
+   shout.name = Name of sender.
+   shout.text = Message body text.
+   shout.time = Unix timestamp of when message was received.
+   shout.id = ID of message, if message was read from shoutbox.
+   shout.userid = User id, if message was read from shoutbox.
  * command - Command that matched, will be one of the text strings in "command" in the dictionary.
- * cmd - The entire command dictionary.
+ * comobj - The entire command dictionary object.
 
 First the method definition.
 
-    def hello_world(self, text, nick, command, cmd):
+    def hello_world(self, shout, command, comobj):
 
 The content of the handler method should do any necessary calculations. To send messages
 just call self.bridge.send_and_shout(text, nick) where text is the message to send and
@@ -508,11 +523,12 @@ can be done. For more information, check the Plugin base class.
             dict(
                 command = ['!hello'],
                 handler = 'hello_world',
+                onevents = ['Message'],
             )
         ]
 
-        def hello_world(self, text, nick, command, cmd):
-            self.bridge.send_and_shout("Hello World!", self.nick)
+        def hello_world(self, shout, command, comobj):
+            self.bridge.send_and_shout(shout.name + ": Hello World!", self.nick)
 
 
 TODO

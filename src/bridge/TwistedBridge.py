@@ -101,7 +101,7 @@ class TwistedBridge(XmppBridge):
         self.lookup_iq_method(iqtype)(frm=frm, to=to, id=id, query=iq.query)
 
         # Trigger handleXmppIq  event
-        self.trigger_plugin_event('XmppIq', iq)
+        self.trigger_plugin_event('XmppIq', iq.toXml())
 
     def handle_iq_GET(self, frm=None, to=None, id=None, query=None):
         if query.defaultUri == 'jabber:iq:last':
@@ -202,7 +202,7 @@ class TwistedBridge(XmppBridge):
             self.handle_presence_AVAILABLE(pres, fromstr=fromstr, nick=nick)
 
         # Trigger handleXmppPresence event
-        self.trigger_plugin_event('XmppPresence', pres)
+        self.trigger_plugin_event('XmppPresence', pres.toXml())
 
 
     def handle_presence_DEFAULT(self, pres, fromjid=None, **kwargs):
@@ -283,7 +283,9 @@ class TwistedBridge(XmppBridge):
 
         # Trigger handleXmppMessage event
         mess['nick'] = nick
-        self.trigger_plugin_event('XmppMessage', mess)
+        shout = Shout(0, 0, nick, body, time.time())
+        self.trigger_plugin_event('XmppMessage', mess.toXml())
+        self.trigger_plugin_event('Message', shout)
 
 
     def send_message(self, tojid, text, nick=None):

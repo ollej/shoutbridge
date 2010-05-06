@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import commands
+
 from plugins.Plugin import *
 from utils.utilities import *
 
@@ -17,18 +18,19 @@ class FortunePlugin(Plugin):
         dict(
             command=['!fortune', '!kaka', '!sia'],
             handler='tell_fortune',
+            onevents=['Message'],
         ),
     ]
     max_length = 60
 
-    def tell_fortune(self, text, nick, command, cmd):
+    def tell_fortune(self, shout, command, comobj):
         """
         Parse message body and send message with dice roll.
         """
         #newstr = commands.getoutput('fortune -a -s -n ' + str(self.max_length))
         newstr = commands.getoutput('fortune -a -s')
-        if nick:
-            newstr = nick + ': ' + newstr
+        if shout.name:
+            newstr = shout.name + ': ' + newstr
         self.bridge.send_and_shout(newstr, self.nick)
 
 def main():

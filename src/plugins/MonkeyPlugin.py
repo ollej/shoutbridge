@@ -18,91 +18,105 @@ class MonkeyPlugin(Plugin):
         dict(
             command = [u'!apa', u'!monkey'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u'@({-_-})@'],
             nick = "Apa",
         ),
         dict(
             command = [u'!tits', u'!boobs', u'!boobies'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u'( . )( . )', u'( . Y .)'],
         ),
         dict(
             command = [u'!fallos', u'!snopp', '!kuk', u'!penis', u'!dick', u'!cock'],
             handler = 'show_cock',
+            onevents=['Message'],
         ),
         dict(
             command = [u'!koala'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"@( * O * )@"],
         ),
         dict(
             command = [u'!fisk', u'!fish'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"<`)))><", u"><(((('>", u"><>"],
         ),
         dict(
             command = [u'!sheep', u'!får'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"°l°(,,,,);", u"/o\*"],
         ),
         dict(
             command = [u'!spindel', u'!spider'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"///\oo/\\\\\\"],
         ),
         dict(
             command = [u'!cat', u'!katt'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"<(^.^)>", u"=^..^="],
         ),
         dict(
             command = [u'!rose', u'!ros'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"@->-->---", u"@->-", u"@--,--'---", u"--------{---(@", u"@}}>-----"],
         ),
         dict(
             command = [u'!mus', u'!mouse'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u'----{,_,">', u'<^__)~~'],
         ),
         dict(
             command = [u'!sword', u'!svärd'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"o==}=======>>", u"(===||:::::::::::::::>"],
         ),
         dict(
             command = [u'!snigel', u'!snail'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"__@/"],
         ),
         dict(
             command = [u'!coffee', u'!cup', u'!kaffe', u'!kopp'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"[_]3"],
         ),
         dict(
             command = [u'!ass', u'!arse', u'!arsle'],
             handler = 'show_text',
+            onevents=['Message'],
             text = [u"(  )x(  )", u"(  )O(  )", u"(_O_)", u"(_*_)", u"{_x_}"],
         ),
     ]
 
-    def show_cock(self, text, nick, command=None, cmd=None):
+    def show_cock(self, shout, command=None, comobj=None):
         """
         Display text from command.
         """
         text = u'8' + ''.ljust(random.randint(1, 10), '=') + u"D"
         self.bridge.send_and_shout(text, self.nick)
 
-    def show_text(self, text, nick, command=None, cmd=None):
+    def show_text(self, shout, command=None, comobj=None):
         """
         Display text from command.
         """
         try:
-            nick = cmd['nick']
+            nick = comobj['nick']
         except KeyError:
             nick = self.nick
-        self.bridge.send_and_shout(random.choice(cmd['text']), nick)
+        self.bridge.send_and_shout(random.choice(comobj['text']), nick)
 
 def main():
     import sys

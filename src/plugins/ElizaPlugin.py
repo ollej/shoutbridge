@@ -18,7 +18,14 @@ class ElizaPlugin(Plugin):
     name = "ElizaPlugin"
     author = "Olle Johansson"
     description = "Eliza, the psychatrist"
-    command = "Eliza,"
+    nick = "Eliza"
+    commands = [
+        dict(
+            command=['Eliza,'],
+            handler='ask_eliza',
+            onevents=['Message'],
+        ),
+    ]
 
     def setup(self):
         """
@@ -26,32 +33,14 @@ class ElizaPlugin(Plugin):
         """
         self.eliza = eliza.eliza()
 
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.sender_nick = message['nick']
-        self.ask_eliza(body)
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.sender_nick = shout.name
-        self.ask_eliza(shout.text)
-
-    def ask_eliza(self, text):
+    def ask_eliza(self, shout, cmd, comobj):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("ElizaPlugin: Handling message:", text)
-        if text.startswith(self.command):
-            text = text[len(self.command):].strip()
-            response = self.eliza.respond(text)
-            if response:
-                response = self.prepend_sender(response)
-                self.bridge.send_and_shout(response, "Eliza")
+        text = shout.text[len(cmd):].strip()
+        response = self.eliza.respond(text)
+        if response:
+            self.bridge.send_and_shout(shout.name + ': ' + response, self.nick)
 
 def main():
     import sys

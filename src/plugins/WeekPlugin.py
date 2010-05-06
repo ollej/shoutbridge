@@ -15,12 +15,13 @@ class WeekPlugin(Plugin):
     description = "Simple plugin to display current ISO week number."
     commands = [
         dict(
-            command=['!week', '!vecka'],
-            handler='send_weeknr',
+            command = ['!week', '!vecka'],
+            handler = 'send_weeknr',
+            onevents = ['Message'],
         ),
     ]
 
-    def send_weeknr(self, text, nick, command, cmd):
+    def send_weeknr(self, shout, command, comobj):
         """
         Return the current ISO week number.
         """

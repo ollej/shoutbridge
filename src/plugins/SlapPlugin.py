@@ -13,8 +13,13 @@ class SlapPlugin(Plugin):
     name = "SlapPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Slap bot lets users slap each other with hilarious items."
-    command = '!slap'
-    nick = "HALiBot"
+    commands = [
+        dict(
+            command = ['!slap'],
+            handler = 'slap',
+            onevents = ['Message'],
+        ),
+    ]
 
     def setup(self):
         """
@@ -22,31 +27,16 @@ class SlapPlugin(Plugin):
         """
         self.slapitems = read_file("extras/slaps.dat")
 
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        body = getElStr(message.body)
-        self.slap(body, message['nick'])
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        self.slap(shout.text, shout.name)
-
-    def slap(self, text, nick):
+    def slap(self, shout, command, comobj):
         """
         Parse message body and send message with dice roll.
         """
-        self.logprint("SlapPlugin: Handling message:")
-        if self.command == '' or text.startswith(self.command):
-            words = text.split()
-            slapee = words[1]
-            tmpl = string.Template(random.choice(self.slapitems))
-            if slapee and slapee.lower() != self.nick.lower():
-                slap = tmpl.substitute(dict(slapper=nick, slapee=slapee))
-                self.bridge.send_and_shout(slap, self.nick)
+        words = shout.text.split()
+        slapee = words[1]
+        tmpl = string.Template(random.choice(self.slapitems))
+        if slapee and slapee.lower() != self.nick.lower():
+            slap = tmpl.substitute(dict(slapper=shout.name, slapee=slapee))
+            self.bridge.send_and_shout(slap, self.nick)
 
 def main():
     import sys

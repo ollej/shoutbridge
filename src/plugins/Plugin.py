@@ -57,14 +57,16 @@ class Plugin(BridgeClass):
         """
         Method called on every received XMPP message stanza.
         """
-        body = getElStr(message.body)
-        self.handle_shout(body, message['nick'])
+        #body = getElStr(message.body)
+        #self.handle_shout(body, message['nick'])
+        pass
 
     def handleShoutMessage(self, shout):
         """
         Method called on every new message from the Shoutbox.
         """
-        self.handle_shout(shout.text, shout.name)
+        #self.handle_shout(shout.text, shout.name)
+        pass
 
     def handleXmppIq(self, iq):
         """
@@ -78,11 +80,12 @@ class Plugin(BridgeClass):
         """
         pass
 
-    def handle_shout(self, text, nick):
+    def handleMessage(self, shout):
         """
-        Parses the text and matches against command handlers.
+        Method called on both Shout messages and XMPP messages.
         """
-        self.logprint(self.name + ": Handling message:", nick, text)
+        return
+        self.logprint(self.name + ": Handling message:", shout)
         for cmds in self.commands:
             for cmd in cmds['command']:
                 #print "cmd:", cmd, "text:", text

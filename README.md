@@ -436,12 +436,12 @@ Halibot contains helper commands for the jabber bot.
 #### !help ####
 Displays a short help message.
 
-#### !help <pluginname> ####
-Displays description of plugin with name <pluginname>.
+#### !help _pluginname_ ####
+Displays description of plugin with name _pluginname_.
 
-#### !say <text> ####
+#### !say _text_ ####
 When this command is sent as a private/direct message to the bot, the bot will
-in turn send out a message with the given text.
+in turn send out a message with the given _text_.
 
 #### !version ####
 Displays name and version of program, along with system information of the 
@@ -453,10 +453,13 @@ List all known commands by all loaded plugins.
 #### !listplugins ####
 Lists the names of all loaded plugins.
 
-#### !jump <password> <jabber room id> ####
+#### !jump _password_ _room@conference.jabber.com/nick_ ####
 If this command is sent as a private/direct message to the bot and the password
 matches the configured password in the bot, the bot will leave the current room
 and try to connect to the given jabber room id.
+
+### !flipcoin ###
+Make a coin toss.
 
 
 Write your own plugin

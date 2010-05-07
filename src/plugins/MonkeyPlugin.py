@@ -99,6 +99,12 @@ class MonkeyPlugin(Plugin):
             onevents=['Message'],
             text = [u"(  )x(  )", u"(  )O(  )", u"(_O_)", u"(_*_)", u"{_x_}"],
         ),
+        dict(
+            command = [u'!duck', u'!anka'],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u"\__o- \__o- \__o-"],
+        ),
     ]
 
     def show_cock(self, shout, command=None, comobj=None):

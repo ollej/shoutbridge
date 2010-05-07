@@ -16,7 +16,7 @@ class HalibotPlugin(Plugin):
         dict(
             command = ['!say'],
             handler = 'echo_message',
-            onevents = ['XmppPrivateMessage'],
+            onevents = ['XmppDirectMessage'],
         ),
         dict(
             command = ['!help me'],
@@ -43,7 +43,13 @@ class HalibotPlugin(Plugin):
         dict(
             command = ['!jump'],
             handler = 'jump_room',
-            onevents = ['XmppPrivateMessage'],
+            onevents = ['XmppDirectMessage'],
+        ),
+        dict(
+            command = ['!flipcoin', '!coinflip', '!coin', '!flip', '!toss'],
+            handler = 'show_text',
+            onevents = ['Message'],
+            text = ['Heads', 'Tails'],
         ),
     ]
 
@@ -69,6 +75,7 @@ class HalibotPlugin(Plugin):
         """
         List all available commands in all loaded Plugins.
         """
+        return
         commandlist = []
         for plugin_name, plugin in self.bridge.plugins.items():
             for com in plugin.commands:
@@ -98,15 +105,15 @@ class HalibotPlugin(Plugin):
         Show Plugin description on given plugin name.
         TODO: Shouldn't be case-sensitive.
         """
-        help = shout.text.replace(command, '', 1).strip()
+        help = shout.text.replace(command, '', 1).strip().lower()
         if help:
-            try:
-                self.logprint("Showing help for plugin:", help)
-                plugin = self.bridge.plugins[help] 
-            except KeyError:
+            self.logprint("Showing help for plugin:", help)
+            for pname, p in self.bridge.plugins.items():
+                if pname.lower() == help:
+                    text = p.description
+                    break
+            if not text:
                 text = "Plugin not found: %s" % help
-            else:
-                text = plugin.description
         else:
             text = comobj['text']
         self.bridge.send_and_shout("%s: %s" % (shout.name, text), self.nick)

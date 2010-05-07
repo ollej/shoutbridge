@@ -107,8 +107,10 @@ class XmppBridge(BridgeClass):
         for plugin_name, plugin in self.plugins.items():
             try:
                 text = obj.text
+                nick = obj.name
             except AttributeError:
                 text = obj
+                nick = ""
             try:
                 (cmd, comobj, func) = self.get_plugin_handler(plugin, event, text)
             except AttributeError:
@@ -117,6 +119,7 @@ class XmppBridge(BridgeClass):
             try:
                 if func:
                     self.logprint("Calling plugin:", plugin_name, event, cmd)
+                    plugin.sender_nick = nick
                     func(obj, cmd, comobj)
             except Exception as e:
                 self.logprint("Plugin raised exception:", plugin_name, "\n", e)

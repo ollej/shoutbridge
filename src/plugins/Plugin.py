@@ -45,48 +45,16 @@ class Plugin(BridgeClass):
         """
         pass
 
-    def prepend_sender(self, text):
+    def prepend_sender(self, text, sep=': '):
         """
         Prepends name of sender of message if available.
         """
         try:
-            text = self.sender_nick + ': ' + text
+            if self.sender_nick:
+                text = "%s%s%s" % (self.sender_nick, sep, text)
         except AttributeError:
             pass
         return text
-
-    def handleXmppMessage(self, message):
-        """
-        Method called on every received XMPP message stanza.
-        """
-        #body = getElStr(message.body)
-        #self.handle_shout(body, message['nick'])
-        pass
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        """
-        #self.handle_shout(shout.text, shout.name)
-        pass
-
-    def handleXmppIq(self, iq):
-        """
-        Method called on every received XMPP iq stanza.
-        """
-        pass
-
-    def handleXmppPresence(self, presence):
-        """
-        Method called on every received XMPP Presence stanza.
-        """
-        pass
-
-    def handleMessage(self, shout):
-        """
-        Method called on both Shout messages and XMPP messages.
-        """
-        return
 
     def show_text(self, shout, command=None, comobj=None):
         """

@@ -430,6 +430,34 @@ Returns the week number according to the ISO date standard, commonly used in Sca
 
     !week
 
+### HalibotPlugin ###
+Halibot contains helper commands for the jabber bot.
+
+#### !help ####
+Displays a short help message.
+
+#### !help <pluginname> ####
+Displays description of plugin with name <pluginname>.
+
+#### !say <text> ####
+When this command is sent as a private/direct message to the bot, the bot will
+in turn send out a message with the given text.
+
+#### !version ####
+Displays name and version of program, along with system information of the 
+computer the script is running on.
+
+#### !listcommands ####
+List all known commands by all loaded plugins.
+
+#### !listplugins ####
+Lists the names of all loaded plugins.
+
+#### !jump <password> <jabber room id> ####
+If this command is sent as a private/direct message to the bot and the password
+matches the configured password in the bot, the bot will leave the current room
+and try to connect to the given jabber room id.
+
 
 Write your own plugin
 ---------------------
@@ -462,15 +490,8 @@ can have several different bot trigger commands, in this case only "!hello" is u
 This means that when a user writes a message starting with this text, the method in the
 "handler" is called.
 
-In the onevents list, you should list each of the events that should trigger this handler.
-The available events are:
-
- * Message - Triggered on both Shoutbox messages and XMPP messages. First argument is a Shout object.
- * ShoutMessage - Trsggered on Shoutbox messages. First argument is a Shout object.
- * XmppMessage - Triggered only on XMPP messages. First argument to method is stanza as xml string.
- * XmppPresence - Triggered on XMPP Presence stanzas. First argument to method is stanza as xml string.
- * XmppIq - Triggered on XMPP IQ stanzas, first argument to method is stanza as xml string.
-
+The onevents element lists all events this handler should be called on. See the
+advanced plugin documentation for more information about available triggers.
 
 The entire command dictionary is sent to the handler method. This means that any extra
 information is available in the method.
@@ -530,6 +551,84 @@ can be done. For more information, check the Plugin base class.
         def hello_world(self, shout, command, comobj):
             self.bridge.send_and_shout(shout.name + ": Hello World!", self.nick)
 
+Advanced Plugin Development
+---------------------------
+There is more to writing Shoutbridge plugins than just parsing text messages
+and returning information.
+
+### Method: setup ###
+Directly after a plugin has been loaded, the setup method is called, without arguments.
+This method can be used to setup initial data or any other maintenance that needs to
+be done when the plugin is first started.
+
+### Method: show_text ###
+The Plugin superclass has a default handler method called "show_text". This can be used
+as the command handler in all plugins. This handler method simply returns a randomly
+selected text string from the "text" element in the command dictionary.
+
+#### Example: ####
+The following will create the !flipcoin command which will return the flip of a coin.
+If the element "nick" is given, that text will be used as the author name of the message.
+If not present, the default Plugin nick will be used.
+
+In this example, we also see how two different command names can used to trigger the same
+handler. In this case either "!flipcoin" or "!toss" can be used to flip a coin.
+
+    commands = [
+        dict(
+            command = ['!flipcoin', '!toss'],
+            handler = 'show_text',
+            onevents = ['Message'],
+            text = ['Heads', 'Tails'],
+            nick = 'Coin tosser',
+        )
+    ]
+
+### Method: prepend_sender ###
+Send in a string to this method and the string will returned with the nick of the
+sender of the message being handled prepended.
+
+#### Example ####
+If a user called "JohnDoe" sends the message "Hello World!", the following call
+can be made:
+
+    text = self.prepend_sender("Hello World!")
+
+The "text" variable should then contain the following:
+    
+    JohnDoe: Hello World!
+
+If a second argument is given, this will be used as the separator between nick
+and text instead of ": ".
+
+If send_nick isn't available, the message will be returned unmodified.
+
+### Crossing the bridge ###
+Each plugin will get a reference to the jabber bridge object in the attribute
+self.bridge
+
+This means that all methods available in the bridge can be used. Such as sending
+IQ or Presence stanzas. Please read the Bridge documentation for more information.
+
+### Event triggers ###
+In the onevents list, you should list each of the events that should trigger this handler.
+The available event triggers are:
+
+ * Message - Triggered on both Shoutbox messages and XMPP messages. First argument is a Shout object.
+ * ShoutMessage - Triggered on Shoutbox messages. First argument is a Shout object.
+ * XmppMessage - Triggered only on XMPP messages. First argument to method is stanza as xml string.
+ * XmppPresence - Triggered on XMPP Presence stanzas. First argument to method is stanza as xml string.
+ * XmppIq - Triggered on XMPP IQ stanzas, first argument to method is stanza as xml string.
+ * XmppDirectMessage - Triggered when bot receives a direct (private) message.
+
+The XMPP stanzas are passed as raw XML strings. This is since plugins shouldn't depend on
+a specifc bridge class or XML library. 
+
+Most plugins should trigger on the Message event. This means messages coming from
+either the web shoutbox chat or the jabber conference room. Using this trigger will make
+the plugin as generic as possible. Only use the ShoutMessage or XmppMessage for
+special cases that should only trigger on one type of message.
+
 
 TODO
 ----
@@ -542,15 +641,10 @@ Some ideas for future development.
  * Add priority sorting to plugin triggering.
  * Away presence could hide user on forum
  * Log all exceptions to file.
- * HelpPlugin
-     * Add help information for plugins. Read using reflection by HelpPlugin
-     * HelpPlugin should list all available commands if no argument is given.
-     * If a command is given to !help, print doc string for that command.
  * BUG: When loadUrl fails, reactor stops running that loop.
  * Allow commands to be sent as direct messages as well.
  * Plugin ideas:
    * !seen <user> - showing last online time for user
-   * !help - Display help information from all plugins.
    * !calc - calculator
    * !memory - display used memory
    * !tell <user> <text> - When <user> is seen next, send message with <text>
@@ -559,11 +653,9 @@ Some ideas for future development.
    * Possibly convert !trivia, !weather, !translate, !google, !wiki etc from other bots.
    * Use people's dictionary and synlist.
  * Direct message commands:
-   * !say - make bot say something.
    * !die - make bot disconnect and shutdown
    * !reconnect - make bot reconnect
    * !reload - make bot reload all plugins
-   * !jump - make bot move to another conference room
    * !rehash - make bot reload configuration
  * Create unit tests for all code.
  * Have the possibility to not have shoutbox bridge at all.

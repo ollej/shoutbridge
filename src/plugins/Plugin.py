@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import random
+
 from utils.BridgeClass import *
 from utils.utilities import *
 
@@ -85,14 +87,17 @@ class Plugin(BridgeClass):
         Method called on both Shout messages and XMPP messages.
         """
         return
-        self.logprint(self.name + ": Handling message:", shout)
-        for cmds in self.commands:
-            for cmd in cmds['command']:
-                #print "cmd:", cmd, "text:", text
-                if cmd == '' or text.lower().startswith(cmd.lower()):
-                    handler = getattr(self, cmds['handler'])
-                    handler(text, nick, cmd, cmds)
-                    return
+
+    def show_text(self, shout, command=None, comobj=None):
+        """
+        Display text from command.
+        """
+        try:
+            nick = comobj['nick']
+        except KeyError:
+            nick = self.nick
+        self.bridge.send_and_shout(random.choice(comobj['text']), nick)
+
 
 def main():
     import sys

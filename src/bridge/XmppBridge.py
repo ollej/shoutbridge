@@ -29,7 +29,7 @@ class BridgeNoXmlStream(BridgeError):
 
 class XmppBridge(BridgeClass):
     client_name = "Shoutbridge"
-    client_version = "0.1"
+    client_version = "1.0"
     shoutbox = None
     roster = dict()
     cfg = None
@@ -161,6 +161,20 @@ class XmppBridge(BridgeClass):
         print "Authenticated."
         # Connect to conference room
         self.join_room(self.roomjid)
+
+    def leave_room(self, reason=None):
+        if not reason:
+            reason = "Leaving room."
+        self.send_presence(
+            to=room,
+            ptype="unavailable",
+            children=dict(
+                status=dict(
+                    defaultUri=None,
+                    content=reason,
+                ),
+            ),
+        )
 
     def join_room(self, room):
         #frm=self.login + '/' + self.cfg.xmpp_resource,
@@ -328,13 +342,13 @@ class XmppBridge(BridgeClass):
         """
         pass
 
-    def send_iq_error(self, to=None, id=None, type=None, query=None, condition=None):
+    def send_iq_error(self, to=None, id=None, iqtype=None, query=None, condition=None):
         """
         Build and send IQ error stanza.
         """
         pass
 
-    def send_iq(self, type, id, frm=None, to=None, children=None, querytype=None):
+    def send_iq(self, iqtype, id, frm=None, to=None, children=None, querytype=None):
         """
         Sends an IQ stanza on the xml stream.
         """
@@ -363,13 +377,13 @@ class XmppBridge(BridgeClass):
 
     def handle_presence_UNSUBSCRIBE(self, pres, fromjid=None, **kwargs):
         self.send_presence(
-            type="unsubscribed",
+            ptype="unsubscribed",
             to=fromjid,
         )
 
     def handle_presence_SUBSCRIBE(self, pres, fromjid=None, **kwargs):
         self.send_presence(
-            type="subscribed",
+            ptype="subscribed",
             to=fromjid,
         )
 
@@ -385,7 +399,7 @@ class XmppBridge(BridgeClass):
             show = "chat"
         self.send_presence(xmlns='jabber:client', show=show, status=status)
 
-    def send_presence(self, xmlns=None, type=None, status=None, show=None,
+    def send_presence(self, xmlns=None, ptype=None, status=None, show=None,
                      frm=None, to=None, children=None):
         """
         Build and send presence stanza.

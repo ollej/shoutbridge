@@ -76,7 +76,7 @@ class TermPlugin(Plugin):
         if not word:
             word = random.choice(self.definitions.keys())
         answer = ""
-        self.logprint('Handling term:', word)
+        #self.logprint('Handling term:', word)
         try:
             answer += u"Definition av '%s': %s" % (word, self.definitions[word.lower()])
         except KeyError:

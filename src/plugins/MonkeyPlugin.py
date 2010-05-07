@@ -13,7 +13,6 @@ class MonkeyPlugin(Plugin):
     name = "MonkeyPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Simple plugin to display a monkey."
-    nick = "HALiBot"
     commands = [
         dict(
             command = [u'!apa', u'!monkey'],
@@ -143,16 +142,6 @@ class MonkeyPlugin(Plugin):
         """
         text = u'8' + ''.ljust(random.randint(1, 10), '=') + u"D"
         self.bridge.send_and_shout(text, self.nick)
-
-    def show_text(self, shout, command=None, comobj=None):
-        """
-        Display text from command.
-        """
-        try:
-            nick = comobj['nick']
-        except KeyError:
-            nick = self.nick
-        self.bridge.send_and_shout(random.choice(comobj['text']), nick)
 
 def main():
     import sys

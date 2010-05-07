@@ -575,3 +575,4 @@ Some ideas for future development.
  * BUG: Graemlin replacement should be done before html stripping.
  * BUG: HTML-stripping not quite up to par.
  * Add language support for easy translation.
+ * Write generic function to test plugins from command line.

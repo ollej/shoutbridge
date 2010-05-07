@@ -458,7 +458,7 @@ If this command is sent as a private/direct message to the bot and the password
 matches the configured password in the bot, the bot will leave the current room
 and try to connect to the given jabber room id.
 
-### !flipcoin ###
+#### !flipcoin ####
 Make a coin toss.
 
 

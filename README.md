@@ -370,12 +370,12 @@ Sends a random quote from different quote files.
 
 #### Additional quote files: ####
 
- * !jeff - Quotes by Jeff Murdoch from TV series Coupling
- * !murphy - Random Murphy's Law
- * !kimjongil - Swedish silly Kim Jong Il messages.
- * !kjell - Swedish quotes from TV series Kjell
- * !evaemma - Swedish quotes from blogger EvaEmma Andersson
- * !storuggla - Swedish quotes from Storuggla
+ * **!jeff** - Quotes by Jeff Murdoch from TV series Coupling
+ * **!murphy** - Random Murphy's Law (Mostly English, some Swedish)
+ * **!kimjongil** - Swedish silly Kim Jong Il messages.
+ * **!kjell** - Swedish quotes from TV series Kjell
+ * **!evaemma** - Swedish quotes from blogger EvaEmma Andersson
+ * **!storuggla** - Swedish quotes from Storuggla
 
 #### Add new quotes ####
 It is also possible to add new quotes which are added to a temporary file. These
@@ -559,6 +559,35 @@ Advanced Plugin Development
 There is more to writing Shoutbridge plugins than just parsing text messages
 and returning information.
 
+### Command matching ###
+You can have any text in commands, including spaces. Starting commands with an
+exclamation mark (!) is the convention most of the bundled plugins are using. This
+is however not at all necessary, as is shown by the ElizaPlugin.
+
+Commands are simply text strings that are matched against the start of a message.
+The commands do not have to be in the same case. All of the messages in the list below
+would match the command "!hi":
+
+ * !hi
+ * !hi how are you?
+ * !his pants fell down
+ * !HI
+
+#### Matching Order ####
+Commands will be matched in the order they are listed. The first command that matches
+for a handler will be the one that is passed to the handler as the "command" argument.
+Also note that the first command object matching is the only one that is triggered in
+a plugin.
+
+If you want to match two similar strings to two different handlers, make sure to place
+them in the correct order. The longer of the two should be placed first, otherwise
+the shorter command will always match first.
+
+#### Empty commands ####
+If you give an empty string as the command, any message will match. This is useful
+if you want to do more advanced command parsing yourself. It is alsow what should
+be used for all Xmpp* trigger events, as they are XML strings and not normal text.
+
 ### Method: setup ###
 Directly after a plugin has been loaded, the setup method is called, without arguments.
 This method can be used to setup initial data or any other maintenance that needs to
@@ -617,12 +646,12 @@ IQ or Presence stanzas. Please read the Bridge documentation for more informatio
 In the onevents list, you should list each of the events that should trigger this handler.
 The available event triggers are:
 
- * Message - Triggered on both Shoutbox messages and XMPP messages. First argument is a Shout object.
- * ShoutMessage - Triggered on Shoutbox messages. First argument is a Shout object.
- * XmppMessage - Triggered only on XMPP messages. First argument to method is stanza as xml string.
- * XmppPresence - Triggered on XMPP Presence stanzas. First argument to method is stanza as xml string.
- * XmppIq - Triggered on XMPP IQ stanzas, first argument to method is stanza as xml string.
- * XmppDirectMessage - Triggered when bot receives a direct (private) message.
+ * **Message** - Triggered on both Shoutbox messages and XMPP messages. First argument is a Shout object.
+ * **ShoutMessage** - Triggered on Shoutbox messages. First argument is a Shout object.
+ * **XmppMessage** - Triggered only on XMPP messages. First argument to method is stanza as xml string.
+ * **XmppPresence** - Triggered on XMPP Presence stanzas. First argument to method is stanza as xml string.
+ * **XmppIq** - Triggered on XMPP IQ stanzas, first argument to method is stanza as xml string.
+ * **XmppDirectMessage** - Triggered when bot receives a direct (private) message.
 
 The XMPP stanzas are passed as raw XML strings. This is since plugins shouldn't depend on
 a specifc bridge class or XML library. 
@@ -671,3 +700,5 @@ Some ideas for future development.
  * BUG: HTML-stripping not quite up to par.
  * Add language support for easy translation.
  * Write generic function to test plugins from command line.
+ * HalibotPlugin !listcommands _plugin_ should list commands available for that plugin.
+ * XmppDirectMessage isn't implemented yet.

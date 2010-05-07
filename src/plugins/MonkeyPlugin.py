@@ -26,7 +26,7 @@ class MonkeyPlugin(Plugin):
             command = [u'!tits', u'!boobs', u'!boobies'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u'( . )( . )', u'( . Y .)'],
+            text = [u'( . )( . )', u'( . Y .)', u"(./\.)", u"( o Y o )", u"( + )( + )", u"(*)(*)", u"(@)(@)", u"{ O }{ O }", u"( ^ )( ^ )", u"(oYo)", u"\o/\o/"],
         ),
         dict(
             command = [u'!fallos', u'!snopp', '!kuk', u'!penis', u'!dick', u'!cock'],
@@ -61,7 +61,7 @@ class MonkeyPlugin(Plugin):
             command = [u'!cat', u'!katt'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u"<(^.^)>", u"=^..^="],
+            text = [u"<(^.^)>", u"=^..^=", u"(>'.'<)"],
         ),
         dict(
             command = [u'!rose', u'!ros'],
@@ -79,7 +79,7 @@ class MonkeyPlugin(Plugin):
             command = [u'!sword', u'!svärd'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u"o==}=======>>", u"(===||:::::::::::::::>"],
+            text = [u"O==I======>", u"o==}=======>>", u"(===||:::::::::::::::>"],
         ),
         dict(
             command = [u'!snigel', u'!snail'],
@@ -97,13 +97,13 @@ class MonkeyPlugin(Plugin):
             command = [u'!ass', u'!arse', u'!arsle'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u"(  )x(  )", u"(  )O(  )", u"(_O_)", u"(_*_)", u"{_x_}"],
+            text = [u"(  )x(  )", u"(  )O(  )", u"(_O_)", u"(_*_)", u"{_x_}", u"(_Y_)", u"(_!_)", u"(__!__)"],
         ),
         dict(
             command = [u'!duck', u'!anka'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u"\__o- \__o- \__o-"],
+            text = [u"\__o-", u"o<", u".\\/", u"{:V", u"{:<>", u"(:<>"],
         ),
     ]
 

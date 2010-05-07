@@ -105,6 +105,36 @@ class MonkeyPlugin(Plugin):
             onevents=['Message'],
             text = [u"\__o-", u"o<", u".\\/", u"{:V", u"{:<>", u"(:<>"],
         ),
+        dict(
+            command = [u'!wave', u'!vinka'],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u"o/"],
+        ),
+        dict(
+            command = [u'!love', u'!heart', u'!hjärta', u'!kärlek', u'!älska'],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u"<3"],
+        ),
+        dict(
+            command = [u'!cartman', '!southpark'],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u"(>_<)", u"(>.<)"],
+        ),
+        dict(
+            command = [u'!butterfly', u'!fjäril'],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u"Ƹ̵̡Ӝ̵̨̄Ʒ", u">;<", u">;"],
+        ),
+        dict(
+            command = [u'!alligator', u"!crocodile", u"krokodil"],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u"^^^^^U^^^U^=___"],
+        ),
     ]
 
     def show_cock(self, shout, command=None, comobj=None):

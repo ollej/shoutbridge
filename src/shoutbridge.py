@@ -14,13 +14,13 @@ def start_shoutbridge():
     parser.add_option("-S", "--section", dest="section", default="LOCAL",
                       help="Read configuration from SECTION", metavar="SECTION")
     parser.add_option("-D", "--debug",
-                      action="store_false", dest="debug", default=False,
+                      action="store_true", dest="debug", default=False,
                       help="Print RAW data sent and received on the stream.")
     parser.add_option("-q", "--quiet",
-                      action="store_false", dest="quiet", default=True,
+                      action="store_true", dest="quiet", default=False,
                       help="Don't print status messages to stdout")
     parser.add_option("-v", "--verbose",
-                      action="store_true", dest="verbose", default=True,
+                      action="store_true", dest="verbose", default=False,
                       help="make lots of noise [default]")
     parser.add_option("-s", "--start", dest="latest_shout",
                       help="Start reading shouts from START", metavar="START")
@@ -74,7 +74,7 @@ def start_shoutbridge():
     cfg = Conf(configfile, configsection)
     cfg.set_items(vars(options))
 
-    if cfg.verbose:
+    if cfg.get_bool('verbose'):
         print "Shoutbridge started..."
 
     # Setup Shoutbox
@@ -88,7 +88,7 @@ def start_shoutbridge():
 
     # Start bridge
     bridge.listen()
-    if cfg.verbose:
+    if cfg.get_bool('verbose'):
         print "Shoutbridge ended."
 
 # Call the main function.

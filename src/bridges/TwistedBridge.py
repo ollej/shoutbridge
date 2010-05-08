@@ -56,15 +56,16 @@ class TwistedBridge(XmppBridge):
         self.xmlstream.sendFooter()
 
     def connected(self, xs):
-        print 'Connected.'
+        self.logprint('Connected.')
         self.xmlstream = xs
 
         # Consider last activity time to be when connected.
         self.update_last_time()
 
         # Log all traffic
-        xs.rawDataInFn = self.rawDataIn
-        xs.rawDataOutFn = self.rawDataOut
+        if self.cfg.get_bool('debug'):
+            xs.rawDataInFn = self.rawDataIn
+            xs.rawDataOutFn = self.rawDataOut
 
         # Add Event observers
         xs.addObserver("/message[@type='groupchat']", self.handle_message)
@@ -73,12 +74,11 @@ class TwistedBridge(XmppBridge):
         xs.addObserver("/iq", self.handle_iq)
 
     def disconnected(self, xs):
-        print 'Disconnected.'
+        self.logprint('Disconnected.')
         #reactor.stop()
 
     def init_failed(self, failure):
-        print "Initialization failed."
-        print failure
+        self.logprint("Initialization failed.", failure)
         self.xmlstream.sendFooter()
 
     def send_stanza(self, stanza):
@@ -206,10 +206,10 @@ class TwistedBridge(XmppBridge):
 
 
     def handle_presence_DEFAULT(self, pres, fromjid=None, **kwargs):
-        print "Received unknown presence:", pres.toXml()
+        self.logprint("Received unknown presence:", pres.toXml())
 
     def handle_presence_ERROR(self, pres, fromjid=None, **kwargs):
-        print "Received error presence:", pres.toXml()
+        self.logprint("Received error presence:", pres.toXml())
         if pres.error and pres.error.hasAttribute('code'):
             code = pres.error['code']
         if code == "409":
@@ -263,7 +263,7 @@ class TwistedBridge(XmppBridge):
             nick = fromjid.user + '@' + fromjid.host
 
         # Skip if message is sent by shoutbridge
-        print "Nick is", nick
+        #print "Nick is", nick
         fromuser = self.roster.get(nick)
         if fromuser and fromuser.name == self.login or nick == self.current_nick:
             self.logprint("Got message from myself, skipping...")
@@ -303,7 +303,7 @@ class TwistedBridge(XmppBridge):
             self.update_last_time()
             self.send_stanza(message)
         except UnicodeDecodeError:
-            print "Unicode Decode Error: ", text
+            self.logprint("Unicode Decode Error: ", text)
 
     def listen(self):
         """
@@ -319,5 +319,5 @@ class TwistedBridge(XmppBridge):
             reactor.run()
         except KeyboardInterrupt:
             self.close_connection()
-            print "Exiting..."
+            self.logprint("Exiting...")
 

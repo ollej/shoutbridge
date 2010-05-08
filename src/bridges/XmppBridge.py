@@ -161,7 +161,7 @@ class XmppBridge(BridgeClass):
         pass
 
     def authenticated(self, xs):
-        print "Authenticated."
+        self.logprint("Authenticated.")
         # Connect to conference room
         self.join_room(self.roomjid)
 

@@ -20,7 +20,10 @@ class User(BridgeClass):
     last_seen = 0
 
     def __init__(self, id, name, jid, last_seen=None):
-        self.id = int(id)
+        if id:
+            self.id = int(id)
+        else:
+            self.id = None
         self.name = name
         self.jid = jid
         self.last_seen = last_seen

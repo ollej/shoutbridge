@@ -25,7 +25,7 @@ class OFWrongBaseClassError(ObjectFactoryError):
     Class found, but doesn't have the correct base class.
     """
 
-class ObjectFactory:
+class ObjectFactory(object):
     def create(self, classname, mod=None, inst=None, args=None):
         # Dynamically load module.
         if mod:

@@ -30,11 +30,6 @@ class SeenTellPlugin(Plugin):
     date_format = "%Y-%m-%d %H:%M:%S"
     commands = [
         dict(
-            command = [''],
-            handler = 'handle_message',
-            onevents = ['Message'],
-        ),
-        dict(
             command = ['!tell'],
             handler = 'tell_user',
             onevents = ['Message'],
@@ -43,20 +38,26 @@ class SeenTellPlugin(Plugin):
             command = ['!seen'],
             handler = 'seen_user',
             onevents = ['Message'],
-        )
+        ),
+        dict(
+            command = [''],
+            handler = 'handle_message',
+            onevents = ['Message'],
+        ),
     ]
 
     def setup(self):
-        self.engine = create_engine('sqlite:///extras/halibot.db', echo=True)
-        self.create_tables()
-        self.create_session()
+        debug = self.bridge.cfg.get_bool('debug')
+        self.engine = create_engine('sqlite:///extras/halibot.db', echo=debug)
+        self.setup_tables()
+        self.setup_session()
 
-    def create_session(self):
+    def setup_session(self):
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
-    def create_tables(self):
-        """
+    def setup_tables(self):
+        self.metadata = MetaData()
         users_table = Table('users', self.metadata,
             Column('id', Integer, Sequence('user_id_seq'), primary_key=True),
             Column('name', String(50)),
@@ -64,8 +65,6 @@ class SeenTellPlugin(Plugin):
             Column('last_seen', Integer),
         )
         mapper(User, users_table)
-        """
-        self.metadata = MetaData()
         tell_table = Table('tell', self.metadata,
             Column('id', Integer, Sequence('user_id_seq'), primary_key=True),
             Column('user', String(50)),
@@ -92,42 +91,67 @@ class SeenTellPlugin(Plugin):
         self.session.delete(tell)
 
     def handle_message(self, shout, command, comobj):
-        #user = self.update_user(shout.name)
-        #tells = self.get_tells(user.name)
-        tells = self.get_tells(shout.name)
+        """
+        Called on every message. Saves last seen time for user. If someone has
+        left messages for the user, these will be printed.
+        """
+        #self.logprint("handle_message:", shout.name)
+        user = self.update_user(shout.name)
+        tells = self.get_tells(user.name)
         for tell in tells:
             response = "The user %s wanted me to tell you: %s" % (tell.teller, tell.message)
             self.send_message(response)
             self.delete_tell(tell)
+        self.session.commit()
 
     def update_user(self, name):
+        """
+        Update last seen time of user, or create new user if not found.
+        """
+        #self.logprint("update_user:", name)
         user = self.get_user(name)
         if not user:
-            user = User(0, name, '', time.time())
+            user = User(None, name, '', time.time())
             self.add_user(user)
         else:
             user.last_seen = time.time()
         return user
 
     def tell_user(self, shout, command, comobj):
+        """
+        Leave message for a user.
+        """
+        self.update_user(shout.name)
         text = self.strip_command(shout.text, command)
+        #self.logprint("tell_user:", text)
         try:
             (name, message) = text.split(' ', 1)
         except ValueError:
             response = "Use '!tell Username Message' to tell a user something when they next join the chat."
         else:
-            tell = Tell(name, message, time.time())
+            tell = Tell(name, shout.name, message, time.time())
             self.session.add(tell)
-            response = "Ok, I will tell user '%s' that next time I see him." % name
+            response = "Ok, I will tell user %s that next time I see him." % name
         self.send_message(response)
+        self.session.commit()
 
     def seen_user(self, shout, command, comobj):
+        """
+        Print information on when a user was last seen in the room.
+        """
         name = self.strip_command(shout.text, command)
-        user = self.get_user(name)
-        if not user:
-            response = "I have not seen the user '%s'" % name
+        if not name:
+            response = "Use '!seen Username' to see when a user of that name was last seen in the chat."
         else:
-            response = "I last saw user '%s': %s" % (user.name, d.strftime(self.date_format))
+            user = self.get_user(name)
+            #self.logprint("seen_user:", name, user)
+            if not user:
+                response = "I have not seen the user '%s'" % name
+            else:
+                last_seen = datetime.fromtimestamp(user.last_seen).strftime(self.date_format)
+                response = "I last saw user '%s': %s" % (user.name, last_seen)
         self.send_message(response)
+        self.update_user(shout.name)
+        self.session.commit()
 
 

@@ -42,6 +42,15 @@ class Conf(BridgeClass):
     def get(self, name):
         return self._items[name]
 
+    def get_bool(self, name):
+        try:
+            val = self._items[name]
+        except KeyError:
+            return None
+        if val == True or val.lower() in ["true", "1", "on", "yes"]:
+            return True
+        return False
+
     def get_items(self):
         return self._items
 

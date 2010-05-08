@@ -23,7 +23,7 @@ def main():
         print "Couldn't load plugin: %s" % plugin_name
         quit()
     msg = unicode(' '.join(args[2:]), 'utf-8')
-    shout = Shout(1, 4711, 'Test', msg, time())
+    shout = Shout(1, 4711, 'PluginTestUser', msg, time())
     plug.setup()
     bridge.plugins['SeenTell'] = plug
     bridge.trigger_plugin_event("Message", shout)

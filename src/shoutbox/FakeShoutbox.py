@@ -4,20 +4,25 @@ from utils.BridgeClass import *
 from shoutbox.Shoutbox import *
 
 class FakeShoutbox(Shoutbox):
-    pass
+    @parameterTypes( selfType, 'User', str )
+    def sendShout(self, user, message):
+        """
+        Send a shoutbox message from a user.
+        """
+        pass
+
+    @parameterTypes( selfType, int )
+    @returnType( list )
+    def readShouts(self, start=-1):
+        """
+        Read shoutbox messages, all or newer than "start".
+        """
+        return []
 
 def main():
     import sys
     import string
     from Conf import Conf
-    ## MixIn testing:
-    #import time
-    #from MixIn import MixIn
-    #s.mixinClass(Graemlin)
-    #MixIn(Shout, Graemlin)
-    #s = Shout(12, 34, "adsf", u'adsfäöåääö', time.time())
-    #print s.dumpall()
-    #quit()
     cfg = Conf('config.ini', 'LOCAL')
     sbox = FakeShoutbox(cfg)
     if len(sys.argv) > 1:

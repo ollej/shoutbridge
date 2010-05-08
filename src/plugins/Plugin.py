@@ -46,6 +46,9 @@ class Plugin(BridgeClass):
         """
         pass
 
+    @protectedMethod
+    @parameterTypes( selfType, str, str )
+    @returnType( str )
     def prepend_sender(self, text, sep=': '):
         """
         Prepends name of sender of message if available.
@@ -57,9 +60,14 @@ class Plugin(BridgeClass):
             pass
         return text
 
+    @protectedMethod
+    @parameterTypes( selfType, str, str )
+    @returnType( str )
     def strip_command(self, text, command):
         return text.replace(command, '', 1).strip()
 
+    @protectedMethod
+    @parameterTypes( selfType, str )
     def send_message(self, text):
         """
         Send text as message to both Shoutbox and Jabber conference.
@@ -68,6 +76,7 @@ class Plugin(BridgeClass):
         text = self.prepend_sender(text)
         self.bridge.send_and_shout(text, self.nick)
 
+    @parameterTypes( selfType, Shout, str, dict )
     def show_text(self, shout, command=None, comobj=None):
         """
         Display text from command.

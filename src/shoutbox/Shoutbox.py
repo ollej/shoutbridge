@@ -5,7 +5,12 @@ import types
 from datetime import date
 from datetime import datetime
 
+from utils.pyanno import raises, abstractMethod, returnType, parameterTypes, deprecatedMethod, \
+                         privateMethod, protectedMethod, selfType, ignoreType, callableType, \
+                         ClassName
+
 from utils.BridgeClass import *
+from utils.Conf import Conf
 
 class ShoutboxError(Exception):
     "Unknown Shoutbox error"
@@ -76,6 +81,7 @@ class Shoutbox(BridgeClass):
     def __del__(self):
         pass
 
+    @parameterTypes( selfType, 'Conf' )
     def setConfig(self, config):
         """
         Updates the configuration.
@@ -84,12 +90,17 @@ class Shoutbox(BridgeClass):
         if self.cfg.latest_shout:
             self.latest_shout = int(self.cfg.latest_shout)
 
+    @abstractMethod
+    @parameterTypes( selfType )
     def read_graemlin_list(self):
         """
         Returns a list of Graemlin objects.
         """
         pass
 
+    @privateMethod
+    @parameterTypes( selfType, str, str )
+    @returnType( User )
     def _getUserByField(self, field, id):
         """
         Retrieves User information based on a db field and value.
@@ -99,36 +110,49 @@ class Shoutbox(BridgeClass):
         usr = User(1, id, '')
         return usr
 
+    @parameterTypes( selfType, str )
+    @returnType( User )
     def getUserByUsername(self, username):
         """
         Retrieves User information based on a username
         """
         return self._getUserByField("u.USER_DISPLAY_NAME", username)
 
+    @parameterTypes( selfType, str )
+    @returnType( User )
     def getUserById(self, id):
         """
         Retrieves User information based on an id.
         """
         return self._getUserByField("u.USER_ID", id)
 
+    @parameterTypes( selfType, str )
+    @returnType( User )
     def getUserByJid(self, jid):
         """
         Retrieves User information based on an XMPP login.
         """
         return self._getUserByField('', jid)
 
+    @abstractMethod
+    @parameterTypes( selfType, 'User', str )
     def sendShout(self, user, message):
         """
         Send a shoutbox message from a user.
         """
         pass
 
+    @abstractMethod
+    @parameterTypes( selfType, int )
+    @returnType( list )
     def readShouts(self, start=-1):
         """
         Read shoutbox messages, all or newer than "start".
         """
         return []
 
+    @parameterTypes( selfType, str )
+    @returnType( str )
     def replace_graemlins(self, text):
         if text.find('<<GRAEMLIN_URL>>') < 0:
             return text
@@ -141,14 +165,6 @@ def main():
     import sys
     import string
     from Conf import Conf
-    ## MixIn testing:
-    #import time
-    #from MixIn import MixIn
-    #s.mixinClass(Graemlin)
-    #MixIn(Shout, Graemlin)
-    #s = Shout(12, 34, "adsf", u'adsfäöåääö', time.time())
-    #print s.dumpall()
-    #quit()
     cfg = Conf('config.ini', 'LOCAL')
     sbox = Shoutbox(cfg)
     if len(sys.argv) > 1:

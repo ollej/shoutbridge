@@ -4,6 +4,9 @@ import platform
 import time
 from datetime import datetime, date
 
+from utils.pyanno import raises, abstractMethod, returnType, parameterTypes, deprecatedMethod, \
+                  privateMethod, protectedMethod, selfType, ignoreType, callableType
+
 from utils.ObjectFactory import *
 from utils.BridgeClass import *
 from shoutbox.Shoutbox import *
@@ -71,6 +74,10 @@ class XmppBridge(BridgeClass):
         self.shoutbox = sbox
 
     def setup(self, sbox=None, cfg=None):
+        """
+        Initializes the bridge and sets Shoutbox and Configuration object.
+        Also loads plugins and starts up the XMPP connection.
+        """
         if sbox:
             self.setShoutbox(sbox)
         if cfg:
@@ -82,7 +89,11 @@ class XmppBridge(BridgeClass):
         # Make an XMPP connection
         self.make_connection()
 
+    @protectedMethod
     def load_plugins(self, plugs):
+        """
+        Imports all configured Plugins and adds them to the list of active plugins.
+        """
         if not plugs:
             return
         if not self.of:
@@ -98,6 +109,7 @@ class XmppBridge(BridgeClass):
             self.logprint("Loaded plugin:", plug.name, "\n", plug.description)
             self.plugins[p] = plug
 
+    @protectedMethod
     def trigger_plugin_event(self, event, obj):
         """
         Triggers given event on all loaded plugins with obj as argument.
@@ -124,27 +136,39 @@ class XmppBridge(BridgeClass):
             except Exception as e:
                 self.logprint("Plugin raised exception:", plugin_name, "\n", e)
 
+    @privateMethod
+    @returnType(str, dict, callableType)
     def get_plugin_handler(self, plugin, event, text):
+        """
+        Based on a given event type and a text message, return the first
+        matching command handler in the given plugin.
+        """
         text = text.lower()
         for comobj in plugin.commands:
             if event in comobj['onevents']:
                 for cmd in comobj['command']:
                     if cmd == '' or text.startswith(cmd.lower()):
-                        return [cmd, comobj, getattr(plugin, comobj['handler'])]
-        return [None, None, None]
+                        return cmd, comobj, getattr(plugin, comobj['handler'])
+        return None, None, None
 
+    @privateMethod
+    @returnType(bool)
     def is_type(self, obj, cls):
         if type(obj).__name__ == 'instance':
             if obj.__class__.__name__ == cls:
                 return True
         return False
 
+    @abstractMethod
+    @protectedMethod
     def make_connection(self):
         """
         Make an XMPP connection and authorize the user.
         """
         pass
 
+    @abstractMethod
+    @protectedMethod
     def close_connection(self):
         pass
 
@@ -154,9 +178,11 @@ class XmppBridge(BridgeClass):
     def rawDataOut(self, buf):
         print "SEND: %s" % unicode(buf, 'utf-8')
 
+    @abstractMethod
     def connected(self, xs):
         pass
 
+    @abstractMethod
     def disconnected(self, xs):
         pass
 
@@ -165,6 +191,7 @@ class XmppBridge(BridgeClass):
         # Connect to conference room
         self.join_room(self.roomjid)
 
+    @parameterTypes( selfType, str )
     def leave_room(self, reason=None):
         if not reason:
             reason = "Leaving room."
@@ -179,6 +206,7 @@ class XmppBridge(BridgeClass):
             ),
         )
 
+    @parameterTypes( selfType, str )
     def join_room(self, room):
         #frm=self.login + '/' + self.cfg.xmpp_resource,
         self.send_presence(
@@ -201,6 +229,8 @@ class XmppBridge(BridgeClass):
         # TODO: Answer room configuration request.
         # TODO: Wait until server responds on room join before continuing.
 
+    @parameterTypes( selfType, str, str )
+    @returnType( User )
     def add_to_roster(self, nick, jid):
         if nick in self.roster:
             return self.roster[nick]
@@ -213,6 +243,8 @@ class XmppBridge(BridgeClass):
         self.logprint("Adding to roster:", nick)
         return user
 
+    @parameterTypes( selfType, str )
+    @returnType( bool )
     def delete_from_roster(self, nick):
         if nick in self.roster:
             del self.roster[nick]
@@ -220,11 +252,14 @@ class XmppBridge(BridgeClass):
             return True
         return False
 
+    @parameterTypes( selfType, str, str )
+    @returnType( User )
     def get_from_roster(self, nick, jid):
         if not nick in self.roster:
             self.add_to_roster(nick, jid)
         return self.roster[nick]
 
+    @parameterTypes( selfType, str, str )
     def remove_jid_from_roster(self, jid, nick=None):
         self.logprint("Removing self from roster:", jid, nick)
         if nick and nick in self.roster:
@@ -237,9 +272,16 @@ class XmppBridge(BridgeClass):
                 if u.jid == jid:
                     self.delete_from_roster(k)
 
+    @returnType( str )
     def get_os_info(self):
+        """
+        Return a string with information about the OS platform the 
+        script is running on.
+        """
         return str(platform.platform())
 
+    @parameterTypes( selfType, str )
+    @returnType( str )
     def strip_tags(self, s):
         """
         Strip html tags from s
@@ -259,6 +301,8 @@ class XmppBridge(BridgeClass):
 
         return ''.join(c for c in s if chk(c))
 
+    @parameterTypes( selfType, str )
+    @returnType( str )
     def clean_message(self, text):
         """
         Clean text of unwanted content.
@@ -269,9 +313,12 @@ class XmppBridge(BridgeClass):
     def update_last_time(self):
         self.last_time = time.time()
 
+    @returnType( str )
     def get_last_activity(self):
         return str(int(time.time() - self.last_time))
 
+    @parameterTypes( selfType, str )
+    @returnType( str )
     def change_nick(self, nick):
         if self.cfg.show_nick == "True":
             return
@@ -287,21 +334,26 @@ class XmppBridge(BridgeClass):
             )
             return nick
 
+    @abstractMethod
     def send_stanza(self, stanza):
         pass
 
+    @abstractMethod
     def handle_iq(self, iq):
         """
         Handles incoming IQ stanzas and dispatches to specific handle methods.
         """
         pass
 
+    @protectedMethod
     def lookup_iq_method(self, command):
         return getattr(self, 'handle_iq_' + command.upper(), None) or self.handle_iq_DEFAULT
 
+    @protectedMethod
     def handle_iq_DEFAULT(self, frm=None, to=None, id=None, query=None):
         self.logprint("Unknown incoming IQ stanza:", frm, to, id, query)
 
+    @protectedMethod
     def handle_iq_GET(self, frm=None, to=None, id=None, query=None):
         """
         Handle IQ get stanzas.
@@ -309,81 +361,100 @@ class XmppBridge(BridgeClass):
         # Default to sending back error for unknown get iq.
         self.send_iq_error(to=frm, id=id, query=query)
 
+    @abstractMethod
+    @protectedMethod
     def handle_iq_RESULT(self, frm=None, to=None, id=None, query=None):
         """
         IQ result is ignored.
         """
         pass
 
+    @protectedMethod
     def handle_iq_SET(self, frm=None, to=None, id=None, query=None):
         """
         IQ set not yet implemented, return error.
         """
         self.send_iq_error(to=frm, id=id, query=query)
 
+    @protectedMethod
     def handle_iq_ERROR(self, frm=None, to=None, id=None, query=None):
         """
         IQ error stanza is just logged.
         """
         self.logprint("Received IQ error stanza:", frm, id, query.toXml())
 
+    @abstractMethod
     def send_iq_version(self, frm=None, to=None, id=None):
         """
         Returns iq stanza with client and system information.
         """
         pass
 
+    @abstractMethod
     def send_iq_last(self, to=None, id=None):
         """
         Return IQ stanza with information on seconds since last client usage.
         """
         pass
 
+    @abstractMethod
     def send_iq_disco(self, frm=None, to=None, id=None, query=None):
         """
         Send IQ stanza with discovery information.
         """
         pass
 
+    @abstractMethod
     def send_iq_error(self, to=None, id=None, iqtype=None, query=None, condition=None):
         """
         Build and send IQ error stanza.
         """
         pass
 
+    @abstractMethod
     def send_iq(self, iqtype, id, frm=None, to=None, children=None, querytype=None):
         """
         Sends an IQ stanza on the xml stream.
         """
         pass
 
+    @abstractMethod
     def handle_presence(self, pres):
         """
         Handle presence stanzas.
         """
         pass
 
+    @protectedMethod
     def lookup_presence_method(self, command):
         return getattr(self, 'handle_presence_' + command.upper(), None) or self.handle_presence_DEFAULT
 
+    @abstractMethod
+    @protectedMethod
     def handle_presence_DEFAULT(self, pres, fromjid=None, **kwargs):
         pass
 
+    @abstractMethod
+    @protectedMethod
     def handle_presence_ERROR(self, pres, fromjid=None, **kwargs):
         pass
 
+    @protectedMethod
     def handle_presence_UNAVAILABLE(self, pres, nick=None, **kwargs):
         self.delete_from_roster(nick)
 
+    @protectedMethod
     def handle_presence_AVAILABLE(self, pres, fromstr=None, nick=None, **kwargs):
         user = self.add_to_roster(nick, fromstr)
 
+    @protectedMethod
     def handle_presence_UNSUBSCRIBE(self, pres, fromjid=None, **kwargs):
         self.send_presence(
             ptype="unsubscribed",
             to=fromjid,
         )
 
+    @protectedMethod
     def handle_presence_SUBSCRIBE(self, pres, fromjid=None, **kwargs):
         self.send_presence(
             ptype="subscribed",
@@ -402,6 +473,7 @@ class XmppBridge(BridgeClass):
             show = "chat"
         self.send_presence(xmlns='jabber:client', show=show, status=status)
 
+    @abstractMethod
     def send_presence(self, xmlns=None, ptype=None, status=None, show=None,
                      frm=None, to=None, children=None):
         """
@@ -409,12 +481,14 @@ class XmppBridge(BridgeClass):
         """
         pass
 
+    @abstractMethod
     def handle_message(self, mess):
         """
         Handle an XMPP message.
         """
         pass
 
+    @abstractMethod
     def send_message(self, tojid, text, nick=None):
         """
         Send an text as XMPP message to tojid
@@ -431,6 +505,7 @@ class XmppBridge(BridgeClass):
         self.logprint("Sending ping and updating last active time.", pingnode)
         self.send_iq('get', children=[pingnode])
 
+    @parameterTypes( selfType, str, str )
     def send_and_shout(self, text, nick=None):
         """
         Sends text to both xmpp room and shoutbox,
@@ -443,7 +518,14 @@ class XmppBridge(BridgeClass):
         #text = text.replace("\n", "<br />\n")
         self.shoutbox.sendShout(user, text)
 
+    @returnType( bool )
     def process_shoutbox_messages(self):
+        """
+        Reads new Shoutbox messages from configured Shoutbox object.
+        All messages are sent out to the jabber room.
+        For each message, the following events are triggered:
+            Message, ShoutMessage
+        """
         if not self.xmlstream:
             return False
 
@@ -467,6 +549,7 @@ class XmppBridge(BridgeClass):
             self.trigger_plugin_event('Message', m)
             self.trigger_plugin_event('ShoutMessage', m)
 
+    @abstractMethod
     def listen(self):
         """
         Start listening on XMPP and Shoutbox, relaying messages.

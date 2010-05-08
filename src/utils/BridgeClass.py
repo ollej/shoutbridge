@@ -5,8 +5,11 @@ import string
 
 class BridgeClass(object):
     def logprint(self, *message):
-        if self.cfg and not self.cfg.get_bool('verbose'):
-            return
+        try:
+            if not self.cfg.get_bool('verbose'):
+                return
+        except AttributeError:
+            pass
         #print "--------------------------------------------------------------"
         try:
             date_format = self.cfg.log_date_format

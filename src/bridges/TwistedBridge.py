@@ -9,6 +9,9 @@ import platform
 from time import time
 from datetime import datetime, date
 
+from utils.pyanno import raises, abstractMethod, returnType, parameterTypes, deprecatedMethod, \
+                          privateMethod, protectedMethod, selfType, ignoreType, callableType
+
 from shoutbox.Shoutbox import *
 from utils.utilities import *
 from bridges.XmppBridge import *
@@ -27,6 +30,10 @@ class XMPPClientConnector(SRVConnector):
         return host, port
 
 class TwistedBridge(XmppBridge):
+    """
+    TwistedBridge implements the abstract class XmppBridge using the Twisted
+    framework.
+    """
     client_supported_features = ['jabber:iq:last', 'jabber:iq:version']
     login = ""
     passwd = ""
@@ -114,6 +121,12 @@ class TwistedBridge(XmppBridge):
             # Default to sending back error for unknown get iq.
             self.send_iq_error(to=frm, id=id, query=query)
 
+    def handle_iq_RESULT(self, frm=None, to=None, id=None, query=None):
+        """
+        IQ result is ignored.
+        """
+        pass
+
     def send_iq_version(self, frm=None, to=None, id=None):
         """
         Returns iq stanza with client and system information.
@@ -143,6 +156,7 @@ class TwistedBridge(XmppBridge):
             resultquery.addChild(feature)
         self.send_iq("result", id, to=to, children=[resultquery])
 
+    @raises( BridgeWrongTypeError )
     def send_iq_error(self, to=None, id=None, iqtype=None, query=None, condition=None):
         """
         Build and send IQ error stanza.
@@ -160,6 +174,7 @@ class TwistedBridge(XmppBridge):
             errornode.addElement('text', defaultUri='urn:ietf:params:xml:ns:xmpp-stanzas', content=reason)
         self.send_iq("error", id, to=to, children=[query, errornode])
 
+    @raises( BridgeWrongTypeError )
     def send_iq(self, iqtype, id=None, frm=None, to=None, children=None):
         """
         Sends an IQ stanza on the xml stream.
@@ -183,6 +198,7 @@ class TwistedBridge(XmppBridge):
                 iq.addChild(child)
         self.send_stanza(iq)
 
+    @returnType( bool )
     def handle_presence(self, pres):
         if not pres:
             return False

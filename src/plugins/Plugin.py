@@ -2,7 +2,7 @@
 
 import random
 
-from bridge.XmppBridge import *
+from bridges.XmppBridge import *
 from utils.BridgeClass import *
 from utils.utilities import *
 
@@ -79,19 +79,3 @@ class Plugin(BridgeClass):
         self.bridge.send_and_shout(random.choice(comobj['text']), nick)
 
 
-def main():
-    import sys
-    import string
-    from time import time
-    from Conf import Conf
-    import Shoutbox
-    cfg = Conf('config.ini', 'LOCAL')
-    shout = Shoutbox.Shout(1, 4711, 'Test', 'A quick brown fox...', time())
-    bridge = FakeBridge()
-    plug = Plugin([bridge])
-    plug.setup()
-    print plug.handleShoutMessage(shout)
-
-# Call the main function.
-if __name__ == '__main__':
-    main()

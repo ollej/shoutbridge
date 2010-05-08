@@ -143,21 +143,4 @@ class MonkeyPlugin(Plugin):
         text = u'8' + ''.ljust(random.randint(1, 10), '=') + u"D"
         self.bridge.send_and_shout(text, self.nick)
 
-def main():
-    import sys
-    import string
-    from time import time
-    from Conf import Conf
-    import Shoutbox
-    cfg = Conf('config.ini', 'LOCAL')
-    args = sys.argv
-    msg = unicode(' '.join(args[1:]), 'utf-8')
-    shout = Shoutbox.Shout(1, 4711, 'Test', msg, time())
-    bridge = FakeBridge()
-    plug = MonkeyPlugin([bridge])
-    plug.setup()
-    print "Returned:", plug.handleShoutMessage(shout)
 
-# Call the main function.
-if __name__ == '__main__':
-    main()

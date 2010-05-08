@@ -10,7 +10,7 @@ from bridge.common import XMPP_CLIENT_NS, XMPP_ROSTER_NS
 from headstock.client import AsyncClient
 import headstock
 
-from bridge.XmppBridge import *
+from bridges.XmppBridge import *
 from shoutbox.Shoutbox import *
 
 class HeadstockBridge(XmppBridge):

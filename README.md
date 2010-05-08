@@ -681,6 +681,18 @@ either the web shoutbox chat or the jabber conference room. Using this trigger w
 the plugin as generic as possible. Only use the ShoutMessage or XmppMessage for
 special cases that should only trigger on one type of message.
 
+### Testing Plugins ###
+There is a test script to help test plugins without having to start up the bot and
+send jabber messages to it.
+
+Run the script test_plugin.py with the name of the plugin as the first argument. The
+rest of the arguments will be sent as a message to the plugin, as a "Message" event.
+
+#### Example ####
+Send the message "Hi" to the HellowWorldPlugin.
+
+    python test_plugin.py HelloWorldPlugin Hi
+
 
 TODO
 ----
@@ -719,6 +731,5 @@ Some ideas for future development.
  * BUG: Graemlin replacement should be done before html stripping.
  * BUG: HTML-stripping not quite up to par.
  * Add language support for easy translation.
- * Write generic function to test plugins from command line.
  * HalibotPlugin !listcommands _plugin_ should list commands available for that plugin.
  * XmppDirectMessage isn't implemented yet.

@@ -32,21 +32,4 @@ class KraetyzPlugin(Plugin):
         if shout.name in comobj['onsender'] and shout.text.lower().find(comobj['textmatch']) >= 0:
             self.bridge.send_and_shout(comobj['text'] % (shout.name), self.nick)
 
-def main():
-    import sys
-    import string
-    from time import time
-    from Conf import Conf
-    import Shoutbox
-    cfg = Conf('config.ini', 'LOCAL')
-    args = sys.argv
-    msg = unicode(' '.join(args[1:]), 'utf-8')
-    shout = Shoutbox.Shout(1, 4711, 'Kraetyz', msg, time())
-    bridge = FakeBridge()
-    plug = KraetyzPlugin([bridge])
-    plug.setup()
-    print "Returned:", plug.handleShoutMessage(shout)
 
-# Call the main function.
-if __name__ == '__main__':
-    main()

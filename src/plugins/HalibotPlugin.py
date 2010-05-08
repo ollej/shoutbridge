@@ -118,22 +118,4 @@ class HalibotPlugin(Plugin):
             text = comobj['text']
         self.bridge.send_and_shout("%s: %s" % (shout.name, text), self.nick)
 
-def main():
-    import sys
-    import string
-    from time import time
-    from utils.Conf import Conf
-    import shoutbox.Shoutbox
-    cfg = Conf('config.ini', 'LOCAL')
-    args = sys.argv
-    msg = unicode(' '.join(args[1:]), 'utf-8')
-    shout = shoutbox.Shoutbox.Shout(1, 4711, 'Test', msg, time())
-    bridge = FakeBridge()
-    plug = HalibotPlugin([bridge])
-    plug.setup()
-    print "Returned:", plug.handleShoutMessage(shout)
-
-# Call the main function.
-if __name__ == '__main__':
-    main()
 

@@ -7,7 +7,7 @@ import time
 from plugins.Plugin import *
 from shoutbox.Shoutbox import *
 
-class Tell(BridgeClass):
+class Tell(object):
     id = 0
     user = ""
     teller = ""
@@ -27,6 +27,7 @@ class SeenTellPlugin(Plugin):
     name = "SeenTellPlugin"
     author = "Olle Johansson"
     description = "Keeps tracks of users and can tell when they were last online. It's also possible to leave messages for users."
+    date_format = "%Y-%m-%d %H:%M:%S"
     commands = [
         dict(
             command = [''],
@@ -47,11 +48,15 @@ class SeenTellPlugin(Plugin):
 
     def setup(self):
         self.engine = create_engine('sqlite:///extras/halibot.db', echo=True)
+        self.create_tables()
+        self.create_session()
+
+    def create_session(self):
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
-        self.metadata = MetaData()
 
     def create_tables(self):
+        """
         users_table = Table('users', self.metadata,
             Column('id', Integer, Sequence('user_id_seq'), primary_key=True),
             Column('name', String(50)),
@@ -59,6 +64,8 @@ class SeenTellPlugin(Plugin):
             Column('last_seen', Integer),
         )
         mapper(User, users_table)
+        """
+        self.metadata = MetaData()
         tell_table = Table('tell', self.metadata,
             Column('id', Integer, Sequence('user_id_seq'), primary_key=True),
             Column('user', String(50)),
@@ -79,14 +86,15 @@ class SeenTellPlugin(Plugin):
         self.session.add(tell)
 
     def get_tells(self, name):
-        return self.session.query(Tell).filter_by(user=name)
+        return self.session.query(Tell).filter_by(user=name).all()
 
     def delete_tell(self, tell):
         self.session.delete(tell)
 
     def handle_message(self, shout, command, comobj):
-        user = self.update_user(shout.name)
-        tells = self.get_tells(user.name)
+        #user = self.update_user(shout.name)
+        #tells = self.get_tells(user.name)
+        tells = self.get_tells(shout.name)
         for tell in tells:
             response = "The user %s wanted me to tell you: %s" % (tell.teller, tell.message)
             self.send_message(response)
@@ -119,26 +127,7 @@ class SeenTellPlugin(Plugin):
         if not user:
             response = "I have not seen the user '%s'" % name
         else:
-            response = "I last saw user '%s': %s" % (user.name, d.strftime(self.bridge.cfg.log_date_format))
+            response = "I last saw user '%s': %s" % (user.name, d.strftime(self.date_format))
         self.send_message(response)
 
-def main():
-    import sys
-    import string
-    from time import time
-    from utils.Conf import Conf
-    import shoutbox.Shoutbox
-    cfg = Conf('config.ini', 'LOCAL')
-    args = sys.argv
-    msg = unicode(' '.join(args[1:]), 'utf-8')
-    shout = Shout(1, 4711, 'Test', msg, time())
-    bridge = FakeBridge()
-    plug = SeenTellPlugin([bridge])
-    plug.setup()
-    bridge.plugins['SeenTell'] = plug
-    bridge.trigger_plugin_event("Message", shout)
-
-# Call the main function.
-if __name__ == '__main__':
-    main()
 

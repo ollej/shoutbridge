@@ -11,7 +11,7 @@ from datetime import datetime, date
 
 from shoutbox.Shoutbox import *
 from utils.utilities import *
-from bridge.XmppBridge import *
+from bridges.XmppBridge import *
 
 class XMPPClientConnector(SRVConnector):
     def __init__(self, reactor, domain, factory):

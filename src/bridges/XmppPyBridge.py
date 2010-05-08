@@ -6,7 +6,7 @@ import xmpp
 import time
 import re
 
-from bridge.XmppBridge import *
+from bridges.XmppBridge import *
 
 class XmppPyBridge(XmppBridge):
     login = ""

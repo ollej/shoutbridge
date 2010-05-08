@@ -83,7 +83,7 @@ def start_shoutbridge():
     sbox.setConfig(cfg)
 
     # Setup xmpp bridge
-    bridge = of.create(cfg.bridge_type, mod='bridge', inst="XmppBridge")
+    bridge = of.create(cfg.bridge_type, mod='bridges', inst="XmppBridge")
     bridge.setup(sbox, cfg)
 
     # Start bridge

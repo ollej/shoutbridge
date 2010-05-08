@@ -635,6 +635,26 @@ and text instead of ": ".
 
 If send_nick isn't available, the message will be returned unmodified.
 
+### Method: send_message ###
+Argument: _text_
+
+Send text as message to both Shoutbox and Jabber conference. Prepends name of sender to message.
+The message will be sent using the default nick attribute of the plugin.
+
+#### Example: ####
+This is an example on how to use the method to send a message.
+
+    self.send_message("Message to send")
+
+### Method: strip_command ###
+Arguments: text, command
+Strips the _command_ from the start of the _text_ message and returns the modified text.
+
+#### Example: ####
+The following will return "Alice":
+
+    self.strip_command('!hello Alice', '!hello')
+
 ### Crossing the bridge ###
 Each plugin will get a reference to the jabber bridge object in the attribute
 self.bridge

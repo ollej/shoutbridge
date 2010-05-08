@@ -14,14 +14,19 @@ class ShoutboxUserNotFoundError(ShoutboxError):
     "Found no such user."
 
 class User(BridgeClass):
-    id = ""
+    id = 0
     name = ""
     jid = ""
+    last_seen = 0
 
-    def __init__(self, id, name, jid):
+    def __init__(self, id, name, jid, last_seen=None):
         self.id = int(id)
         self.name = name
         self.jid = jid
+        self.last_seen = last_seen
+
+    def __repr__(self):
+        return "<User(%s, '%s','%s', '%s')>" % (self.id, self.name, self.jid, self.last_seen)
 
 class Shout(BridgeClass):
     """

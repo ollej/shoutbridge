@@ -2,6 +2,7 @@
 
 import random
 
+from bridge.XmppBridge import *
 from utils.BridgeClass import *
 from utils.utilities import *
 
@@ -10,7 +11,7 @@ class PluginError(Exception):
     Default Plugin exception.
     """
 
-class FakeBridge:
+class FakeBridge(XmppBridge):
     """
     Fake bridge used for running plugins from command line.
     """
@@ -55,6 +56,17 @@ class Plugin(BridgeClass):
         except AttributeError:
             pass
         return text
+
+    def strip_command(self, text, command):
+        return text.replace(command, '', 1).strip()
+
+    def send_message(self, text):
+        """
+        Send text as message to both Shoutbox and Jabber conference.
+        Prepends name of sender to message.
+        """
+        text = self.prepend_sender(text)
+        self.bridge.send_and_shout(text, self.nick)
 
     def show_text(self, shout, command=None, comobj=None):
         """

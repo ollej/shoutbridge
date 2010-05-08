@@ -131,7 +131,7 @@ class SeenTellPlugin(Plugin):
         else:
             tell = Tell(name, shout.name, message, time.time())
             self.session.add(tell)
-            response = "Ok, I will tell user %s that next time I see him." % name
+            response = "Ok, I will tell user %s that next time I see them." % name
         self.send_message(response)
         self.session.commit()
 

@@ -730,10 +730,8 @@ Some ideas for future development.
  * BUG: When loadUrl fails, reactor stops running that loop.
  * Allow commands to be sent as direct messages as well.
  * Plugin ideas:
-   * !seen <user> - showing last online time for user
    * !calc - calculator
    * !memory - display used memory
-   * !tell <user> <text> - When <user> is seen next, send message with <text>
    * !cyborg <word> - cyborgify <word> - http://www.brunching.com/
    * !techify <word> - techify <word> - http://www.brunching.com/
    * Possibly convert !trivia, !weather, !translate, !google, !wiki etc from other bots.
@@ -746,10 +744,6 @@ Some ideas for future development.
  * Create unit tests for all code.
  * Have the possibility to not have shoutbox bridge at all.
  * Keep connection open on server-side script and read new shout messages immediately.
- * Follow verbose and quiet options.
-   * debug = print raw send/recv stanzas.
-   * quiet = no output
-   * verbose = print logprints
  * BUG: Graemlin replacement should be done before html stripping.
  * BUG: HTML-stripping not quite up to par.
  * Add language support for easy translation.

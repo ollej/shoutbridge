@@ -711,9 +711,9 @@ Run the script test_plugin.py with the name of the plugin as the first argument.
 rest of the arguments will be sent as a message to the plugin, as a "Message" event.
 
 #### Example ####
-Send the message "Hi" to the HellowWorldPlugin.
+Send the message "!hello" to the HellowWorldPlugin.
 
-    python test_plugin.py HelloWorldPlugin Hi
+    python test_plugin.py HelloWorldPlugin '!hello'
 
 
 TODO

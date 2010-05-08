@@ -15,6 +15,5 @@ class HelloWorldPlugin(Plugin):
     ]
 
     def hello_world(self, shout, command, comobj):
-        self.bridge.send_and_shout(shout.name + ": Hello World!", self.nick)
-
+        self.send_message("Hello World!")
 

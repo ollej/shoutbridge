@@ -29,11 +29,12 @@ Requirements
 ------------
  * Python 2.6
  * Twisted
+ * pyOpenSSL (for secure connections)
  * MySQL (for direct connection to shoutbox)
  * UBB.threads v7 (for shoutbox bridge)
  * MySQLdb (for direct connection to shoutbox)
- * pyOpenSSL (for secure connections)
-
+ * SQLAlchemy (for SeenTell plugin)
+ * Sqlite (for SeenTell plugin)
 
 Installation
 ------------
@@ -49,6 +50,7 @@ Install necessary modules:
     $ sudo easy_install Twisted
     $ sudo easy_install MySQLdb
     $ sudo easy_install pyOpenSSL
+    $ sudo easy_install sqlalchemy
 
 Next, create a configuration file from the example.
 
@@ -98,6 +100,9 @@ There are a lot of available configuration options for Shoutbridge.
  * show_nick - Set to "True" to prefix each message with shoutbox nick. Otherwise the bot will rename itself to the username of the shoutbox user.
  * log_date_format - Date format for logging.
  * latest_shout - Start reading shout messages from this id.
+ * debug - Print debug information. Raw xml sent/received, sqlalchemy output etc.
+ * verbose - Prints information on what the script is doing.
+ * quiet - Make script quiet as a mouse, not outputting anything.
  * plugins - Comma separated list of plugin names to load.
 
 ### Jabber conference room ###
@@ -461,12 +466,26 @@ and try to connect to the given jabber room id.
 #### !flipcoin ####
 Make a coin toss.
 
+### SeenTellPlugin ###
+This plugin allows users to see when others were last seen in the channel. It is
+also possible to tell the bot to relay a message to a user next time they are
+in the chat.
+
+This plugin currently requires Sqlite and SQLAlchemy to run. Since it's using
+ORM via SQLAlchemy, it should be easy to switch to other databases for those
+who wish.
+
+#### !seen _Username_ ####
+If the plugin has seen a user with the name Username in the chat, the last time
+this person sent a message is printed.
+
+#### !tell _Username_ _Message_ ####
+Leave a text message for the user with name Username. The plugin will then print
+this message next time it sees that user in the chat.
 
 Write your own plugin
 ---------------------
 If you know a little Python, writing your own bot plugin is easy.
-
-For a quick start, take a look at an easy plugin, like WeekPlugin.py
 
 ### HelloWorldPlugin ###
 Create a new file called HelloWorldPlugin.py
@@ -526,11 +545,11 @@ First the method definition.
     def hello_world(self, shout, command, comobj):
 
 The content of the handler method should do any necessary calculations. To send messages
-just call self.bridge.send_and_shout(text, nick) where text is the message to send and
-nick is the nick the message should be sent as. By default, self.nick contains the name
-"HALiBot". This can be overridden in the plugin class attributes.
+just call self.send_message(text) where text is the message to send. By default, the
+message will be sent as the username in the "nick" attribute of the plugin. This defaults
+to "HALiBot" if it isn't set.
 
-        self.bridge.send_and_shout("Hello World!", self.nick)
+        self.send_message("Hello World!")
 
 That's all that is needed to create a simple plugin for Shoutbridge. More advanced actions
 can be done. For more information, check the Plugin base class.
@@ -552,12 +571,15 @@ can be done. For more information, check the Plugin base class.
         ]
 
         def hello_world(self, shout, command, comobj):
-            self.bridge.send_and_shout(shout.name + ": Hello World!", self.nick)
+            self.send_message("Hello World!")
 
 Advanced Plugin Development
 ---------------------------
 There is more to writing Shoutbridge plugins than just parsing text messages
 and returning information.
+
+If you look at some of the bundled plugins, you should be able to get an idea
+on what is possible to do with a plugin.
 
 ### Command matching ###
 You can have any text in commands, including spaces. Starting commands with an

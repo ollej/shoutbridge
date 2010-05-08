@@ -5,7 +5,7 @@ import string
 
 class BridgeClass(object):
     def logprint(self, *message):
-        if not self.cfg.get_bool('verbose'):
+        if self.cfg and not self.cfg.get_bool('verbose'):
             return
         #print "--------------------------------------------------------------"
         try:

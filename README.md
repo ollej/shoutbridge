@@ -749,3 +749,10 @@ Some ideas for future development.
  * Add language support for easy translation.
  * HalibotPlugin !listcommands _plugin_ should list commands available for that plugin.
  * XmppDirectMessage isn't implemented yet.
+ * Re-add test code to plugins, calling a default test function:
+     def _test():
+       import doctest, example
+         return doctest.testmod(example)      
+
+         if __name__ == "__main__":
+           _test()

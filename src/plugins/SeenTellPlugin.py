@@ -47,16 +47,34 @@ class SeenTellPlugin(Plugin):
     ]
 
     def setup(self):
+        """
+        Setup Sqlite SQL tables and start a db session.
+
+        The database will be saved in C{extras/halibot.db}
+
+        Calls L{setup_tables} to setup table metadata and L{setup_session}
+        to instantiate the db session.
+        """
         debug = self.bridge.cfg.get_bool('debug')
         self.engine = create_engine('sqlite:///extras/halibot.db', echo=debug)
         self.setup_tables()
         self.setup_session()
 
     def setup_session(self):
+        """
+        Start a SQLAlchemy db session.
+
+        Saves the session instance in C{self.session}
+        """
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
     def setup_tables(self):
+        """
+        Defines the tables to use for L{User} and L{Tell}.
+
+        The Metadata instance is saved to C{self.metadata}
+        """
         self.metadata = MetaData()
         users_table = Table('users', self.metadata,
             Column('id', Integer, Sequence('user_id_seq'), primary_key=True),
@@ -76,18 +94,33 @@ class SeenTellPlugin(Plugin):
         self.metadata.create_all(self.engine)
 
     def add_user(self, user):
+        """
+        Add a L{User} object to the database.
+        """
         self.session.add(user)
 
     def get_user(self, name):
+        """
+        Returns first L{Üser} object from database with the name C{name}.
+        """
         return self.session.query(User).filter_by(name=name).first() 
 
     def add_tell(self, tell):
+        """
+        Add a L{Tell} object to the database.
+        """
         self.session.add(tell)
 
     def get_tells(self, name):
+        """
+        Returns a list of all L{Tell} objects made by user with name C{name}.
+        """
         return self.session.query(Tell).filter_by(user=name).all()
 
     def delete_tell(self, tell):
+        """
+        Remove L{Tell} object from database.
+        """
         self.session.delete(tell)
 
     def handle_message(self, shout, command, comobj):

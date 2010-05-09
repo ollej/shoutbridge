@@ -6,7 +6,7 @@ from datetime import datetime
 
 from shoutbox.Shoutbox import *
 from utils.utilities import *
-from bridge.XmppBridge import *
+from bridges.XmppBridge import *
 
 class MysqlShoutbox(XmppBridge):
     db_host = ""

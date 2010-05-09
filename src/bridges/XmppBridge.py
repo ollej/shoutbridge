@@ -31,20 +31,32 @@ class BridgeNoXmlStream(BridgeError):
     "No active xml stream available."
 
 class XmppBridge(BridgeClass):
+    """
+    Abstract interface class for implementing a XMPP (Jabber) connection.
+    This interface should be sub-classed to implement a specific XMPP
+    library to do the actual communcation.
+    """
+    #: Name of the client program, returned as information on version queries.
     client_name = "Shoutbridge"
+    #: Version of the client running, returned as information on version queries.
     client_version = "1.0"
+    #: Reference to a Shoutbox object for web chat connectivity.
     shoutbox = None
+    #: Roster of known users in the chat.
     roster = dict()
+    #: Conf object with configuration options to use.
     cfg = None
+    #: A unix timestamp defining the last time the client did something.
     last_time = 0
+    # List of references to loadd bot Plugins.
     plugins = dict()
+    # An ObjectFactory instance to use for loading plugins.
     of = None
 
     def __init__(self, sbox=None, cfg=None):
         """
         Instantiate an XMPP bridge using XMPP login details and a shoutbox object.
         """
-        # cfg.xmpp_login, cfg.xmpp_pass, cfg.xmpp_host, cfg.xmpp_port, cfg.xmpp_room
         if sbox:
             self.shoutbox = sbox
         if cfg:
@@ -524,7 +536,7 @@ class XmppBridge(BridgeClass):
         Reads new Shoutbox messages from configured Shoutbox object.
         All messages are sent out to the jabber room.
         For each message, the following events are triggered:
-            Message, ShoutMessage
+        Message, ShoutMessage
         """
         if not self.xmlstream:
             return False

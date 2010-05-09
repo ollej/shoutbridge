@@ -2,6 +2,9 @@
 
 import random
 
+from utils.pyanno import raises, abstractMethod, returnType, parameterTypes, deprecatedMethod, \
+                          privateMethod, protectedMethod, selfType, ignoreType, callableType
+
 from bridges.XmppBridge import *
 from utils.BridgeClass import *
 from utils.utilities import *
@@ -25,12 +28,19 @@ class Plugin(BridgeClass):
     All configured plugins will be setup by the Shoutbridge software on
     startup. Then the handle* methods will be triggered on specific events.
     """
+    #: Priority of the Plugin. Use this to control order of plugin calling.
     priority = 0
+    #: Name of the Plugin
     name = "Plugin"
+    #: Author of the Plugin.
     author = "Olle Johansson"
+    #: Short description of the Plugin. Shown by !help command.
     description = "Default Shoutbridge plugin interface."
+    #: Default nick to use when sending messages from this Plugin.
     nick = 'HALiBot'
+    #: Contains a reference to the XmppBridge that has loaded this plugin.
     bridge = None
+    #: List of command objects describing commands and respective handler methods.
     commands = []
 
     def __init__(self, args):
@@ -51,7 +61,7 @@ class Plugin(BridgeClass):
     @returnType( str )
     def prepend_sender(self, text, sep=': '):
         """
-        Prepends name of sender of message if available.
+        Returns I{text} with name of sender prepended, separated by I{sep}.
         """
         try:
             if self.sender_nick:
@@ -64,6 +74,9 @@ class Plugin(BridgeClass):
     @parameterTypes( selfType, str, str )
     @returnType( str )
     def strip_command(self, text, command):
+        """
+        Returns I{text} with I{command} stripped away from the beginning.
+        """
         return text.replace(command, '', 1).strip()
 
     @protectedMethod
@@ -79,7 +92,11 @@ class Plugin(BridgeClass):
     @parameterTypes( selfType, Shout, str, dict )
     def show_text(self, shout, command=None, comobj=None):
         """
-        Display text from command.
+        A command handler that sends a message with a random string from the 
+        list in the I{text} element of the command object.
+        If the command object has a I{nick} attribute, this will be used
+        as the nick when sending the text, otherwise the default plugin
+        nick will be used.
         """
         try:
             nick = comobj['nick']

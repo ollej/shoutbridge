@@ -94,7 +94,7 @@ class Plugin(BridgeClass):
         Send text as message to both Shoutbox and Jabber conference.
         Prepends name of sender to message.
         """
-        text = self.prepend_sender(text)
+        text = self.prepend_sender(text.strip())
         self.bridge.send_and_shout(text, self.nick)
 
     @parameterTypes( selfType, Shout, str, dict )

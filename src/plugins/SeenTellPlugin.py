@@ -3,6 +3,7 @@
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Sequence, create_engine
 from sqlalchemy.orm import mapper, sessionmaker
 import time
+import string
 
 from plugins.Plugin import *
 from shoutbox.Shoutbox import *
@@ -33,6 +34,7 @@ class SeenTellPlugin(Plugin):
             command = ['!tell'],
             handler = 'tell_user',
             onevents = ['Message'],
+            defaultmessage = "Use '!tell Username Message' to tell a user something when they next join the chat.",
         ),
         dict(
             command = ['!seen'],
@@ -55,7 +57,10 @@ class SeenTellPlugin(Plugin):
         Calls L{setup_tables} to setup table metadata and L{setup_session}
         to instantiate the db session.
         """
-        debug = self.bridge.cfg.get_bool('debug')
+        try:
+            debug = self.bridge.cfg.get_bool('debug')
+        except AttributeError:
+            debug = False
         self.engine = create_engine('sqlite:///extras/halibot.db', echo=debug)
         self.setup_tables()
         self.setup_session()
@@ -158,13 +163,21 @@ class SeenTellPlugin(Plugin):
         text = self.strip_command(shout.text, command)
         #self.logprint("tell_user:", text)
         try:
-            (name, message) = text.split(' ', 1)
+            if string.find(text, ':') >= 0:
+                (name, message) = text.split(':', 1)
+            else:
+                (name, message) = text.split(' ', 1)
         except ValueError:
-            response = "Use '!tell Username Message' to tell a user something when they next join the chat."
+            response = comobj['defaultmessage']
         else:
-            tell = Tell(name, shout.name, message, time.time())
-            self.session.add(tell)
-            response = "Ok, I will tell user %s that next time I see them." % name
+            if name == shout.name:
+                response = "Only crazy people talk to themselves."
+            elif not message:
+                response = comobj['defaultmessage']
+            else:
+                tell = Tell(name, shout.name, message, time.time())
+                self.session.add(tell)
+                response = "Ok, I will tell user %s that next time I see them." % name
         self.send_message(response)
         self.session.commit()
 

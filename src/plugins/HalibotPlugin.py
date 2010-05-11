@@ -75,7 +75,6 @@ class HalibotPlugin(Plugin):
         """
         List all available commands in all loaded Plugins.
         """
-        return
         commandlist = []
         for plugin_name, plugin in self.bridge.plugins.items():
             for com in plugin.commands:

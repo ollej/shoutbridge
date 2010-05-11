@@ -134,6 +134,12 @@ class MonkeyPlugin(Plugin):
             onevents=['Message'],
             text = [u"^^^^^U^^^U^=___"],
         ),
+        dict(
+            command = [u'!santa', u"!santaclaus", u"rudolph", u"christmas", u"sleigh", u"tomte", u"tomten", u"jultomten", u"jul"],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u'"o"/#\ "o"/#\ "o"/#\ ._(##\--/)`'],
+        ),
     ]
 
     def show_cock(self, shout, command=None, comobj=None):

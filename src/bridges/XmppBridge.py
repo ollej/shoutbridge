@@ -121,7 +121,6 @@ class XmppBridge(BridgeClass):
             self.logprint("Loaded plugin:", plug.name, "\n", plug.description)
             self.plugins[p] = plug
 
-    @protectedMethod
     def trigger_plugin_event(self, event, obj):
         """
         Triggers given event on all loaded plugins with obj as argument.

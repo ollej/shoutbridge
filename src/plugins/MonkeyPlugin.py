@@ -140,6 +140,12 @@ class MonkeyPlugin(Plugin):
             onevents=['Message'],
             text = [u'"o"/#\ "o"/#\ "o"/#\ ._(##\--/)`'],
         ),
+        dict(
+            command = [u'!snowman', u"!snögubbe"],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u'☃'],
+        ),
     ]
 
     def show_cock(self, shout, command=None, comobj=None):

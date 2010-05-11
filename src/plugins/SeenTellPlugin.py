@@ -34,6 +34,7 @@ class SeenTellPlugin(Plugin):
             command = ['!tell'],
             handler = 'tell_user',
             onevents = ['Message'],
+            defaultmessage = "Use '!tell Username Message' to tell a user something when they next join the chat.",
         ),
         dict(
             command = ['!seen'],
@@ -167,10 +168,12 @@ class SeenTellPlugin(Plugin):
             else:
                 (name, message) = text.split(' ', 1)
         except ValueError:
-            response = "Use '!tell Username Message' to tell a user something when they next join the chat."
+            response = comobj['defaultmessage']
         else:
             if name == shout.name:
                 response = "Only crazy people talk to themselves."
+            elif not message:
+                response = comobj['defaultmessage']
             else:
                 tell = Tell(name, shout.name, message, time.time())
                 self.session.add(tell)

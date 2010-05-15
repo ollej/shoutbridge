@@ -80,9 +80,11 @@ class XmppBridge(BridgeClass):
         (self.room, foo, self.resource) = self.cfg.xmpp_room.rpartition('/')
         self.roomjid = self.cfg.xmpp_room
         self.current_nick = self.resource
-        if self.cfg.ignorelist:
+        try:
             for s in self.cfg.ignorelist.split(','):
                 self.ignorelist.append(s.strip())
+        except AttributeError:
+            pass
 
     def setShoutbox(self, sbox):
         """

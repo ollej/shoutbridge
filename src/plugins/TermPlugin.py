@@ -57,7 +57,10 @@ class TermPlugin(Plugin):
         newterm = shout.text.replace(command, '', 1).strip()
         if newterm:
             try:
-                (term, definition) = newterm.split('=', 1)
+                if string.find(newterm, '=') >= 0:
+                    (term, definition) = newterm.split('=', 1)
+                else:
+                    (term, definition) = newterm.split(' ', 1)
             except ValueError:
                 self.bridge.send_and_shout("Couldn't add definition.", self.nick)
                 return

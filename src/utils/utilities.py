@@ -37,7 +37,7 @@ class ElementParser(object):
             return None
         return self.result.firstChildElement()
 
-def loadUrl(url, params=None, method="GET", timeout=10.0):
+def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None):
     """
     Loads url with added params urlencoded.
     If method is empty or "GET", params are added to the url after a '?'.
@@ -54,6 +54,8 @@ def loadUrl(url, params=None, method="GET", timeout=10.0):
         print "-----------------------------------------------------------"
         f = urllib2.urlopen(url, params, timeout)
         response_info = f.info()
+        if as_object:
+            return f
         s = f.read()
         f.close()
         s = unicode(s, 'utf-8')
@@ -114,8 +116,15 @@ def read_file(filename, separator=None):
     lines = []
     text = ""
     #f = open (filename, "r", "utf-8")
-    f = codecs.open(filename, "r", "utf-8")
+    external = False
+    if filename.find('://') >= 0:
+        f = loadUrl(filename, as_object=True)
+        external = True
+    else:
+        f = codecs.open(filename, "r", "utf-8")
     for line in f.readlines():
+        if external:
+            line = unicode(line, "utf-8")
         if separator and line.strip() == separator:
             lines.append(text)
             text = ""

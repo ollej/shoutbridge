@@ -19,14 +19,24 @@ class FakeBridge(XmppBridge):
     Fake bridge used for running plugins from command line.
     """
     def send_and_shout(self, text, nick=None):
-        print "Message: ", nick, text
+        print "Message:", nick, text
 
 class Plugin(BridgeClass):
     """
     Superclass for Shoutbridge plugins.
-    Methods should be implemented by sub-classes.
+
     All configured plugins will be setup by the Shoutbridge software on
-    startup. Then the handle* methods will be triggered on specific events.
+    startup. The C{commands} attribute should contain a list of command
+    objects. These will be read by Shoutbridge to determine which
+    methods to call on different events.
+
+    >>> p = Plugin([FakeBridge()])
+    >>> p.strip_command("!hi there", "!hi")
+    'there'
+    >>> p.strip_command("!hi there", "!hello")
+    '!hi there'
+    >>> p.send_message("Hello World!")
+    Message: HALiBot Hello World!
     """
     #: Priority of the Plugin. Use this to control order of plugin calling.
     priority = 0
@@ -61,7 +71,7 @@ class Plugin(BridgeClass):
     @returnType( str )
     def prepend_sender(self, text, sep=': '):
         """
-        Returns I{text} with name of sender prepended, separated by I{sep}.
+        Returns C{text} with name of sender prepended, separated by C{sep}.
         """
         try:
             if self.sender_nick:
@@ -70,16 +80,14 @@ class Plugin(BridgeClass):
             pass
         return text
 
-    @protectedMethod
     @parameterTypes( selfType, str, str )
     @returnType( str )
     def strip_command(self, text, command):
         """
-        Returns I{text} with I{command} stripped away from the beginning.
+        Returns C{text} with C{command} stripped away from the beginning.
         """
         return text.replace(command, '', 1).strip()
 
-    @protectedMethod
     @parameterTypes( selfType, str )
     def send_message(self, text):
         """
@@ -93,8 +101,8 @@ class Plugin(BridgeClass):
     def show_text(self, shout, command=None, comobj=None):
         """
         A command handler that sends a message with a random string from the 
-        list in the I{text} element of the command object.
-        If the command object has a I{nick} attribute, this will be used
+        list in the C{text} element of the command object.
+        If the command object has a C{nick} attribute, this will be used
         as the nick when sending the text, otherwise the default plugin
         nick will be used.
         """
@@ -104,4 +112,6 @@ class Plugin(BridgeClass):
             nick = self.nick
         self.bridge.send_and_shout(random.choice(comobj['text']), nick)
 
-
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

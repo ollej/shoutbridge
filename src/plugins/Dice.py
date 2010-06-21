@@ -35,7 +35,7 @@ class Die(object):
             (?P<val>\d+)                # Value to add/subtract 
         )?                              # Operation not necessary
         )
-        """, re.VERBOSE)
+        """, re.VERBOSE | re.IGNORECASE)
 
     def __init__(self, die, rolls=1, op='', val=0, rolltype='', seltype=None, nrofresults=None):
         # If die is a string, parse it to get all values.

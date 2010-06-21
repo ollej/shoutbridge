@@ -37,7 +37,8 @@ class QuotesPlugin(Plugin):
             command = ['!citat', '!quote'],
             handler = 'random_quote',
             onevents=['Message'],
-            quotefile = 'extras/quotes.dat',
+            #quotefile = 'extras/quotes.dat',
+            quotefile = 'http://www.rollspel.nu/forum/ubbthreads.php?ubb=listquotes',
         ),
         dict(
             command = ['!kjell'],

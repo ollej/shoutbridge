@@ -44,6 +44,7 @@ class TwistedBridge(XmppBridge):
     resource = ""
     xmlstream = None
     last_time = 0
+    ignorelist = []
 
     def make_connection(self):
         """
@@ -271,6 +272,10 @@ class TwistedBridge(XmppBridge):
 
         fromstr = mess.getAttribute('from')
         fromjid = jid.JID(fromstr)
+
+        # Check if user is in ignore list
+        if fromjid in self.ignorelist:
+            return
 
         # Groupchat messages have different from jid
         if mess['type'] == 'groupchat':

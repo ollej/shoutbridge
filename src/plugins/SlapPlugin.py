@@ -36,5 +36,5 @@ class SlapPlugin(Plugin):
         tmpl = string.Template(random.choice(self.slapitems))
         if slapee and slapee.lower() != self.nick.lower():
             slap = tmpl.substitute(dict(slapper=shout.name, slapee=slapee))
-            self.bridge.send_and_shout(slap, self.nick)
+            self.bridge.send_and_shout(slap)
 

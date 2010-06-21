@@ -129,16 +129,22 @@ class MonkeyPlugin(Plugin):
             text = [u"Ƹ̵̡Ӝ̵̨̄Ʒ", u">;<", u">;"],
         ),
         dict(
-            command = [u'!alligator', u"!crocodile", u"krokodil"],
+            command = [u'!alligator', u"!crocodile", u"!krokodil"],
             handler = 'show_text',
             onevents=['Message'],
             text = [u"^^^^^U^^^U^=___"],
         ),
         dict(
-            command = [u'!santa', u"!santaclaus", u"rudolph", u"christmas", u"sleigh", u"tomte", u"tomten", u"jultomten", u"jul"],
+            command = [u'!santa', u"!santaclaus", u"!rudolph", u"!christmas", u"!sleigh", u"!tomte", u"!tomten", u"!jultomten", u"!jul"],
             handler = 'show_text',
             onevents=['Message'],
             text = [u'"o"/#\ "o"/#\ "o"/#\ ._(##\--/)`'],
+        ),
+        dict(
+            command = [u'!snowman', u"!snögubbe"],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u'☃'],
         ),
     ]
 

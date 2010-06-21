@@ -7,6 +7,7 @@ import time
 import re
 
 from bridges.XmppBridge import *
+from utils.utilities import *
 
 class XmppPyBridge(XmppBridge):
     login = ""
@@ -133,30 +134,11 @@ class XmppPyBridge(XmppBridge):
                 user = User(1, nick, '', '')
             self.shoutbox.sendShout(user, text)
 
-    def strip_tags(self, s):
-        """
-        Strip html tags from s
-        """
-        # this list is neccesarry because chk() would otherwise not know
-        # that intag in strip_tags() is ment, and not a new intag variable in chk().
-        intag = [False]
-
-        def chk(c):
-            if intag[0]:
-                intag[0] = (c != '>')
-                return False
-            elif c == '<':
-                intag[0] = True
-                return False
-            return True
-
-        return ''.join(c for c in s if chk(c))
-
     def clean_message(self, text):
         """
         Clean text of unwanted content.
         """
-        text = self.strip_tags(text)
+        text = strip_tags(text)
         return text
 
     def send_message(self, tojid, text):

@@ -25,7 +25,7 @@ def main():
     msg = unicode(' '.join(args[2:]), 'utf-8')
     shout = Shout(1, 4711, 'PluginTestUser', msg, time())
     plug.setup()
-    bridge.plugins['SeenTell'] = plug
+    bridge.plugins[plugin_name] = plug
     bridge.trigger_plugin_event("Message", shout)
 
 # Call the main function.

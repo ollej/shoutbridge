@@ -158,6 +158,31 @@ def add_line_to_file(filename, text, separator=None, newline="\n"):
     #f.write(unicode(text, 'utf-8') + newline)
     f.write(text + newline)
 
+def grep(string, list):
+    expr = re.compile(string)
+    return filter(expr.search, list)
+
+# TODO: not very smart, strips stuff that isn't tags, if a less than sign is in
+# the text.
+def strip_tags(s):
+    """
+    Strip html tags from s
+    """
+    # this list is neccesarry because chk() would otherwise not know
+    # that intag in strip_tags() is ment, and not a new intag variable in chk().
+    intag = [False]
+
+    def chk(c):
+        if intag[0]:
+            intag[0] = (c != '>')
+            return False
+        elif c == '<':
+            intag[0] = True
+            return False
+        return True
+
+    return ''.join(c for c in s if chk(c))
+
 def get_options():
     parser = OptionParser(version="%prog 1.0")
     parser.add_option("-c", "--config", dest="config", default="config.ini",

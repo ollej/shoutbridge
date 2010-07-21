@@ -20,7 +20,7 @@ Nischning=En gradskala på hur inriktade på en specifik spelstil ett spels tema
 Setting,Ramverk,Kuliss,Miljö,Stämning=Ramverket, kulisserna, stämningsättare, miljön och känsla.
 Berättelsen=Berättelsen är det som skapas under spelmötet när spelarna genom sina huvudpersoner reagerar på de improviserade eller förberedda situationer berättaren lägger fram.
 Persson=En underbar skapelse som finns till för andras beundran. Årets forumspersonlighet 2010.
-Tradspel,Tradrollspel=Traditionella spel som Mutant, Drakar och Demoner, Eon och Dungeons & Dragons. Se även "indiespel".
+Trad,Tradspel,Tradrollspel=Traditionella spel som Mutant, Drakar och Demoner, Eon och Dungeons & Dragons. Se även "indiespel".
 Indiespel=Indiespel har två tydliga riktningar som skiljer dem från traditionella rollspel: spelardeltagande och berättelsefokus. Se http://www.rollspel.nu/forum/ubbthreads.php/posts/683082.html för mer information om detta.
 Relationskarta=En tankekarta där spelledaren lätt kan se vilka som står i relation till andra, exempelvis vem som mördat vem, vem som ogillar vem etc.
 Simulationism=Spelstil som fokuserar på simulera en viss genre, ofta med en realistisk ton.
@@ -43,3 +43,8 @@ HALiBot=En artificiell intelligens som kommer att ta över världen när du mins
 hoahoa=Lennart "Hoa-Hoa" Dahlgren kommenterade wrestling med Bruno Arvidsson under 90-talet. Med kommandot !hoahoa får du citat från den perioden. Annars känd för sina elva SM-medaljer i tyngdlyftning.
 skiftning=Att flytta handlingsbärande element så att spelarna alltid kommer att trilla på dem. Exempel: det spelar ingen roll om spelarna går till huset eller kyrkogården. De kommer att hitta samma ledtråd ändå.
 neotrad=Spel som utgår från traditionella rollspel men som hämtat influenser ifrån indiespelen.
+spökvrål=När det blir dubbla meddelanden i Småpraten. Ingen annan förutom sändaren ser denna dublett.
+månvrål=När personen svarar på ett meddelande som skrivits för länge sedan. Detta sker ofta när Småpraten har slutat uppdateras, vilket kan ske om chatten är öppen väldigt länge utan att användaren skriver någonting själv.
+grokka=att ha en fundamental och naturlig förståelse för något. Att kunna "känna" det.
+emergens=den upplevelse som framträder när ett spels olika regler och annan information börjar interagera och användas ihop med varandra.
+

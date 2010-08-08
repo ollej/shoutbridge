@@ -70,6 +70,12 @@ class QuotesPlugin(Plugin):
             onevents=['Message'],
             quotefile = 'extras/hoahoa.dat',
         ),
+        dict(
+            command = ['!icebreaker', '!conversation', '!isbrytare', '!konversation'],
+            handler = 'random_quote',
+            onevents=['Message'],
+            quotefile = 'extras/conversation_starters.dat',
+        ),
     ]
 
     def setup(self):

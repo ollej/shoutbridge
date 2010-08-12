@@ -15,7 +15,8 @@ def main():
     except IndexError:
         print "Usage: %s <plugin_name> <message>" % args[0]
         quit()
-    bridge = FakeBridge()
+    cfg = Conf('config.ini', 'LOCAL')
+    bridge = FakeBridge(cfg=cfg)
     try:
         of = ObjectFactory()
         plug = of.create(plugin_name, mod='plugins', inst="Plugin", args=[bridge])

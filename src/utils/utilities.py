@@ -37,7 +37,7 @@ class ElementParser(object):
             return None
         return self.result.firstChildElement()
 
-def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None):
+def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None, auth=None):
     """
     Loads url with added params urlencoded.
     If method is empty or "GET", params are added to the url after a '?'.
@@ -49,6 +49,16 @@ def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None):
         if method == "GET":
             url = url + "?" + params
             params = None
+    if auth:
+        #print "Authenticating user: %s:%s" % (auth['user'], auth['password'])
+        #print "-----------------------------------------------------------"
+        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler.add_password(realm=auth['realm'],
+                                  uri=auth['uri'],
+                                  user=auth['user'],
+                                  passwd=auth['password'])
+        opener = urllib2.build_opener(auth_handler)
+        urllib2.install_opener(opener)
     try:
         print "Loading URL:", url, params
         print "-----------------------------------------------------------"
@@ -71,6 +81,8 @@ def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None):
             print "Params:", params
         print "HTTP Error:", he
         print "-----------------------------------------------------------"
+        if he.code == 401:
+            print he.headers
         return ""
     except urllib2.URLError:
         # For now, just ignore URL errors and return empty string.

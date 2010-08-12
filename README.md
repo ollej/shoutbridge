@@ -483,6 +483,12 @@ this person sent a message is printed.
 Leave a text message for the user with name Username. The plugin will then print
 this message next time it sees that user in the chat.
 
+### TwitterPlugin ###
+The Twitter plugin posts all messages to a given Twitter account.
+
+Activate this plugin by adding "Twitter" to the list of plugins in the config.ini file
+and enter the twitter username and password in the options twitter_user and twitter_password
+
 Write your own plugin
 ---------------------
 If you know a little Python, writing your own bot plugin is easy.

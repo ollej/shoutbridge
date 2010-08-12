@@ -38,7 +38,7 @@ class MessageShoutbox(Shoutbox):
     def loadShouts(self, start):
         params = dict({
             "ubb": "listshouts",
-            "start": start,
+            "start": str(start),
         })
         shoutxml = loadUrl(self.cfg.base_url, params)
         #self.logprint(shoutxml)
@@ -52,7 +52,7 @@ class MessageShoutbox(Shoutbox):
             "ubb": "listshouts",
             "action": "send",
             "secret": self.cfg.secret,
-            "user_id": user.id,
+            "user_id": str(user.id),
             "user_name": user.name,
             "message": message.encode('utf-8', 'xmlcharrefreplace'),
         })

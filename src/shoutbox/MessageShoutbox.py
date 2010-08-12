@@ -54,7 +54,7 @@ class MessageShoutbox(Shoutbox):
             "secret": self.cfg.secret,
             "user_id": str(user.id),
             "user_name": user.name,
-            "message": message #.encode('utf-8', 'xmlcharrefreplace'),
+            "message": message,
         })
         self.logprint("Sending shout:\n", self.cfg.base_url, params)
         result = loadUrl(self.cfg.base_url, params)

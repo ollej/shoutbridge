@@ -13,7 +13,6 @@ class SlapPlugin(Plugin):
     name = "SlapPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Slap bot lets users slap each other with hilarious items."
-    nick = 'HALiBot'
     commands = [
         dict(
             command = ['!slap'],
@@ -37,5 +36,5 @@ class SlapPlugin(Plugin):
         tmpl = string.Template(random.choice(self.slapitems))
         if slapee and slapee.lower() != self.nick.lower():
             slap = tmpl.substitute(dict(slapper=shout.name, slapee=slapee))
-            self.bridge.send_and_shout(slap)
+            self.bridge.send_and_shout(slap, self.nick)
 

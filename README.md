@@ -756,6 +756,7 @@ Some ideas for future development.
  * HalibotPlugin !listcommands _plugin_ should list commands available for that plugin.
  * XmppDirectMessage isn't implemented yet.
  * FEATURE: Command line option to start by skipping all current messages in shoutbox.
+ * BUG: all params in loadUrl need to be a string, int types causes exception.
  * Re-add test code to plugins, calling a default test function:
      def _test():
        import doctest, example

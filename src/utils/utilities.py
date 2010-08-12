@@ -45,13 +45,13 @@ def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None, auth=N
     An optional timeout on the request can be set.
     """
     if params:
-        params = urllib.urlencode(params)
+        params = urllib.urlencode(dict([k, v.encode('utf-8')] for k, v in params.items()))
         if method == "GET":
-            url = url + "?" + params
+            url = '%s?%s' % (url, params)
             params = None
     if auth:
         #print "Authenticating user: %s:%s" % (auth['user'], auth['password'])
-        #print "-----------------------------------------------------------"
+        print "-----------------------------------------------------------"
         auth_handler = urllib2.HTTPBasicAuthHandler()
         auth_handler.add_password(realm=auth['realm'],
                                   uri=auth['uri'],

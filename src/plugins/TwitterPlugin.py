@@ -16,8 +16,11 @@ class TwitterPlugin(Plugin):
 
     def tweet_post(self, shout, command, comobj):
         tweeturl = "http://api.twitter.com/1/statuses/update.json"
+        print "set status"
+        status = u'%s ^%s' % (shout.text, shout.name)
+        print "loadUrl"
         result = loadUrl(tweeturl, method="POST", params=dict({
-            'status': '%s ^%s' % (shout.text, shout.name),
+            'status': status,
         }), auth=dict({
             'realm': 'Twitter API',
             'uri': tweeturl,

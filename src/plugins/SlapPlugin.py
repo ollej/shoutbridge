@@ -13,6 +13,7 @@ class SlapPlugin(Plugin):
     name = "SlapPlugin"
     author = "Olle Johansson <Olle@Johansson.com>"
     description = "Slap bot lets users slap each other with hilarious items."
+    nick = 'HALiBot'
     commands = [
         dict(
             command = ['!slap'],

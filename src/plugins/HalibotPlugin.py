@@ -6,7 +6,6 @@ class HalibotPlugin(Plugin):
     name = "HalibotPlugin"
     author = "Olle Johansson"
     description = "A generic HALiBot plugin for miscellaneous support features."
-    passwd = "abcd1234"
     commands = [
         dict(
             command = ['!version'],
@@ -61,16 +60,6 @@ class HalibotPlugin(Plugin):
                                self.bridge.get_os_info())
         self.bridge.send_and_shout(text, self.nick)
 
-    def echo_message(self, shout, command, comobj):
-        """
-        Echos text given.
-        """
-        text = shout.text.replace(command, '', 1).strip()
-        (passwd, room) = text.split(' ', 1)
-        if passwd != self.passwd:
-            return
-        self.bridge.send_and_shout(shout.text, self.nick)
-
     def list_commands(self, shout, command, comobj):
         """
         List all available commands in all loaded Plugins.
@@ -87,7 +76,7 @@ class HalibotPlugin(Plugin):
         """
         text = shout.text.replace(command, '', 1).strip()
         (passwd, room) = text.split(' ', 1)
-        if passwd != self.passwd:
+        if passwd != self.bridge.cfg.get('halibot_password'):
             return
         self.bridge.leave_room("Jumping to another room.")
         self.bridge.room = room
@@ -123,7 +112,7 @@ class HalibotPlugin(Plugin):
         """
         text = shout.text.replace(command, '', 1).strip()
         (passwd, text) = text.split(' ', 1)
-        if passwd != self.passwd:
+        if passwd != self.bridge.cfg.get('halibot_password'):
             return
         self.bridge.send_and_shout(text, self.nick)
         

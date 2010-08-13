@@ -117,4 +117,14 @@ class HalibotPlugin(Plugin):
             text = comobj['text']
         self.bridge.send_and_shout("%s: %s" % (shout.name, text), self.nick)
 
+    def echo_message(self, shout, command, comobj):
+        """
+        Echos the message back out to the chat.
+        """
+        text = shout.text.replace(command, '', 1).strip()
+        (passwd, text) = text.split(' ', 1)
+        if passwd != self.passwd:
+            return
+        self.bridge.send_and_shout(text, self.nick)
+        
 

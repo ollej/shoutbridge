@@ -77,6 +77,7 @@ class TwistedBridge(XmppBridge):
 
         # Add Event observers
         xs.addObserver("/message[@type='groupchat']", self.handle_message)
+        xs.addObserver("/message[@type='chat']", self.handle_message)
         #xs.addObserver("/message[@type='chat']", self.handle_message)
         xs.addObserver("/presence", self.handle_presence)
         xs.addObserver("/iq", self.handle_iq)
@@ -278,7 +279,7 @@ class TwistedBridge(XmppBridge):
             return
 
         # Groupchat messages have different from jid
-        if mess['type'] == 'groupchat':
+        if mess['type'] in ['groupchat', 'chat']:
             (fromstr, sep, nick) = fromstr.rpartition('/')
         else:
             nick = fromjid.user + '@' + fromjid.host
@@ -294,11 +295,16 @@ class TwistedBridge(XmppBridge):
         body = getElStr(mess.body)
 
         # Send message.
-        if body and mess['type'] in ['message', 'chat', 'groupchat', None]: 
-            user = self.get_from_roster(nick, fromstr)
+        user = self.get_from_roster(nick, fromstr)
+        if body and mess['type'] in ['message', 'groupchat', None]: 
             self.logprint("Relaying message to shoutbox:", user.id, user.jid, user.name, "\n", body)
             self.update_last_time()
             self.shoutbox.sendShout(user, body)
+        elif body and mess['type'] == 'chat':
+            self.logprint("Received priavate message:", user.id, user.jid, user.name, "\n", body)
+            self.update_last_time()
+            shout = Shout(0, user.id, nick, body, time.time())
+            self.trigger_plugin_event('XmppDirectMessage', shout)
         else:
             self.logprint("Unknown message:", mess.toXml())
 
@@ -323,6 +329,8 @@ class TwistedBridge(XmppBridge):
             message.addElement('body', content=text)
             self.update_last_time()
             self.send_stanza(message)
+            shout = Shout(0, 0, nick, text, time.time())
+            self.trigger_plugin_event('SentMessage', shout)
         except UnicodeDecodeError:
             self.logprint("Unicode Decode Error: ", text)
 

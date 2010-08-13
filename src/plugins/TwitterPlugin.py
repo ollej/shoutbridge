@@ -10,7 +10,7 @@ class TwitterPlugin(Plugin):
         dict(
             command = [''],
             handler = 'tweet_post',
-            onevents = ['Message'],
+            onevents = ['Message', 'SentMessage'],
         )
     ]
 

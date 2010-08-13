@@ -444,9 +444,10 @@ Displays a short help message.
 #### !help _pluginname_ ####
 Displays description of plugin with name _pluginname_.
 
-#### !say _text_ ####
+#### !say _password_ _text_ ####
 When this command is sent as a private/direct message to the bot, the bot will
-in turn send out a message with the given _text_.
+in turn send out a message with the given _text_. The first word after "!say"
+must be the same as the password entered in the plugin attributes.
 
 #### !version ####
 Displays name and version of program, along with system information of the 
@@ -700,6 +701,7 @@ The available event triggers are:
  * **XmppPresence** - Triggered on XMPP Presence stanzas. First argument to method is stanza as xml string.
  * **XmppIq** - Triggered on XMPP IQ stanzas, first argument to method is stanza as xml string.
  * **XmppDirectMessage** - Triggered when bot receives a direct (private) message.
+ * **SentMessage** - Triggered when messages are sent internally (via plugins etc)
 
 The XMPP stanzas are passed as raw XML strings. This is since plugins shouldn't depend on
 a specifc bridge class or XML library. 
@@ -754,7 +756,6 @@ Some ideas for future development.
  * BUG: HTML-stripping not quite up to par.
  * Add language support for easy translation.
  * HalibotPlugin !listcommands _plugin_ should list commands available for that plugin.
- * XmppDirectMessage isn't implemented yet.
  * FEATURE: Command line option to start by skipping all current messages in shoutbox.
  * BUG: all params in loadUrl need to be a string, int types causes exception.
  * Re-add test code to plugins, calling a default test function:

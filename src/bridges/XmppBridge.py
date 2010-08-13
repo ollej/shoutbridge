@@ -531,7 +531,7 @@ class XmppBridge(BridgeClass):
         msgs = self.shoutbox.readShouts()
         #self.logprint("Number of messages received:", len(msgs))
         if not msgs:
-            return False
+            return True
         for m in msgs:
             text = self.clean_message(m.text)
             if self.cfg.show_time == "True" and self.cfg.show_nick == "True":

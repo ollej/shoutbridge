@@ -447,7 +447,8 @@ Displays description of plugin with name _pluginname_.
 #### !say _password_ _text_ ####
 When this command is sent as a private/direct message to the bot, the bot will
 in turn send out a message with the given _text_. The first word after "!say"
-must be the same as the password entered in the plugin attributes.
+must be the same as the password entered in "halibot_password" configuration
+option.
 
 #### !version ####
 Displays name and version of program, along with system information of the 

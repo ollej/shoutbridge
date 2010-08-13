@@ -326,6 +326,10 @@ class TwistedBridge(XmppBridge):
         except UnicodeDecodeError:
             self.logprint("Unicode Decode Error: ", text)
 
+    def reactor_error(self, failure):
+        self.logprint("Reactor failure", failure)
+        return True
+
     def listen(self):
         """
         Start listening on XMPP and Shoutbox, relaying messages.
@@ -333,9 +337,11 @@ class TwistedBridge(XmppBridge):
         try:
             # Send messages from shoutbox every few seconds
             l = task.LoopingCall(self.process_shoutbox_messages)
-            l.start(float(self.cfg.loop_time))
+            d1 = l.start(float(self.cfg.loop_time))
+            d1.addErrback(self.reactor_error)
             l2 = task.LoopingCall(self.ping)
-            l2.start(60.0)
+            d2 = l2.start(60.0)
+            d2.addErrback(self.reactor_error)
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:

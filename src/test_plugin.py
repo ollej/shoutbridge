@@ -15,13 +15,14 @@ def main():
     except IndexError:
         print "Usage: %s <plugin_name> <message>" % args[0]
         quit()
-    cfg = Conf('config.ini', 'LOCAL')
+    cfg = Conf('../config.ini', 'LOCAL')
     bridge = FakeBridge(cfg=cfg)
     try:
         of = ObjectFactory()
         plug = of.create(plugin_name, mod='plugins', inst="Plugin", args=[bridge])
-    except ImportError:
+    except ImportError as ie:
         print "Couldn't load plugin: %s" % plugin_name
+	print "Args:", ie.args
         quit()
     msg = unicode(' '.join(args[2:]), 'utf-8')
     shout = Shout(1, 4711, 'PluginTestUser', msg, time())

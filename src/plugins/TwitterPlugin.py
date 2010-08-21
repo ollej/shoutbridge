@@ -31,8 +31,8 @@ class TwitterPlugin(Plugin):
         # Compile regular expressions for name shorteing.
         self.re_sc = re.compile(r"[\W_-]", re.UNICODE)
         self.re_sp = re.compile(r"\s+", re.UNICODE)
-        self.re_up = re.compile(r"[A-ZÅÄÖÛŒÆ]", re.UNICODE)
-        self.re_fl = re.compile(r"((?<=\A).|(?<= )[A-ZÅÄÖÛŒÆ])", re.UNICODE)
+        self.re_up = re.compile(u"[A-ZÅÄÖÛŒÆ]", re.UNICODE)
+        self.re_fl = re.compile(u"((?<=\\A).|(?<= )[A-ZÅÄÖÛŒÆ])", re.UNICODE)
 
     def tweet_post(self, shout, command, comobj):
         """

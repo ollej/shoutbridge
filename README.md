@@ -35,6 +35,7 @@ Requirements
  * MySQLdb (for direct connection to shoutbox)
  * SQLAlchemy (for SeenTell plugin)
  * Sqlite (for SeenTell plugin)
+ * Tweepy (for Twitter plugin)
 
 Installation
 ------------
@@ -51,6 +52,7 @@ Install necessary modules:
     $ sudo easy_install MySQLdb
     $ sudo easy_install pyOpenSSL
     $ sudo easy_install sqlalchemy
+    $ sudo easy_install tweepy
 
 Next, create a configuration file from the example.
 
@@ -488,8 +490,33 @@ this message next time it sees that user in the chat.
 ### TwitterPlugin ###
 The Twitter plugin posts all messages to a given Twitter account.
 
-Activate this plugin by adding "Twitter" to the list of plugins in the config.ini file
-and enter the twitter username and password in the options twitter_user and twitter_password
+Activate this plugin by adding "Twitter" to the list of plugins in the config.ini file.
+
+The new version of the Twitter plugin uses OAuth for authentication, which means that
+you will have to register your own instance of Shoutbridge as an application at
+http://dev.twitter.com where you need to log in using the account you want the
+application to tweet as.
+
+Under OAuth settings for your application you will find "Consumer key" and 
+"Consumer secret". Enter these into the config file as the options
+twitter_consumer_key and twitter_consumer_secret
+
+Under "My Access Token" you will find the oauth_token and oauth_token_secret
+which you will need to place in the options twitter_oauth_token and
+twitter_oauth_token_secret
+
+The Twitter plugin shortens the names of the posters and adds the initials
+to the end of the tweet. It tries to be smart about it, but some user names
+are just not really possible to shorten automatically. 
+
+In the attributes of the Twitter plugin code, you can set a max_name_len 
+which defines how many letters a name can be to not be shortened at all.
+This length is after any special characters has been removed. There is also
+a list of names to ignore and not remove at all. By default, the name
+"HALiBot" is in this list.
+
+Messages that are too long are shortened so that they are no longer than
+140 characters, including the name. For obvious reasons.
 
 Write your own plugin
 ---------------------

@@ -163,7 +163,9 @@ class SeenTellPlugin(Plugin):
         text = self.strip_command(shout.text, command)
         #self.logprint("tell_user:", text)
         try:
-            if string.find(text, ':') >= 0:
+            colpos = string.find(text, ':')
+            self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
+            if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':
                 (name, message) = text.split(':', 1)
             else:
                 (name, message) = text.split(' ', 1)

@@ -21,7 +21,7 @@ class ElizaPlugin(Plugin):
     nick = "Eliza"
     commands = [
         dict(
-            command=['Eliza,'],
+            command=['Eliza,', 'Eliza:', '!eliza'],
             handler='ask_eliza',
             onevents=['Message'],
         ),

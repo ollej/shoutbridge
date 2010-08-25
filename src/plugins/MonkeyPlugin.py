@@ -114,7 +114,7 @@ class MonkeyPlugin(Plugin):
             command = [u'!love', u'!heart', u'!hjärta', u'!kärlek', u'!älska'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u"<3"],
+            text = [u"<3", u"♥"],
         ),
         dict(
             command = [u'!cartman', '!southpark'],

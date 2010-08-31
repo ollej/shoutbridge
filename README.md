@@ -383,6 +383,7 @@ Sends a random quote from different quote files.
  * **!kjell** - Swedish quotes from TV series Kjell
  * **!evaemma** - Swedish quotes from blogger EvaEmma Andersson
  * **!storuggla** - Swedish quotes from Storuggla
+ * **!8ball** - Emulate a Magic 8-ball
 
 #### Add new quotes ####
 It is also possible to add new quotes which are added to a temporary file. These

@@ -76,6 +76,12 @@ class QuotesPlugin(Plugin):
             onevents=['Message'],
             quotefile = 'extras/conversation_starters.dat',
         ),
+        dict(
+            command = ['!8ball', '!magic', '!oracle', '!orakel'],
+            handler = 'random_quote',
+            onevents=['Message'],
+            quotefile = 'extras/8ball.dat',
+        ),
     ]
 
     def setup(self):

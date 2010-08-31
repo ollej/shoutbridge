@@ -152,7 +152,10 @@ class MonkeyPlugin(Plugin):
         """
         Display text from command.
         """
-        text = u'8' + ''.ljust(random.randint(1, 10), '=') + u"D"
+        if shout.name == 'krank':
+            text = u"8" + ''.ljust(random.randint(1, 3), '=') + u"Đ"
+        else:
+            text = u'8' + ''.ljust(random.randint(1, 10), '=') + u"D"
         self.bridge.send_and_shout(text, self.nick)
 
 

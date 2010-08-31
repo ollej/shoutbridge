@@ -29,11 +29,11 @@ Requirements
 ------------
  * Python 2.6
  * Twisted
+ * SQLAlchemy
  * pyOpenSSL (for secure connections)
  * MySQL (for direct connection to shoutbox)
  * UBB.threads v7 (for shoutbox bridge)
  * MySQLdb (for direct connection to shoutbox)
- * SQLAlchemy (for SeenTell plugin)
  * Sqlite (for SeenTell plugin)
  * Tweepy (for Twitter plugin)
 
@@ -488,7 +488,8 @@ Leave a text message for the user with name Username. The plugin will then print
 this message next time it sees that user in the chat.
 
 ### TwitterPlugin ###
-The Twitter plugin posts all messages to a given Twitter account.
+The Twitter plugin posts all messages to a given Twitter account. It can also read
+mentions of the configured twitter account and post them to jabber/shoutbox.
 
 Activate this plugin by adding "Twitter" to the list of plugins in the config.ini file.
 
@@ -505,6 +506,11 @@ Under "My Access Token" you will find the oauth_token and oauth_token_secret
 which you will need to place in the options twitter_oauth_token and
 twitter_oauth_token_secret
 
+If you want the plugin to also read mentions of the configured Twitter account,
+set the "twitter_update_time" value to the number of seconds between each update.
+If you don't want this feature, set this value to 0.
+
+#### Notes ####
 The Twitter plugin shortens the names of the posters and adds the initials
 to the end of the tweet. It tries to be smart about it, but some user names
 are just not really possible to shorten automatically. 

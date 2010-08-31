@@ -315,7 +315,7 @@ class TwistedBridge(XmppBridge):
         self.trigger_plugin_event('Message', shout)
 
 
-    def send_message(self, tojid, text, nick=None):
+    def send_message(self, tojid, text, nick=None, notrigger=False):
         """
         Send an text as XMPP message to tojid
         """
@@ -330,7 +330,8 @@ class TwistedBridge(XmppBridge):
             self.update_last_time()
             self.send_stanza(message)
             shout = Shout(0, 0, nick, text, time.time())
-            self.trigger_plugin_event('SentMessage', shout)
+            if not notrigger:
+                self.trigger_plugin_event('SentMessage', shout)
         except UnicodeDecodeError:
             self.logprint("Unicode Decode Error: ", text)
 

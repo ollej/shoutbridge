@@ -7,6 +7,9 @@ from datetime import datetime, date
 from utils.pyanno import raises, abstractMethod, returnType, parameterTypes, deprecatedMethod, \
                   privateMethod, protectedMethod, selfType, ignoreType, callableType
 
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Sequence, create_engine
+from sqlalchemy.orm import mapper, sessionmaker
+
 from utils.ObjectFactory import *
 from utils.BridgeClass import *
 from shoutbox.Shoutbox import *
@@ -29,6 +32,63 @@ class BridgeMissingAttributeError(BridgeError):
 
 class BridgeNoXmlStream(BridgeError):
     "No active xml stream available."
+
+class HaliData(object):
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+class HaliDb(object):
+    def __init__(self, debug):
+        self.engine = create_engine('sqlite:///extras/halidata.db', echo=debug)
+        self.setup_session()
+        self.setup_tables()
+
+    def setup_session(self):
+        """
+        Start a SQLAlchemy db session.
+
+        Saves the session instance in C{self.session}
+        """
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
+
+    def setup_tables(self):
+        """
+        Defines the tables to use for L{User} and L{Tell}.
+
+        The Metadata instance is saved to C{self.metadata}
+        """
+        self.metadata = MetaData()
+        halidata_table = Table('halidata', self.metadata,
+            Column('key', String(50), primary_key=True),
+            Column('value', String(255)),
+        )
+        mapper(HaliData, halidata_table)
+        self.metadata.create_all(self.engine)
+
+    def get(self, key):
+        hd = self.session.query(HaliData).filter_by(key=key).first()
+        if not hd:
+            hd = HaliData(key, None)
+            self.session.add(hd)
+        return hd
+
+    def get_value(self, key):
+        hd = self.get(key)
+        if hd:
+            return hd.value
+        return None
+
+    def set_value(self, key, value):
+        hd = self.get(key)
+        hd.value = value
+        self.session.commit()
+
+    def del_key(self, key):
+        hd = self.get(key)
+        self.session.delete(hd)
+        self.session.commit()
 
 class XmppBridge(BridgeClass):
     """
@@ -64,9 +124,15 @@ class XmppBridge(BridgeClass):
         if cfg:
             self.setConfig(cfg)
 
+        # Setup database
+        try:
+            debug = cfg.get_bool('debug')
+        except AttributeError:
+            debug = False
+        self.db = HaliDb(debug)
+
         # Update last active time.
         self.update_last_time()
-
 
     def setConfig(self, cfg):
         """
@@ -540,7 +606,7 @@ class XmppBridge(BridgeClass):
                 text = "%s %s" % (m.time, text)
             elif self.cfg.show_nick == "True":
                 text = "<%s> %s" % (m.name, text)
-            self.send_message(self.room, text, nick=m.name)
+            self.send_message(self.room, text, nick=m.name, notrigger=True)
 
             # Trigger handleShoutMessage event
             self.trigger_plugin_event('Message', m)

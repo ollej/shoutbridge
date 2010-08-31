@@ -4,6 +4,7 @@ from plugins.Plugin import *
 import re
 import string
 import tweepy
+from datetime import datetime, date, time, timedelta
 
 class TwitterPlugin(Plugin):
     name = "TwitterPlugin"
@@ -27,6 +28,9 @@ class TwitterPlugin(Plugin):
         auth = tweepy.OAuthHandler(self.bridge.cfg.get('twitter_consumer_key'), self.bridge.cfg.get('twitter_consumer_secret'))
         auth.set_access_token(self.bridge.cfg.get('twitter_oauth_token'), self.bridge.cfg.get('twitter_oauth_token_secret'))
         self.twit = tweepy.API(auth)
+        utime = self.bridge.cfg.get('twitter_update_time')
+        if utime:
+            self.update_time = timedelta(seconds=int(utime))
 
         # Compile regular expressions for name shorteing.
         self.re_sc = re.compile(r"[\W_-]", re.UNICODE)
@@ -42,7 +46,45 @@ class TwitterPlugin(Plugin):
         text = self.shorten_text(shout.text, 140 - len(name) - 2)
         status = u'%s ^%s' % (text, name)
         self.logprint("Tweeting:", status)
-        self.twit.update_status(status)
+        try:
+            self.twit.update_status(status)
+        except tweepy.TweepError, te:
+            self.logprint('Twitter raised an exception:', te)
+        # Also check for mentions.
+        if self.update_time:
+            self.check_mentions()
+
+    def check_mentions(self):
+        self.logprint('check_mentions')
+        latest_time = self.bridge.db.get_value('twitter_latest_mention_time')
+        #self.logprint("Latest time was:", latest_time)
+        timenow = datetime.now()
+        if latest_time:
+            latest_time = datetime.fromtimestamp(float(latest_time))
+        else:
+            latest_time = timenow
+        #self.logprint("Times:", latest_time, self.update_time, datetime.now(), latest_time + self.update_time)
+        if (latest_time + self.update_time) < timenow:
+            latest_time = timenow
+            self.handle_mentions()
+        self.bridge.db.set_value('twitter_latest_mention_time', latest_time.strftime("%s"))
+        #self.logprint("Updated latest mention time to:", latest_time.strftime("%s"))
+
+    def handle_mentions(self):
+        #self.logprint('handle_mentions')
+        latest_id = self.bridge.db.get_value('twitter_latest_mention_id')
+        #self.logprint("Latest id was:", latest_id)
+        if latest_id:
+            mentions = self.twit.mentions(latest_id)
+        else:
+            mentions = self.twit.mentions()
+        for tweet in mentions:
+            self.logprint('Found mention on Twitter:', tweet.user.screen_name, tweet.text)
+            self.bridge.send_and_shout(tweet.text, tweet.user.screen_name)
+            if tweet.id > latest_id:
+                latest_id = tweet.id
+        self.bridge.db.set_value('twitter_latest_mention_id', latest_id)
+        #self.logprint("Updated latest_id to:", latest_id)
 
     def shorten_text(self, text, length):
         """

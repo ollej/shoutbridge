@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from plugins.Plugin import *
+from utils.MixIn import *
 import re
 import string
 import tweepy
 from datetime import datetime, date, time, timedelta
+
+# TODO:
+# Setup a reactor in setup to call handle_mentions instead of calling it on tweets.
+# Fix looping issue, possible only push out messages starting with account name and removing it.
 
 class TwitterPlugin(Plugin):
     name = "TwitterPlugin"
@@ -45,7 +50,7 @@ class TwitterPlugin(Plugin):
         name = self.shorten_name(shout.name)
         text = self.shorten_text(shout.text, 140 - len(name) - 2)
         status = u'%s ^%s' % (text, name)
-        self.logprint("Tweeting:", status)
+        #self.logprint("Tweeting:", status)
         try:
             self.twit.update_status(status)
         except tweepy.TweepError, te:
@@ -55,7 +60,7 @@ class TwitterPlugin(Plugin):
             self.check_mentions()
 
     def check_mentions(self):
-        self.logprint('check_mentions')
+        #self.logprint('check_mentions')
         latest_time = self.bridge.db.get_value('twitter_latest_mention_time')
         #self.logprint("Latest time was:", latest_time)
         timenow = datetime.now()
@@ -71,7 +76,7 @@ class TwitterPlugin(Plugin):
         #self.logprint("Updated latest mention time to:", latest_time.strftime("%s"))
 
     def handle_mentions(self):
-        #self.logprint('handle_mentions')
+        self.logprint('handle_mentions')
         latest_id = self.bridge.db.get_value('twitter_latest_mention_id')
         #self.logprint("Latest id was:", latest_id)
         if latest_id:
@@ -80,11 +85,27 @@ class TwitterPlugin(Plugin):
             mentions = self.twit.mentions()
         for tweet in mentions:
             self.logprint('Found mention on Twitter:', tweet.user.screen_name, tweet.text)
-            self.bridge.send_and_shout(tweet.text, tweet.user.screen_name)
+            self.handle_tweet(tweet)
             if tweet.id > latest_id:
                 latest_id = tweet.id
         self.bridge.db.set_value('twitter_latest_mention_id', latest_id)
         #self.logprint("Updated latest_id to:", latest_id)
+
+    def handle_tweet(self, tweet):
+        # Ignore own tweets.
+        my_name = self.twit.me().screen_name
+        starttext = '@%s ' % my_name
+
+        # Skip tweets from own account.
+        if tweet.user.screen_name == my_name:
+            return
+
+        # Skip tweets that doesn't start with own screen_name
+        if not tweet.text.startswith(starttext):
+            return
+
+        text = self.strip_command(tweet.text, starttext)
+        self.bridge.send_and_shout(text, '@%s' % tweet.user.screen_name)
 
     def shorten_text(self, text, length):
         """

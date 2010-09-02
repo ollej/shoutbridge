@@ -35,11 +35,17 @@ class BridgeClass(object):
         """
         return self.print_items(self.__dict__.items() + self.__class__.__dict__.items())
 
-    def __str__(self):
+    def dumpattrs(self):
         """
         Return all instance attributes in readable format.
         """
         return self.print_items(self.__dict__.items())
+
+    def __str__(self):
+        """
+        Return all instance attributes in readable format.
+        """
+        return self.dumpattrs()
 
 def main():
     import sys

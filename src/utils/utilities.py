@@ -5,6 +5,7 @@ import urllib
 import socket
 import re
 import htmlentitydefs
+import string
 from twisted.words.xish import domish
 import codecs
 from optparse import OptionParser
@@ -194,6 +195,15 @@ def strip_tags(s):
         return True
 
     return ''.join(c for c in s if chk(c))
+
+def dump_dict_items(o):
+    """
+    Returns all items as a string in a neat table.
+    """
+    str = ''
+    for k, v in o.__dict__.items():
+        str += string.ljust(k, 15) + '\t' + unicode(v) + '\n'
+    return str
 
 def get_options():
     parser = OptionParser(version="%prog 1.0")

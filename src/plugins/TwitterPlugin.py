@@ -6,6 +6,8 @@ import re
 import string
 import tweepy
 from datetime import datetime, date, time, timedelta
+from twisted.internet import task
+from twisted.internet import reactor
 
 # TODO:
 # Setup a reactor in setup to call handle_mentions instead of calling it on tweets.
@@ -24,6 +26,7 @@ class TwitterPlugin(Plugin):
     ]
     ignored_names = ['HALiBot']
     max_name_len = 4
+    latest_id = 0
 
     def setup(self):
         """
@@ -33,9 +36,12 @@ class TwitterPlugin(Plugin):
         auth = tweepy.OAuthHandler(self.bridge.cfg.get('twitter_consumer_key'), self.bridge.cfg.get('twitter_consumer_secret'))
         auth.set_access_token(self.bridge.cfg.get('twitter_oauth_token'), self.bridge.cfg.get('twitter_oauth_token_secret'))
         self.twit = tweepy.API(auth)
-        utime = self.bridge.cfg.get('twitter_update_time')
+
+        # Start listening to Twitter mentions.
+        utime = float(self.bridge.cfg.get('twitter_update_time'))
         if utime:
-            self.update_time = timedelta(seconds=int(utime))
+            l = task.LoopingCall(self.handle_mentions)
+            d1 = l.start(utime)
 
         # Compile regular expressions for name shorteing.
         self.re_sc = re.compile(r"[\W_-]", re.UNICODE)
@@ -55,41 +61,28 @@ class TwitterPlugin(Plugin):
             self.twit.update_status(status)
         except tweepy.TweepError, te:
             self.logprint('Twitter raised an exception:', te)
-        # Also check for mentions.
-        if self.update_time:
-            self.check_mentions()
-
-    def check_mentions(self):
-        #self.logprint('check_mentions')
-        latest_time = self.bridge.db.get_value('twitter_latest_mention_time')
-        #self.logprint("Latest time was:", latest_time)
-        timenow = datetime.now()
-        if latest_time:
-            latest_time = datetime.fromtimestamp(float(latest_time))
-        else:
-            latest_time = timenow
-        #self.logprint("Times:", latest_time, self.update_time, datetime.now(), latest_time + self.update_time)
-        if (latest_time + self.update_time) < timenow:
-            latest_time = timenow
-            self.handle_mentions()
-        self.bridge.db.set_value('twitter_latest_mention_time', latest_time.strftime("%s"))
-        #self.logprint("Updated latest mention time to:", latest_time.strftime("%s"))
 
     def handle_mentions(self):
-        self.logprint('handle_mentions')
-        latest_id = self.bridge.db.get_value('twitter_latest_mention_id')
-        #self.logprint("Latest id was:", latest_id)
-        if latest_id:
-            mentions = self.twit.mentions(latest_id)
+        """
+        Load mentions from Twitter and send them to Jabber and Shoutbox if they fulfill the criterias.
+        """
+        #self.logprint('handle_mentions')
+        if not self.bridge.xmlstream:
+            self.logprint("Twitter plugin can't handle mentions yet since there is no xmlstream.")
+            return
+        self.latest_id = self.latest_id or self.bridge.db.get_value('twitter_latest_mention_id')
+        #self.logprint("Latest id was:", self.latest_id)
+        if self.latest_id:
+            mentions = self.twit.mentions(self.latest_id)
         else:
             mentions = self.twit.mentions()
         for tweet in mentions:
             self.logprint('Found mention on Twitter:', tweet.user.screen_name, tweet.text)
+            if tweet.id > self.latest_id:
+                self.latest_id = tweet.id
             self.handle_tweet(tweet)
-            if tweet.id > latest_id:
-                latest_id = tweet.id
-        self.bridge.db.set_value('twitter_latest_mention_id', latest_id)
-        #self.logprint("Updated latest_id to:", latest_id)
+        self.bridge.db.set_value('twitter_latest_mention_id', self.latest_id)
+        #self.logprint("Updated latest_id to:", self.latest_id)
 
     def handle_tweet(self, tweet):
         # Ignore own tweets.
@@ -98,10 +91,12 @@ class TwitterPlugin(Plugin):
 
         # Skip tweets from own account.
         if tweet.user.screen_name == my_name:
+            #print "screen_name = my_name", tweet.user.screen_name, my_name
             return
 
         # Skip tweets that doesn't start with own screen_name
         if not tweet.text.startswith(starttext):
+            #print "doesn't start with", starttext
             return
 
         text = self.strip_command(tweet.text, starttext)

@@ -5,7 +5,8 @@ from utils.MixIn import *
 import re
 import string
 import tweepy
-from datetime import datetime, date, time, timedelta
+import time
+from datetime import datetime, date, timedelta
 from twisted.internet import task
 from twisted.internet import reactor
 
@@ -70,17 +71,21 @@ class TwitterPlugin(Plugin):
         if not self.bridge.xmlstream:
             self.logprint("Twitter plugin can't handle mentions yet since there is no xmlstream.")
             return
-        self.latest_id = self.latest_id or self.bridge.db.get_value('twitter_latest_mention_id')
+        twitter_latest_mention_id = int(self.bridge.db.get_value('twitter_latest_mention_id'))
+        if twitter_latest_mention_id > self.latest_id:
+            self.latest_id = twitter_latest_mention_id
         #self.logprint("Latest id was:", self.latest_id)
         if self.latest_id:
             mentions = self.twit.mentions(self.latest_id)
         else:
             mentions = self.twit.mentions()
+        mentions.reverse()
         for tweet in mentions:
-            self.logprint('Found mention on Twitter:', tweet.user.screen_name, tweet.text)
+            self.logprint('Found mention on Twitter:', tweet.user.screen_name, tweet.text, tweet.id)
             if tweet.id > self.latest_id:
+                #self.logprint("tweet id greater than last id:", tweet.id, self.latest_id)
                 self.latest_id = tweet.id
-            self.handle_tweet(tweet)
+                self.handle_tweet(tweet)
         self.bridge.db.set_value('twitter_latest_mention_id', self.latest_id)
         #self.logprint("Updated latest_id to:", self.latest_id)
 
@@ -100,7 +105,10 @@ class TwitterPlugin(Plugin):
             return
 
         text = self.strip_command(tweet.text, starttext)
-        self.bridge.send_and_shout(text, '@%s' % tweet.user.screen_name)
+        nick = '@%s' % tweet.user.screen_name
+        self.bridge.send_and_shout(text, nick)
+        shout = Shout(0, 0, nick, text, time.time())
+        self.bridge.trigger_plugin_event('Message', shout)
 
     def shorten_text(self, text, length):
         """

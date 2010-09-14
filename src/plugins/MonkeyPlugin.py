@@ -54,7 +54,7 @@ class MonkeyPlugin(Plugin):
             command = [u'!spindel', u'!spider'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u"///\oo/\\\\\\"],
+            text = [u"///\oo/\\\\\\", u"///\·::·/\\\\\\"],
         ),
         dict(
             command = [u'!cat', u'!katt'],

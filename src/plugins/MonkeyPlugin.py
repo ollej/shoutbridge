@@ -28,7 +28,7 @@ class MonkeyPlugin(Plugin):
             text = [u'( . )( . )', u'( . Y .)', u"(./\.)", u"( o Y o )", u"( + )( + )", u"(*)(*)", u"(@)(@)", u"{ O }{ O }", u"( ^ )( ^ )", u"(oYo)", u"\o/\o/"],
         ),
         dict(
-            command = [u'!fallos', u'!snopp', '!kuk', u'!penis', u'!dick', u'!cock'],
+            command = [u'!fallos', u'!snopp', '!kuk', u'!penis', u'!dick', u'!cock', u'!snorre', u'!drul', u'!kodd'],
             handler = 'show_cock',
             onevents=['Message'],
         ),

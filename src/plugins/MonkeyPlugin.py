@@ -54,7 +54,7 @@ class MonkeyPlugin(Plugin):
             command = [u'!spindel', u'!spider'],
             handler = 'show_text',
             onevents=['Message'],
-            text = [u"///\oo/\\\\\\"],
+            text = [u"///\oo/\\\\\\", u"///\oııo/\\\\\\"],
         ),
         dict(
             command = [u'!cat', u'!katt'],
@@ -145,6 +145,12 @@ class MonkeyPlugin(Plugin):
             handler = 'show_text',
             onevents=['Message'],
             text = [u'☃'],
+        ),
+        dict(
+            command = [u'!pussy', u"!cunt", u"!fitta", u"!vagina", u"!vulva"],
+            handler = 'show_text',
+            onevents=['Message'],
+            text = [u'{↑}', u"(Y)", u"( v )"],
         ),
     ]
 

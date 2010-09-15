@@ -71,7 +71,7 @@ class TwitterPlugin(Plugin):
         if not self.bridge.xmlstream:
             self.logprint("Twitter plugin can't handle mentions yet since there is no xmlstream.")
             return
-        twitter_latest_mention_id = int(self.bridge.db.get_value('twitter_latest_mention_id'))
+        twitter_latest_mention_id = int(self.bridge.db.get_value('twitter_latest_mention_id') or 0)
         if twitter_latest_mention_id > self.latest_id:
             self.latest_id = twitter_latest_mention_id
         #self.logprint("Latest id was:", self.latest_id)

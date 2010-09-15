@@ -33,7 +33,7 @@ class SlapPlugin(Plugin):
         """
         words = shout.text.split()
         slapee = words[1]
-        tmpl = string.Template(random.choice(self.slapitems))
+        tmpl = string.Template(random.choice(self.slapitems).strip())
         if slapee and slapee.lower() != self.nick.lower():
             if slapee == 'Endyamon':
                 slap = u"No, he likes it too much."

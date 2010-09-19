@@ -18,68 +18,69 @@ class QuotesPlugin(Plugin):
         dict(
             command = ['!citera', '!citat add', '!quote add'],
             handler = 'add_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/quotes_new.dat',
         ),
         dict(
             command = ['!kimjongil', '!kim'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/kimjongil_quotes.dat',
         ),
         dict(
             command = ['!jeff', '!coupling'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/jeff_quotes.dat',
+            nick = 'Jeff'
         ),
         dict(
             command = ['!citat', '!quote'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             #quotefile = 'extras/quotes.dat',
             quotefile = 'http://www.rollspel.nu/forum/ubbthreads.php?ubb=listquotes',
         ),
         dict(
             command = ['!kjell'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/kjell_quotes.dat',
         ),
         dict(
             command = ['!murphy', '!law'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/murphy.dat',
         ),
         dict(
             command = ['!evaemma'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/evaemma.dat',
         ),
         dict(
             command = ['!storuggla'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/storuggla.dat',
         ),
         dict(
             command = ['!hoahoa'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/hoahoa.dat',
         ),
         dict(
             command = ['!icebreaker', '!conversation', '!isbrytare', '!konversation'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/conversation_starters.dat',
         ),
         dict(
             command = ['!8ball', '!magic', '!oracle', '!orakel'],
             handler = 'random_quote',
-            onevents=['Message'],
+            onevents = ['Message'],
             quotefile = 'extras/8ball.dat',
         ),
     ]
@@ -98,5 +99,9 @@ class QuotesPlugin(Plugin):
             self.bridge.send_and_shout("Quote added for review.", self.nick)
 
     def random_quote(self, shout, command, comobj):
-        self.bridge.send_and_shout(random.choice(comobj['quotes']).strip(), self.nick)
+        try:
+            nick = comobj['nick']
+        except KeyError:
+            nick = self.nick
+        self.bridge.send_and_shout(random.choice(comobj['quotes']).strip(), nick)
 

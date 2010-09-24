@@ -83,14 +83,28 @@ class QuotesPlugin(Plugin):
             onevents = ['Message'],
             quotefile = 'extras/8ball.dat',
         ),
+        dict(
+            command = ['!gang', '!gäng'],
+            handler = 'random_quote',
+            onevents = ['Message'],
+            separator = None,
+            quotefile = 'extras/gangnames.dat',
+        ),
     ]
 
     def setup(self):
         """
         Setup method which is called once before any triggers methods are called.
         """
-        for c in self.commands:
-            c['quotes'] = read_file(c['quotefile'], self.separator)
+        #for c in self.commands:
+        pass
+
+    def load_quotes(self, c):
+        try:
+            sep = c['separator']
+        except KeyError:
+            sep = self.separator
+        c['quotes'] = read_file(c['quotefile'], sep)
 
     def add_quote(self, shout, command, comobj):
         newquote = shout.text.replace(command, '', 1).strip()
@@ -98,10 +112,18 @@ class QuotesPlugin(Plugin):
             add_line_to_file(comobj['quotefile'], newquote, separator=self.separator)
             self.bridge.send_and_shout("Quote added for review.", self.nick)
 
-    def random_quote(self, shout, command, comobj):
+    def get_nick(self, comobj):
         try:
             nick = comobj['nick']
         except KeyError:
             nick = self.nick
-        self.bridge.send_and_shout(random.choice(comobj['quotes']).strip(), nick)
+        return nick
+
+    def get_quote(self, comobj):
+        if not 'quotes' in comobj:
+            self.load_quotes(comobj)
+        return random.choice(comobj['quotes']).strip()
+
+    def random_quote(self, shout, command, comobj):
+        self.bridge.send_and_shout(self.get_quote(comobj), self.get_nick(comobj))
 

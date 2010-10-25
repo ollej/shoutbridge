@@ -1,6 +1,29 @@
 # -*- coding: utf-8 -*-
-
 #! /usr/bin/python
+
+"""
+The MIT License
+
+Copyright (c) 2010 Olle Johansson
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
 
 import re
 import random
@@ -10,6 +33,10 @@ class Die(object):
     Defines the information for a die roll.
     TODO: 4d6h3 for rolling 4 d6 dice and choosing the three highest.
     """
+    #: List of allowed dice by default
+    die_list = (2, 4, 6, 8, 10, 12, 20, 100)
+    #: Maximum number of rolls allowed.
+    max_rolls = 1000
     die = 0
     rolls = 0
     op = ''
@@ -18,8 +45,6 @@ class Die(object):
     seltype = None
     nrofresults = None
     result = 0
-    die_list = (2, 4, 6, 8, 10, 12, 20, 100)
-    max_rolls = 1000
     list = []
 
     dice_pattern = re.compile(r"""
@@ -41,6 +66,18 @@ class Die(object):
 
     def __init__(self, die, rolls=1, op='', val=0, rolltype='', 
                  seltype=None, nrofresults=None, die_list=None, max_rolls=None):
+        """
+        Initialize the Die to roll.
+        param string die String containing the die roll to make, either just the number of sides to roll, or more complex: 3D6h2+4
+        param integer rolls (Optional) Number of rolls to make, unless overridden by die
+        param string op (Optional) Add or subtract val, unless overridden by die
+        param integer val (Optional) Value to add or subtract to the roll, unless overridden by die
+        param string rolltype (Optional) "Ob" to make an unlimited die roll, "Open" to make an open-ended die roll. Can be overridden by die.
+        param string seltype (Optional) "h" to select highest results, "l" to select lowest results. Can be overridden by die.
+        param integer nrofresults (Optional) If selecting highest or lowest results, select this many results. Can be overridden by die.
+        param list die_list (Optional) List of integers. Only allow dice with as many sides as the numbers listed in this list. Empty list to allow all. None to use default: (2, 4, 6, 8, 10, 12, 20, 100)
+        param integer max_rolls (Optional) If rolls is higher than this number, only one roll will be made. Defaults to 1000.
+        """
         # If die is a string, parse it to get all values.
         if type(die).__name__ == 'str':
             (die, rolls, op, val, rolltype, seltype, nrofresults) = self.parseDice(die)
@@ -73,6 +110,11 @@ class Die(object):
         self.list = []
 
     def parseDice(self, die):
+        """
+        Parses the string die for die rolls and returns a regexp match object if found, otherwise it returns die converted to an integer.
+        param String die String containing die roll to make, or a number defining the number of sides of the die to roll.
+        returns list|integer If a die roll was found in the string, a list of parsed values is returned, in the following order: die, rolls, op, val, rolltype, seltype, nrofresults
+        """
         m = re.search(self.dice_pattern, die)
         if m:
             return (m.group('die'), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'))
@@ -80,7 +122,10 @@ class Die(object):
             return int(die)
 
     def roll(self, reset=None):
-        """Rolls the die according to the set values, sets self.roll and returns it."""
+        """
+        Rolls the die according to the set values, sets self.roll and returns it.
+        param boolean reset If set, the previous values rolled will be reset before the new roll is made.
+        """
         if reset:
             self.resetResult()
         print "die_list", self.die_list, "die", self.die
@@ -106,6 +151,10 @@ class Die(object):
         return self.result
 
     def randomize(self):
+        """
+        Makes a die roll based on the values set in the object.
+        Calls self.rollObDie, self.rollOpenDie or self.rollDie depending on configured self.rolltype
+        """
         if self.rolltype == 'Ob':
             return self.rollObDie(self.die)
         elif self.rolltype == 'Open':
@@ -120,6 +169,11 @@ class Die(object):
             self.result += v
 
     def selectResults(self, seltype, nrofresults):
+        """
+        Based on seltype, selects a number of highest or lowest results from the rolled dice.
+        param string seltype 'h' to select the highest values, 'l' to select the lowest values.
+        param integer nrofresults Number of die rolls to select from the list if seltype is set.
+        """
         nrofresults = int(nrofresults)
         if seltype == 'h':
             results = self.getHighest(self.list, nrofresults)
@@ -130,6 +184,8 @@ class Die(object):
     def getHighest(self, lst, count):
         """
         Return the count highest items from lst.
+        param list lst List of rolled dice results.
+        param integer count The number of highest values to return from lst
         """
         lst.sort()
         highest = lst[-count:]
@@ -139,6 +195,8 @@ class Die(object):
     def getLowest(self, lst, count):
         """
         Return the count lowest items from lst.
+        param list lst List of rolled dice results.
+        param integer count The number of lowest values to return from lst
         """
         lst.sort()
         lst.reverse()
@@ -149,6 +207,7 @@ class Die(object):
     def rollOpenDie(self, sides):
         """
         Roll an open die. If the roll is the highest value, roll again and add the result.
+        param integer sides Number of sides on the die to roll.
         """
         result = self.rollDie(sides)
         if result == sides:
@@ -159,6 +218,7 @@ class Die(object):
     def rollObDie(self, sides):
         """
         An unlimited die roll. If the roll is the maximum value, replace it with two new dice.
+        param integer sides Number of sides on the die to roll.
         """
         result = self.rollDie(sides)
         if result == sides:
@@ -168,31 +228,79 @@ class Die(object):
             return result
 
     def rollDie(self, sides):
+        """
+        Make a die roll. Result is appended to self.list and returned.
+        param integer sides Number of sides on die to roll.
+        returns integer The number rolled
+        """
         result = random.randint(1, sides) 
         self.list.append(result)
         return result
 
     def resetResult(self):
+        """
+        Resets the list of rolled dice and the total result.
+        """
         self.result = 0
         self.list = []
 
     def getResultString(self):
+        """
+        Returns a formatted string with the result.
+        """
         return unicode("Resultatet av tärningsslaget " + str(self.dieroll) + " blev: " + str(self.result), 'utf-8')
         #return "You rolled " + str(self.dieroll) + " and got: " + str(self.result)
-        
+
 class Dicey(object):
-    """Dicey can replace die roll text in strings with results of the rolls."""
+    """
+    Dicey can replace die roll text in strings with results of the rolls.
+    
+    roll_string is a formatting string used as template when returning the die rolls as a string.
+    It is used with the standard python interpolation, and the following mapping keys are available:
+     * die - Number of sides of the rolled die
+     * dieroll - The string used for the die roll, e.g. 3D6h2
+     * result - The result of the roll
+     * list - The list of all rolled dice
+     * op - Operator parsed from the dieroll, e.g. + or -
+     * val - Value for operator parsed from the dieroll, e.g. 3
+     * rolls - Number of dice to roll
+     * rolltype - Type of dieroll, Ob for unlimited and Open for open-ended roll. Empty for normal roll.
+     * seltype - Roll selector, h for selecting highest result, l for selecting lowest result
+     * nrofresults - Number of results to select (used for highest or lowest)
+     * resultstring - The result of the roll as a pre-formatted string from Die.getResultString()
+    """
     die_list = None
     roll_string = "%(dieroll)s (%(result)s %(list)s)"
 
+    def __init__(self, die_list=None, roll_string=None):
+        """
+        Initialize Dicey with default attributes.
+        param list die_list Only allow dice with the number of sides in list, empty list to allow all. Defaults to same as in Die(): (2, 4, 6, 8, 10, 12, 20, 100)
+        param string roll_string String template to use for replaceDieRoll, default: %(dieroll)s (%(result)s %(list)s)
+        """
+        if die_list is not None:
+            self.die_list = die_list
+        if roll_string is not None:
+            self.roll_string = roll_string
+
     def makeDieRoll(self, m):
+        """
+        Reads group values from the regular expression match object and makes a die roll based on
+        the values.
+        param m Regexp Match Object with values for a die roll.
+        returns Die Die instance already rolled.
+        """
         die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), 
                    m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=self.die_list)
         die.roll()
         return die
 
     def replaceDieRollAsHtml(self, m):
-        """Replaces die rolls with html and the result of the roll."""
+        """
+        Replaces die rolls with html and the result of the roll.
+        param m Regexp Match Object with values for a die roll.
+        Returns string String with html representing the Die roll in m
+        """
         die = self.makeDieRoll(m)
         html = "<div class='dieroll'>"
         html += die.dieroll
@@ -206,7 +314,11 @@ class Dicey(object):
             return die.dieroll
 
     def replaceDieRoll(self, m):
-        """Replaces die rolls with the result of the roll."""
+        """
+        Replaces die rolls with the result of the roll.
+        param m Regexp Match Object with values for a die roll.
+        returns string Text string with information about the die roll based on m, using self.roll_string as a template.
+        """
         die = self.makeDieRoll(m)
         if die.list:
             return self.roll_string % {
@@ -226,7 +338,14 @@ class Dicey(object):
             return die.dieroll
 
     def replaceDieStrings(self, diestring, roll_call=None, max_responses=0, die_list=None, roll_string=None):
-        """Finds all die roll texts in string and replaces them with result information."""
+        """
+        Finds all die roll texts in string and replaces them with result information.
+        param string diestring String to replace die rolls in.
+        param function roll_call (Optional) Function reference to use on replacements in the regexp, defaults to Dicey.replaceDieRoll which returns a string based on Dicey.roll_string. Dicey.replaceDieRollAsHtml can be used here.
+        param integer max_repsonses (Optional) Maximum number of die rolls to replace.
+        param list die_list (Optional) List of allowed dice (list of integers), use empty string () to allow all or None to allow only the default list: (2, 4, 6, 8, 10, 12, 20, 100)
+        param string roll_string (Optional) Set self.roll_string to this string and use it for the string replacemnt in Dice.replaceDieRoll()
+        """
         if not roll_call:
             roll_call = self.replaceDieRoll
         if die_list is not None:
@@ -240,7 +359,7 @@ if __name__ == '__main__':
     string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12 d55 t78"
     #string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12"
     print "Original string: " + string
-    d = Dicey()
+    d = Dicey(die_list=None, roll_string=None)
     #newstring = d.replaceDieStrings(string, die_list=())
     newstring = d.replaceDieStrings(string)
     print "Result string: " + newstring

@@ -25,6 +25,11 @@ These are the main features of Shoutbridge:
  * Includes several plugins: Quotes, Definitions, Dice roller, Name generator, Eliza, Slap etc.
 
 
+License
+-------
+Shoutbridge is released under The MIT License. See LICENSE file for more details.
+
+
 Requirements
 ------------
  * Python 2.6

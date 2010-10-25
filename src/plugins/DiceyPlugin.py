@@ -42,6 +42,8 @@ class DiceyPlugin(Plugin):
     description = "Dice roller plugin."
     max_printed_rolls = 10
     max_responses = 5
+    die_list = (2, 4, 6, 8, 10, 12, 20, 100)
+    roll_string = "%(dieroll)s (%(result)s %(list)s) = %(sorf)s Successes"
     nick = "Dicey"
     commands = [
         dict(
@@ -88,7 +90,7 @@ class DiceyPlugin(Plugin):
         """
         Setup method which is called once before any triggers methods are called.
         """
-        self.d = Dicey()
+        self.d = Dicey(die_list=self.die_list, roll_string=self.roll_string)
 
     def dice_roller(self, shout, command, comobj):
         """
@@ -107,7 +109,8 @@ class DiceyPlugin(Plugin):
             diestr = shout.name + ': ' + diestr
             self.bridge.send_and_shout(diestr, self.nick)
         else:
-            diestr = self.d.replaceDieStrings(shout.text, self.replace_roll, self.max_responses)
+            diestr = self.d.replaceDieStrings(shout.text, roll_call=self.send_roll, die_list=self.die_list, max_responses=self.max_responses, roll_string=self.roll_string)
+            #diestr = self.d.replaceDieStrings(shout.text, self.replace_roll, self.max_responses)
 
     def roll_character(self, rpg):
         """
@@ -121,23 +124,14 @@ class DiceyPlugin(Plugin):
             diestr += name + ": " + str(die.result) + ' '
         return diestr
 
-    def replace_roll(self, m):
-        """
-        Replace die rolls in text, and sends message/shout with result for each roll.
-        """
-        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'))
-        die.roll()
-        newstr = die.getResultString()
-        if not m.group('rolls'):
-            rolls = 1
-        else:
-            rolls = int(m.group('rolls'))
-        if rolls > 1 and rolls <= self.max_printed_rolls:
-            newstr += " " + repr(die.list)
-            if die.op and die.val > 0:
-                newstr += " " + die.op + " " + str(die.val)
+    def send_roll(self, m):
+        newstr = self.d.replaceDieRoll(m)
+        # Ugly hack: If not using success, strip success info from string.
+        if not m.group('success'):
+            s = " = 0 Successes"
+            if newstr.endswith(s):
+                newstr = newstr[:-len(s)]
         newstr = self.prepend_sender(newstr)
         self.bridge.send_and_shout(newstr, self.nick)
         return newstr
-
 

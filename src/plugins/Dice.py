@@ -43,7 +43,7 @@ class Die(object):
     val = 0
     rolltype = ''
     success = ''
-    threshold = 0
+    threshold = None
     seltype = None
     nrofresults = None
     result = 0
@@ -108,7 +108,7 @@ class Die(object):
         if self.rolls > self.max_rolls:
             self.rolls = 1
         self.op = op if op in ('+', '-') else ''
-        self.val = int(val) if val else 0
+        self.val = int(val) if val else None
         self.rolltype = rolltype if rolltype and rolltype in ('Ob', 'Open') else ''
         self.success = success if success in ('<', '>') else ''
         if self.success:

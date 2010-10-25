@@ -218,7 +218,7 @@ class XmppBridge(BridgeClass):
                     plugin.sender_nick = nick
                     func(obj, cmd, comobj)
             except Exception as e:
-                self.logprint("Plugin raised exception:", plugin_name, "\n", e)
+                self.logprint("Plugin raised exception:", plugin_name, "\n", type(e), e)
 
     @privateMethod
     @returnType(str, dict, callableType)

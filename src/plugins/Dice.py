@@ -42,10 +42,15 @@ class Die(object):
     op = ''
     val = 0
     rolltype = ''
+    success = ''
+    threshold = 0
     seltype = None
     nrofresults = None
     result = 0
     list = []
+    successes = 0
+    failures = 0
+    sorf = 0
 
     dice_pattern = re.compile(r"""
         (?P<dieroll>
@@ -57,6 +62,10 @@ class Die(object):
             (?P<seltype>[hHlL])         # Roll selector, h = highest
             (?P<nrofresults>\d+)        # Nr of results
         )?
+        (
+            (?P<success>[<>])           # > counts successes, < failures
+            (?P<threshold>\d+)          # Threshold for success/failure
+        )?
         (                               # Start of operation
             (?P<op>\+|\-)               # Add or subtract?
             (?P<val>\d+)                # Value to add/subtract 
@@ -65,7 +74,8 @@ class Die(object):
         """, re.VERBOSE | re.IGNORECASE)
 
     def __init__(self, die, rolls=1, op='', val=0, rolltype='', 
-                 seltype=None, nrofresults=None, die_list=None, max_rolls=None):
+                 seltype=None, nrofresults=None, die_list=None, max_rolls=None,
+                 success='', threshold=0):
         """
         Initialize the Die to roll.
         param string die String containing the die roll to make, either just the number of sides to roll, or more complex: 3D6h2+4
@@ -77,10 +87,12 @@ class Die(object):
         param integer nrofresults (Optional) If selecting highest or lowest results, select this many results. Can be overridden by die.
         param list die_list (Optional) List of integers. Only allow dice with as many sides as the numbers listed in this list. Empty list to allow all. None to use default: (2, 4, 6, 8, 10, 12, 20, 100)
         param integer max_rolls (Optional) If rolls is higher than this number, only one roll will be made. Defaults to 1000.
+        param string success (Optional) '>' to count successs (rolls above threshold), '<' for failures.
+        param integer threshold (Optional) Threshold for success or failure count.
         """
         # If die is a string, parse it to get all values.
         if type(die).__name__ == 'str':
-            (die, rolls, op, val, rolltype, seltype, nrofresults) = self.parseDice(die)
+            (die, rolls, op, val, rolltype, seltype, nrofresults, success, threshold) = self.parseDice(die)
         self.die = int(die) if die else 0
         self.rolls = int(rolls) if rolls else 1
         if seltype:
@@ -98,14 +110,23 @@ class Die(object):
         self.op = op if op in ('+', '-') else ''
         self.val = int(val) if val else 0
         self.rolltype = rolltype if rolltype and rolltype in ('Ob', 'Open') else ''
+        self.success = success if success in ('<', '>') else ''
+        if self.success:
+            self.threshold = int(threshold)
+
+        # Build up self.dieroll based on parsed values
         if self.rolls > 1:
             self.dieroll = self.rolltype + str(self.rolls) + 'd' + str(self.die)
         else:
             self.dieroll = self.rolltype + 'd' + str(self.die)
         if seltype and nrofresults > 0:
             self.dieroll += seltype + str(nrofresults)
+        if self.success:
+            self.dieroll += self.success + str(self.threshold)
         if op and val > 0:
             self.dieroll += self.op + str(self.val)
+
+        # Reset roll values
         self.result = 0
         self.list = []
 
@@ -117,7 +138,7 @@ class Die(object):
         """
         m = re.search(self.dice_pattern, die)
         if m:
-            return (m.group('die'), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'))
+            return (m.group('die'), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), m.group('success'), m.group('threshold'))
         else:
             return int(die)
 
@@ -148,7 +169,28 @@ class Die(object):
             self.list = self.selectResults(self.seltype, self.nrofresults)
             self.calculateResult()
 
+        # Count successes or failures
+        if self.success == '>':
+            self.successes = self.countSuccesses(self.list, self.threshold)
+        elif self.success == '<':
+            self.failures = self.countFailures(self.list, self.threshold)
+        self.sorf = self.successes + self.failures
+
         return self.result
+
+    def countSuccesses(self, list, threshold):
+        count = 0
+        for i in list:
+            if i >= threshold:
+                count = count + 1
+        return count
+
+    def countFailures(self, list, threshold):
+        count = 0
+        for i in list:
+            if i <= threshold:
+                count = count + 1
+        return count
 
     def randomize(self):
         """
@@ -254,7 +296,7 @@ class Die(object):
 class Dicey(object):
     """
     Dicey can replace die roll text in strings with results of the rolls.
-    
+
     roll_string is a formatting string used as template when returning the die rolls as a string.
     It is used with the standard python interpolation, and the following mapping keys are available:
      * die - Number of sides of the rolled die
@@ -267,6 +309,8 @@ class Dicey(object):
      * rolltype - Type of dieroll, Ob for unlimited and Open for open-ended roll. Empty for normal roll.
      * seltype - Roll selector, h for selecting highest result, l for selecting lowest result
      * nrofresults - Number of results to select (used for highest or lowest)
+     * success - Count successes ('>') or failures ('<')
+     * threshold - Threshold value for successes or failures.
      * resultstring - The result of the roll as a pre-formatted string from Die.getResultString()
     """
     die_list = None
@@ -290,8 +334,9 @@ class Dicey(object):
         param m Regexp Match Object with values for a die roll.
         returns Die Die instance already rolled.
         """
-        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), 
-                   m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=self.die_list)
+        die = Die(die=int(m.group('die')), rolls=m.group('rolls'), op=m.group('op'), val=m.group('val'), 
+                  rolltype=m.group('rolltype'), seltype=m.group('seltype'), nrofresults=m.group('nrofresults'),
+                  success=m.group('success'), threshold=m.group('threshold'), die_list=self.die_list)
         die.roll()
         return die
 
@@ -332,6 +377,11 @@ class Dicey(object):
                 'rolls': die.rolls,
                 'rolltype': die.rolltype,
                 'nrofresults': die.nrofresults,
+                'success': die.success,
+                'threshold': die.threshold,
+                'successes': die.successes,
+                'failures': die.failures,
+                'sorf': die.sorf,
                 'resultstring': die.getResultString(),
             }
         else:
@@ -356,11 +406,11 @@ class Dicey(object):
         return newstring
 
 if __name__ == '__main__':
-    string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12 d55 t78"
+    string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12 d55 t78 5d6>4 5d10h2>9 3t4<1"
     #string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12"
     print "Original string: " + string
     d = Dicey(die_list=None, roll_string=None)
     #newstring = d.replaceDieStrings(string, die_list=())
-    newstring = d.replaceDieStrings(string)
+    newstring = d.replaceDieStrings(string, roll_string="%(dieroll)s (%(result)s %(list)s %(sorf)s Successes)")
     print "Result string: " + newstring
 

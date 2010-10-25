@@ -18,6 +18,8 @@ class Die(object):
     seltype = None
     nrofresults = None
     result = 0
+    die_list = (2, 4, 6, 8, 10, 12, 20, 100)
+    max_rolls = 1000
     list = []
 
     dice_pattern = re.compile(r"""
@@ -25,7 +27,7 @@ class Die(object):
         (?P<rolltype>Ob|Open)?          # Type of dieroll
         (?P<rolls>\d+)?                 # Number of dice to roll
         [d|D|t|T]                       # Start of diename
-        (?P<die>100|20|4|6|8|10|12|2)   # How many sides on the die
+        (?P<die>\d+)                    # How many sides on the die
         (
             (?P<seltype>[hHlL])         # Roll selector, h = highest
             (?P<nrofresults>\d+)        # Nr of results
@@ -37,7 +39,8 @@ class Die(object):
         )
         """, re.VERBOSE | re.IGNORECASE)
 
-    def __init__(self, die, rolls=1, op='', val=0, rolltype='', seltype=None, nrofresults=None):
+    def __init__(self, die, rolls=1, op='', val=0, rolltype='', 
+                 seltype=None, nrofresults=None, die_list=None, max_rolls=None):
         # If die is a string, parse it to get all values.
         if type(die).__name__ == 'str':
             (die, rolls, op, val, rolltype, seltype, nrofresults) = self.parseDice(die)
@@ -47,9 +50,13 @@ class Die(object):
             self.seltype = seltype.lower()
         if nrofresults:
             self.nrofresults = int(nrofresults)
+        if die_list is not None:
+            self.die_list = die_list
+        if max_rolls:
+            self.max_rolls = max_rolls
 
         # Don't allow more than 1000 rolls.
-        if self.rolls > 1000:
+        if self.rolls > self.max_rolls:
             self.rolls = 1
         self.op = op if op in ('+', '-') else ''
         self.val = int(val) if val else 0
@@ -76,7 +83,8 @@ class Die(object):
         """Rolls the die according to the set values, sets self.roll and returns it."""
         if reset:
             self.resetResult()
-        if not self.die in (2, 4, 6, 8, 10, 12, 20, 100): return False
+        print "die_list", self.die_list, "die", self.die
+        if self.die_list and self.die not in self.die_list: return False
         if self.op and self.op not in ('+', '-'): return False
         if self.rolltype and self.rolltype not in ('Ob', 'Open'): return False
 
@@ -177,17 +185,17 @@ class Dicey(object):
 
     def replaceDieRoll(self, m):
         """Replaces die rolls with html and the result of the roll."""
-        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'))
+        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=())
         die.roll()
         html = "<div class='dieroll'>"
         html += die.dieroll
-        html += "<img src='http://www.rollspel.nu/forum/images/graemlins/wrnu/t" + str(die.die) + ".gif' alt=" + str(die.dieroll) + " title=" + str(die.dieroll) + ">"
+        html += "<img src='http://www.rollspel.nu/forum/images/graemlins/wrnu/t" + str(die.die) + ".gif' alt='" + str(die.dieroll) + "' title='" + str(die.dieroll) + "' />"
         html += "<br />" + die.getResultString()
         html += "<br />: All die rolls: " + str(die.list)
         html += "</div>"
         return html
 
-    def replaceDieStrings(self, diestring, roll_call=None, max_responses=None):
+    def replaceDieStrings(self, diestring, roll_call=None, max_responses=0):
         """Finds all die roll texts in string and replaces them with result information."""
         if not roll_call:
             roll_call = self.replaceDieRoll
@@ -195,7 +203,8 @@ class Dicey(object):
         return newstring
 
 if __name__ == '__main__':
-    string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12"
+    string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12 d55 t78"
+    #string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12"
     print "Original string: " + string
     d = Dicey()
     newstring = d.replaceDieStrings(string)

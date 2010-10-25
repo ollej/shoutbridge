@@ -182,31 +182,57 @@ class Die(object):
         
 class Dicey(object):
     """Dicey can replace die roll text in strings with results of the rolls."""
+    die_list = None
+    roll_string = "%(dieroll)s (%(result)s %(list)s)"
+
+    def makeDieRoll(self, m):
+        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), 
+                   m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=self.die_list)
+        die.roll()
+        return die
 
     def replaceDieRollAsHtml(self, m):
         """Replaces die rolls with html and the result of the roll."""
-        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), 
-                   m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=())
-        die.roll()
+        die = self.makeDieRoll(m)
         html = "<div class='dieroll'>"
         html += die.dieroll
         html += "<img src='http://www.rollspel.nu/forum/images/graemlins/wrnu/t" + str(die.die) + ".gif' alt='" + str(die.dieroll) + "' title='" + str(die.dieroll) + "' />"
         html += "<br />" + die.getResultString()
         html += "<br />: All die rolls: " + str(die.list)
         html += "</div>"
-        return html
+        if die.list:
+            return html
+        else:
+            return die.dieroll
 
-    def replaceDieRollAsText(self, m):
+    def replaceDieRoll(self, m):
         """Replaces die rolls with the result of the roll."""
-        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), 
-                  m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=())
-        die.roll()
-        return "%s (%s %s)" % (die.dieroll, die.result, die.list.__str__())
+        die = self.makeDieRoll(m)
+        if die.list:
+            return self.roll_string % {
+                'die': die.die,
+                'dieroll': die.dieroll,
+                'result': die.result,
+                'list': die.list,
+                'op': die.op,
+                'val': die.val,
+                'seltype': die.seltype,
+                'rolls': die.rolls,
+                'rolltype': die.rolltype,
+                'nrofresults': die.nrofresults,
+                'resultstring': die.getResultString(),
+            }
+        else:
+            return die.dieroll
 
-    def replaceDieStrings(self, diestring, roll_call=None, max_responses=0):
+    def replaceDieStrings(self, diestring, roll_call=None, max_responses=0, die_list=None, roll_string=None):
         """Finds all die roll texts in string and replaces them with result information."""
         if not roll_call:
-            roll_call = self.replaceDieRollAsText
+            roll_call = self.replaceDieRoll
+        if die_list is not None:
+            self.die_list = die_list
+        if roll_string is not None:
+            self.roll_string = roll_string
         newstring = re.sub(Die.dice_pattern, roll_call, diestring, max_responses)
         return newstring
 
@@ -215,6 +241,7 @@ if __name__ == '__main__':
     #string = "asdf 4d6h3 qwer d20+100 asdfasf d12-100 asdf OpenD20 D8 d3 Ob3T6 d4 t10 d100 d12"
     print "Original string: " + string
     d = Dicey()
+    #newstring = d.replaceDieStrings(string, die_list=())
     newstring = d.replaceDieStrings(string)
     print "Result string: " + newstring
 

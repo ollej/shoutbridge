@@ -183,9 +183,10 @@ class Die(object):
 class Dicey(object):
     """Dicey can replace die roll text in strings with results of the rolls."""
 
-    def replaceDieRoll(self, m):
+    def replaceDieRollAsHtml(self, m):
         """Replaces die rolls with html and the result of the roll."""
-        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=())
+        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), 
+                   m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=())
         die.roll()
         html = "<div class='dieroll'>"
         html += die.dieroll
@@ -195,10 +196,17 @@ class Dicey(object):
         html += "</div>"
         return html
 
+    def replaceDieRollAsText(self, m):
+        """Replaces die rolls with the result of the roll."""
+        die = Die(int(m.group('die')), m.group('rolls'), m.group('op'), m.group('val'), 
+                  m.group('rolltype'), m.group('seltype'), m.group('nrofresults'), die_list=())
+        die.roll()
+        return "%s (%s %s)" % (die.dieroll, die.result, die.list.__str__())
+
     def replaceDieStrings(self, diestring, roll_call=None, max_responses=0):
         """Finds all die roll texts in string and replaces them with result information."""
         if not roll_call:
-            roll_call = self.replaceDieRoll
+            roll_call = self.replaceDieRollAsText
         newstring = re.sub(Die.dice_pattern, roll_call, diestring, max_responses)
         return newstring
 

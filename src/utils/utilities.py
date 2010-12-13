@@ -93,7 +93,13 @@ def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None, auth=N
             return f
         s = f.read()
         f.close()
-        s = unicode(s, 'utf-8')
+        encoding = f.headers['content-type'].split('charset=')[-1]
+        if encoding != f.headers['content-type']:
+            print "converting to unicode from:", encoding
+            s = unicode(s, encoding)
+        else:
+            s = unicode(s)
+        #s = unicode(s, 'utf-8')
     except socket.timeout as sock:
         print "Socket timed out.", sock
         print "-----------------------------------------------------------"

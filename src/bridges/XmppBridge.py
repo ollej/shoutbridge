@@ -236,6 +236,9 @@ class XmppBridge(BridgeClass):
             except AttributeError:
                 self.logprint("Attribute Error encountered in plugin:", plugin_name)
                 continue
+            except UnicodeDecodeError:
+                self.logprint("UnicodeDecodeError on text:", text)
+                continue
             try:
                 if func:
                     self.logprint("Calling plugin:", plugin_name, event, cmd)
@@ -244,8 +247,8 @@ class XmppBridge(BridgeClass):
             except Exception as e:
                 self.logprint("Plugin raised exception:", plugin_name, "\n", type(e), e)
 
-    @privateMethod
-    @returnType(str, dict, callableType)
+    #@privateMethod
+    #@returnType(str, dict, callableType)
     def get_plugin_handler(self, plugin, event, text):
         """
         Based on a given event type and a text message, return the first

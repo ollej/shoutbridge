@@ -52,7 +52,7 @@ class FortunePlugin(Plugin):
         Parse message body and send message with dice roll.
         """
         #newstr = commands.getoutput('fortune -a -s -n ' + str(self.max_length))
-        newstr = commands.getoutput('fortune -a -s')
+        newstr = commands.getoutput('/usr/games/fortune -a -s')
         if shout.name:
             newstr = shout.name + ': ' + newstr
         self.bridge.send_and_shout(newstr, self.nick)

@@ -224,8 +224,7 @@ by random and sent.
 
 At the time of writing, this plugin has the following commands available:
 
-    !monkey, !tits, !penis, !koala, !fish, !sheep, !spider, !cat, !rose, !mouse,
-    !sword, !snail, !coffee
+    !monkey, !koala, !fish, !sheep, !spider, !cat, !rose, !mouse, !sword, !snail, !coffee
 
 ### DiceyPlugin ###
 The DiceyPlugin can roll dice and return the results.
@@ -529,6 +528,24 @@ a list of names to ignore and not remove at all. By default, the name
 
 Messages that are too long are shortened so that they are no longer than
 140 characters, including the name. For obvious reasons.
+
+### FakePlugin ###
+The fake plugin has a couple fake commands in lieu of real IRC features.
+
+#### !kick ####
+HALiBot pretends to kick the user, optionally with a reason given.
+
+    !kick user reason
+
+#### !ban ####
+HALiBot pretends to ban the user, optionally with a reason given.
+
+    !ban user reason
+
+#### !kickban ####
+HALiBot pretends to kick and ban the user, optionally with a reason given.
+
+    !kickban user reason
 
 Write your own plugin
 ---------------------

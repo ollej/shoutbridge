@@ -95,7 +95,7 @@ def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None, auth=N
         f.close()
         encoding = f.headers['content-type'].split('charset=')[-1]
         if encoding != f.headers['content-type']:
-            print "converting to unicode from:", encoding
+            #print "converting to unicode from:", encoding
             s = unicode(s, encoding)
         else:
             s = unicode(s)

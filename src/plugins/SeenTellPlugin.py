@@ -161,7 +161,7 @@ class SeenTellPlugin(Plugin):
         user = self.update_user(shout.name)
         tells = self.get_tells(user.name)
         for tell in tells:
-            response = "The user %s wanted me to tell you: %s" % (tell.teller, tell.message)
+            response = u"The user %s wanted me to tell you: %s" % (tell.teller, tell.message)
             self.send_message(response)
             self.delete_tell(tell)
         self.session.commit()
@@ -197,13 +197,15 @@ class SeenTellPlugin(Plugin):
             response = comobj['defaultmessage']
         else:
             if name == shout.name:
-                response = "Only crazy people talk to themselves."
+                response = u"Only crazy people talk to themselves."
+            elif name.lower() == self.nick.lower():
+                response = u"I'm sorry, %s. I'm afraid I can't do that." % shout.name
             elif not message:
                 response = comobj['defaultmessage']
             else:
                 tell = Tell(name, shout.name, message, time.time())
                 self.session.add(tell)
-                response = "Ok, I will tell %s that next time I see that user." % name
+                response = u"Ok, I will tell %s that next time I see that user." % name
         self.send_message(response)
         self.session.commit()
 

@@ -58,8 +58,10 @@ class SlapPlugin(Plugin):
         words = shout.text.split()
         slapee = words[1]
         tmpl = string.Template(random.choice(self.slapitems).strip())
-        if slapee and slapee.lower() != self.nick.lower():
-            if slapee == 'Endyamon':
+        if slapee:
+            if slapee.lower() == self.nick.lower():
+                slap = u"I'm sorry, %s. I'm afraid I can't do that." % shout.name
+            elif slapee == 'Endyamon':
                 slap = u"No, he likes it too much."
             else:
                 slap = tmpl.substitute(dict(slapper=shout.name, slapee=slapee))

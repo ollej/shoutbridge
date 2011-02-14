@@ -141,7 +141,7 @@ class Plugin(BridgeClass):
     @returnType( str, str )
     def get_name(self, text):
         colpos = string.find(text, ':')
-        self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
+        #self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
         if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':
             (name, message) = text.split(':', 1)
         else:

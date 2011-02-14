@@ -60,9 +60,11 @@ class FakePlugin(Plugin):
     ]
 
     def fake_command(self, shout, command=None, comobj=None):
-	text = self.strip_command(shout.text, command)
+        text = self.strip_command(shout.text, command)
         try:
             (user, reason) = self.get_name(text)
+            if user.lower() == self.nick.lower():
+                user = shout.name
             func = getattr(self, "cmd_" + comobj['func'])
             if func:
                 func(user, reason)

@@ -55,13 +55,13 @@ class SeenTellPlugin(Plugin):
     date_format = "%Y-%m-%d %H:%M:%S"
     commands = [
         dict(
-            command = ['!tell'],
+            command = ['!tell', '!till'],
             handler = 'tell_user',
             onevents = ['Message'],
             defaultmessage = "Use '!tell Username Message' to tell a user something when they next join the chat.",
         ),
         dict(
-            command = ['!seen'],
+            command = ['!seen', '!sett'],
             handler = 'seen_user',
             onevents = ['Message'],
         ),

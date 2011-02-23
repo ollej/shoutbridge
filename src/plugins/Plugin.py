@@ -119,31 +119,14 @@ class Plugin(BridgeClass):
         """
         return text.replace(command, '', 1).strip()
 
-    @parameterTypes( selfType, str )
-    @returnType( str, str )
-    def parse_name(self, text):
-        """
-        Parses out name from start of text, based on some criteria.
-        """
-        try:
-            colpos = string.find(text, ':')
-            #self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
-            if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':
-                (name, message) = text.split(':', 1)
-            else:
-                (name, message) = text.split(' ', 1)
-        except ValueError:
-            name = text
-            message = ""
-        return name, message.strip()
-
-    @parameterTypes( selfType, str )
-    def send_message(self, text):
+    @parameterTypes( selfType, str, bool )
+    def send_message(self, text, prepend=True):
         """
         Send text as message to both Shoutbox and Jabber conference.
         Prepends name of sender to message.
         """
-        text = self.prepend_sender(text.strip())
+        if prepend:
+            text = self.prepend_sender(text.strip())
         self.bridge.send_and_shout(text, self.nick)
 
     @parameterTypes( selfType, Shout, str, dict )
@@ -164,6 +147,13 @@ class Plugin(BridgeClass):
     @parameterTypes( selfType, str )
     @returnType( str, str )
     def get_name(self, text):
+        """
+        Parses out name from start of text.
+        If there is a colon in the first 17 chars, everything before it counts as the name,
+        as long as the colon isn't directly followed by a right parenthesis.
+        Otherwise, the first word is returned as the name.
+        The second string returned is the rest of the text.
+        """
         colpos = string.find(text, ':')
         #self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
         if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':

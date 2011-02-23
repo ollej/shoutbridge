@@ -61,8 +61,8 @@ class ElizaPlugin(Plugin):
         """
         Parse message body and send message with dice roll.
         """
-        text = shout.text[len(cmd):].strip()
+        text = self.strip_command(shout.text, cmd)
         response = self.eliza.respond(text)
         if response:
-            self.bridge.send_and_shout(shout.name + ': ' + response, self.nick)
+            self.send_message(response)
 

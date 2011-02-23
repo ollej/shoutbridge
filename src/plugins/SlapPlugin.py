@@ -54,7 +54,6 @@ class SlapPlugin(Plugin):
         ),
     ]
 
-
     def setup(self):
         """
         Setup method which is called once before any triggers methods are called.
@@ -87,12 +86,12 @@ class SlapPlugin(Plugin):
         """
         Handles all incoming messages.
         """
-        words = shout.text.split()
-        slapee = words[1]
+        text = self.strip_command(shout.text, command)
+        (slapee, text) = self.get_name(text)
         if slapee:
             get_msg = getattr(self, comobj['method'])
             msg = get_msg(shout.name, slapee, comobj)
-            self.bridge.send_and_shout(msg, self.nick)
+            self.send_message(msg, False)
 
     def select_and_replace(self, tmpl, comobj):
         """

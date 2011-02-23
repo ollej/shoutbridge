@@ -149,7 +149,7 @@ class Die(object):
         """
         if reset:
             self.resetResult()
-        print "die_list", self.die_list, "die", self.die
+        #print "die_list", self.die_list, "die", self.die
         if self.die_list and self.die not in self.die_list: return False
         if self.op and self.op not in ('+', '-'): return False
         if self.rolltype and self.rolltype not in ('Ob', 'Open'): return False

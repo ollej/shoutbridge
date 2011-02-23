@@ -96,18 +96,13 @@ class DiceyPlugin(Plugin):
         """
         Parse message body and send message with dice roll.
         """
-        self.sender_nick = shout.name
         diestr = ''
-        words = shout.text.split()
-        try:
-            rpg = words[1].lower()
-        except IndexError:
-            return
-        if rpg in self.rpgs:
-            diestr = self.roll_character(rpg)
-            diestr = words[1] + " - " + diestr
-            diestr = shout.name + ': ' + diestr
-            self.bridge.send_and_shout(diestr, self.nick)
+        text = self.strip_command(shout.text, command)
+        (rpg, rest) = self.get_name(text)
+        #self.logprint("rpg:", rpg, "rest", rest)
+        if rpg.lower() in self.rpgs:
+            diestr = u"%s - %s" % (rpg, self.roll_character(rpg.lower()))
+            self.send_message(diestr)
         else:
             diestr = self.d.replaceDieStrings(shout.text, roll_call=self.send_roll, die_list=self.die_list, max_responses=self.max_responses, roll_string=self.roll_string)
             #diestr = self.d.replaceDieStrings(shout.text, self.replace_roll, self.max_responses)
@@ -121,7 +116,7 @@ class DiceyPlugin(Plugin):
         for name, roll in self.rpgs[rpg]:
             die = Die(roll)
             die.roll(True)
-            diestr += name + ": " + str(die.result) + ' '
+            diestr += u"%s: %s " % (name, die.result)
         return diestr
 
     def send_roll(self, m):
@@ -131,7 +126,6 @@ class DiceyPlugin(Plugin):
             s = " = 0 Successes"
             if newstr.endswith(s):
                 newstr = newstr[:-len(s)]
-        newstr = self.prepend_sender(newstr)
-        self.bridge.send_and_shout(newstr, self.nick)
+        self.send_message(newstr)
         return newstr
 

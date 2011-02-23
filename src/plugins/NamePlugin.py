@@ -59,5 +59,5 @@ class NamePlugin(Plugin):
         d = date.today()
         day = int(d.strftime("%j")) - 1
         names = self.names[day]
-        self.bridge.send_and_shout(names, self.nick)
+        self.send_message(names)
 

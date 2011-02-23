@@ -82,7 +82,7 @@ class HalibotPlugin(Plugin):
         """
         text = "%s %s (%s)" % (self.bridge.client_name, self.bridge.client_version,
                                self.bridge.get_os_info())
-        self.bridge.send_and_shout(text, self.nick)
+        self.send_message(text)
 
     def list_commands(self, shout, command, comobj):
         """
@@ -92,32 +92,33 @@ class HalibotPlugin(Plugin):
         for plugin_name, plugin in self.bridge.plugins.items():
             for com in plugin.commands:
                 commandlist.extend(com['command'])
-        self.bridge.send_and_shout("Available commands: %s" % ' '.join(commandlist), self.nick)
+        msg = u"Available commands: %s" % ' '.join(commandlist)
+        self.send_message(msg)
 
     def jump_room(self, shout, command, comobj):
         """
         Make bot jump to another jabber conference room.
         """
-        text = shout.text.replace(command, '', 1).strip()
-        (passwd, room) = text.split(' ', 1)
-        if passwd != self.bridge.cfg.get('halibot_password'):
-            return
-        self.bridge.leave_room("Jumping to another room.")
-        self.bridge.room = room
-        self.bridge.join_room(room)
+        text = self.strip_command(shout.text, command)
+        room = self.check_password(text)
+        if room:
+            self.bridge.leave_room("Jumping to another room.")
+            self.bridge.room = room
+            self.bridge.join_room(room)
 
     def list_plugins(self, shout, command, comobj):
         """
         List all loaded Plugins.
         """
-        self.bridge.send_and_shout("Loaded plugins: %s" % ' '.join(self.bridge.plugins.keys()), self.nick)
+        msg = u"Loaded plugins: %s" % ' '.join(self.bridge.plugins.keys())
+        self.send_message(msg)
 
     def show_help(self, shout, command, comobj):
         """
         Show Plugin description on given plugin name.
         TODO: Shouldn't be case-sensitive.
         """
-        help = shout.text.replace(command, '', 1).strip().lower()
+        help = self.strip_command(shout.text, command).lower()
         if help:
             self.logprint("Showing help for plugin:", help)
             for pname, p in self.bridge.plugins.items():
@@ -128,16 +129,24 @@ class HalibotPlugin(Plugin):
                 text = "Plugin not found: %s" % help
         else:
             text = comobj['text']
-        self.bridge.send_and_shout("%s: %s" % (shout.name, text), self.nick)
+        self.send_message(text)
+
+    def check_password(self, text):
+        """
+        If password matches, the text is returned with the password removed.
+        """
+        (passwd, text) = text.split(' ', 1)
+        if passwd != self.bridge.cfg.get('halibot_password'):
+            return None
+        return text
 
     def echo_message(self, shout, command, comobj):
         """
         Echos the message back out to the chat.
         """
-        text = shout.text.replace(command, '', 1).strip()
-        (passwd, text) = text.split(' ', 1)
-        if passwd != self.bridge.cfg.get('halibot_password'):
-            return
-        self.bridge.send_and_shout(text, self.nick)
+        text = self.strip_command(shout.text, command)
+        text = self.check_password(text)
+        if text:
+            self.send_message(text, False)
         
 

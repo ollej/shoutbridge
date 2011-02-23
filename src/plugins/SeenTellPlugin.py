@@ -186,7 +186,7 @@ class SeenTellPlugin(Plugin):
         self.update_user(shout.name)
         text = self.strip_command(shout.text, command)
         #self.logprint("tell_user:", text)
-        (name, message) = self.parse_name(text)
+        (name, message) = self.get_name(text)
         self.logprint("name", name, "message", message)
         if not message:
             response = comobj['defaultmessage']

@@ -165,7 +165,7 @@ class TwitterPlugin(Plugin):
         # If name is shorter than a set length, just return it.
         if len(name) <= self.max_name_len:
             return name
-        
+
         # Else get all upper case letters
         initials = self.re_up.findall(name)
         if initials:
@@ -182,6 +182,7 @@ if __name__ == "__main__":
     print shorten_name("Olle Johansson")
     print shorten_name("Gardener")
     print shorten_name("krank")
+    print shorten_name("olle.johansson")
     print shorten_name("Tony.M.Meijer")
     print shorten_name("Jesus H. Christ")
     print shorten_name("McFisk")

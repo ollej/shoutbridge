@@ -25,6 +25,7 @@ THE SOFTWARE.
 """
 
 import random
+import string
 
 from utils.pyanno import raises, abstractMethod, returnType, parameterTypes, deprecatedMethod, \
                           privateMethod, protectedMethod, selfType, ignoreType, callableType
@@ -36,6 +37,11 @@ from utils.utilities import *
 class PluginError(Exception):
     """
     Default Plugin exception.
+    """
+
+class NamePluginError(PluginError):
+    """
+    Couldn't parse out name from tex.
     """
 
 class FakeBridge(XmppBridge):
@@ -111,6 +117,24 @@ class Plugin(BridgeClass):
         Returns C{text} with C{command} stripped away from the beginning.
         """
         return text.replace(command, '', 1).strip()
+
+    @parameterTypes( selfType, str )
+    @returnType( str, str )
+    def parse_name(self, text):
+        """
+        Parses out name from start of text, based on some criteria.
+        """
+        try:
+            colpos = string.find(text, ':')
+            self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
+            if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':
+                (name, message) = text.split(':', 1)
+            else:
+                (name, message) = text.split(' ', 1)
+        except ValueError:
+            name = ""
+            message = ""
+        return name, message
 
     @parameterTypes( selfType, str )
     def send_message(self, text):

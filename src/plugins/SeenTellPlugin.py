@@ -186,24 +186,15 @@ class SeenTellPlugin(Plugin):
         self.update_user(shout.name)
         text = self.strip_command(shout.text, command)
         #self.logprint("tell_user:", text)
-        try:
-            colpos = string.find(text, ':')
-            self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
-            if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':
-                (name, message) = text.split(':', 1)
-            else:
-                (name, message) = text.split(' ', 1)
-        except ValueError:
+        (name, message) = self.parse_name(text)
+        if name == shout.name:
+            response = "Only crazy people talk to themselves."
+        elif not message:
             response = comobj['defaultmessage']
         else:
-            if name == shout.name:
-                response = "Only crazy people talk to themselves."
-            elif not message:
-                response = comobj['defaultmessage']
-            else:
-                tell = Tell(name, shout.name, message, time.time())
-                self.session.add(tell)
-                response = "Ok, I will tell %s that next time I see that user." % name
+            tell = Tell(name, shout.name, message, time.time())
+            self.session.add(tell)
+            response = "Ok, I will tell %s that next time I see that user." % name
         self.send_message(response)
         self.session.commit()
 

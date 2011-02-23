@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -126,15 +127,15 @@ class Plugin(BridgeClass):
         """
         try:
             colpos = string.find(text, ':')
-            self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
+            #self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
             if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':
                 (name, message) = text.split(':', 1)
             else:
                 (name, message) = text.split(' ', 1)
         except ValueError:
-            name = ""
+            name = text
             message = ""
-        return name, message
+        return name, message.strip()
 
     @parameterTypes( selfType, str )
     def send_message(self, text):
@@ -159,6 +160,21 @@ class Plugin(BridgeClass):
         except KeyError:
             nick = self.nick
         self.bridge.send_and_shout(random.choice(comobj['text']), nick)
+
+    @parameterTypes( selfType, str )
+    @returnType( str, str )
+    def get_name(self, text):
+        colpos = string.find(text, ':')
+        #self.logprint('colpos, char at colpos+1', colpos, text[colpos+1:colpos+2])
+        if colpos >= 0 and colpos <= 16 and text[colpos+1:colpos+2] != ')':
+            (name, message) = text.split(':', 1)
+        else:
+            try:
+                (name, message) = text.split(' ', 1)
+            except ValueError:
+                name = text
+                message = ""
+        return name.strip(), message.strip()
 
 if __name__ == "__main__":
     import doctest

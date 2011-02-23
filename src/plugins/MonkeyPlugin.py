@@ -46,17 +46,6 @@ class MonkeyPlugin(Plugin):
             nick = "Apa",
         ),
         dict(
-            command = [u'!tits', u'!boobs', u'!boobies'],
-            handler = 'show_text',
-            onevents=['Message'],
-            text = [u'( . )( . )', u'( . Y .)', u"(./\.)", u"( o Y o )", u"( + )( + )", u"(*)(*)", u"(@)(@)", u"{ O }{ O }", u"( ^ )( ^ )", u"(oYo)", u"\o/\o/"],
-        ),
-        dict(
-            command = [u'!fallos', u'!snopp', '!kuk', u'!penis', u'!dick', u'!cock', u'!snorre', u'!drul', u'!kodd'],
-            handler = 'show_cock',
-            onevents=['Message'],
-        ),
-        dict(
             command = [u'!koala'],
             handler = 'show_text',
             onevents=['Message'],
@@ -117,12 +106,6 @@ class MonkeyPlugin(Plugin):
             text = [u"[_]3"],
         ),
         dict(
-            command = [u'!ass', u'!arse', u'!arsle'],
-            handler = 'show_text',
-            onevents=['Message'],
-            text = [u"(  )x(  )", u"(  )O(  )", u"(_O_)", u"(_*_)", u"{_x_}", u"(_Y_)", u"(_!_)", u"(__!__)"],
-        ),
-        dict(
             command = [u'!duck', u'!anka'],
             handler = 'show_text',
             onevents=['Message'],
@@ -171,24 +154,10 @@ class MonkeyPlugin(Plugin):
             text = [u'☃'],
         ),
         dict(
-            command = [u'!pussy', u"!cunt", u"!fitta", u"!vagina", u"!vulva"],
-            handler = 'show_text',
-            onevents=['Message'],
-            text = [u'{↑}', u"(Y)", u"( v )"],
-        ),
-        dict(
             command = [u'!cthulhu'],
             handler = 'show_text',
             onevents=['Message'],
             text = [u'\(;,;)/)'],
         ),
     ]
-
-    def show_cock(self, shout, command=None, comobj=None):
-        """
-        Display text from command.
-        """
-        text = u'8' + ''.ljust(random.randint(1, 10), '=') + u"D"
-        self.bridge.send_and_shout(text, self.nick)
-
 

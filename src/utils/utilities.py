@@ -93,7 +93,13 @@ def loadUrl(url, params=None, method="GET", timeout=10.0, as_object=None, auth=N
             return f
         s = f.read()
         f.close()
-        s = unicode(s, 'utf-8')
+        encoding = f.headers['content-type'].split('charset=')[-1]
+        if encoding != f.headers['content-type']:
+            #print "converting to unicode from:", encoding
+            s = unicode(s, encoding)
+        else:
+            s = unicode(s)
+        #s = unicode(s, 'utf-8')
     except socket.timeout as sock:
         print "Socket timed out.", sock
         print "-----------------------------------------------------------"
@@ -245,7 +251,7 @@ def get_options():
                       action="store_true", dest="verbose", default=False,
                       help="make lots of noise [default]")
     parser.add_option("-s", "--start", dest="latest_shout",
-                      help="Start reading shouts from START", metavar="START")
+                      help="Start reading shouts from START. 'skip' to skip all, 'resume' to resume at last known id", metavar="START")
     parser.add_option("-l", "--login", dest="xmpp_login",
                       help="XMPP login JID.", metavar="JID")
     parser.add_option("-p", "--pass", dest="xmpp_pass",

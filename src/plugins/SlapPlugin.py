@@ -39,29 +39,69 @@ class SlapPlugin(Plugin):
     description = "Slap bot lets users slap each other with hilarious items."
     commands = [
         dict(
-            command = ['!slap'],
-            handler = 'slap',
+            command = ['!slap', '!bitchslap', u'!örfil', u'!örfila'],
+            handler = 'message_handler',
+            method = 'get_slap',
+            datfile = 'extras/slaps.dat',
+            onevents = ['Message'],
+        ),
+        dict(
+            command = ['!hug', '!kram', u'!krama'],
+            handler = 'message_handler',
+            method = 'get_hug',
+            datfile = 'extras/hugs.dat',
             onevents = ['Message'],
         ),
     ]
+
 
     def setup(self):
         """
         Setup method which is called once before any triggers methods are called.
         """
-        self.slapitems = read_file("extras/slaps.dat")
+        pass
 
-    def slap(self, shout, command, comobj):
+    def get_hug(self, giver, taker, comobj):
         """
-        Parse message body and send message with dice roll.
+        Returns a random hug.
+        """
+        if giver.lower() == taker.lower():
+            msg = u"hugs himself fondly."
+        else:
+            msg = self.select_and_replace(dict(hugger=giver, hugee=taker), comobj)
+        return msg
+
+    def get_slap(self, slapper, slapee, comobj):
+        """
+        Returns a random slap.
+        """
+        if slapee.lower() == self.nick.lower():
+            slap = u"I'm sorry, %s. I'm afraid I can't do that." % shout.name
+        elif slapee == 'Endyamon':
+            slap = u"No, he likes it too much."
+        else:
+            slap = self.select_and_replace(dict(slapper=slapper, slapee=slapee), comobj)
+        return slap
+
+    def message_handler(self, shout, command, comobj):
+        """
+        Handles all incoming messages.
         """
         words = shout.text.split()
         slapee = words[1]
-        tmpl = string.Template(random.choice(self.slapitems).strip())
-        if slapee and slapee.lower() != self.nick.lower():
-            if slapee == 'Endyamon':
-                slap = u"No, he likes it too much."
-            else:
-                slap = tmpl.substitute(dict(slapper=shout.name, slapee=slapee))
-            self.bridge.send_and_shout(slap, self.nick)
+        if slapee:
+            get_msg = getattr(self, comobj['method'])
+            msg = get_msg(shout.name, slapee, comobj)
+            self.bridge.send_and_shout(msg, self.nick)
+
+    def select_and_replace(self, tmpl, comobj):
+        """
+        Selects a random item from items list and uses tmpl dictionary for replacements.
+        """
+        if 'data' not in comobj:
+            comobj['data'] = read_file(comobj['datfile'])
+        msg = string.Template(random.choice(comobj['data']).strip())
+        slap = msg.substitute(tmpl)
+        return slap
+
 

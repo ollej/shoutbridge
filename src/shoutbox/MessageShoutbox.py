@@ -68,6 +68,13 @@ class MessageShoutbox(Shoutbox):
         #self.logprint(shoutxml)
         return shoutxml
 
+    def skipShouts(self):
+        """
+        Reads all shouts and ignores them.
+        """
+        xml = self.loadShouts(self.latest_shout)
+        self.parseShouts(xml)
+
     def parseShout(self, s):
         return Shout(s['id'], s['from_id'], s['from'], getElStr(s.body), s['time'])
 
@@ -94,20 +101,22 @@ class MessageShoutbox(Shoutbox):
             self.logprint("Empty dom object returned from parser for xml:\n", shoutxml)
             return [] 
         shouts = []
-        oldershouts = self.latest_shout
         for e in dom.elements():
             if e.name == "message":
-                shout = self.parseShout(e)
-                #self.logprint("Parsed shout", shout.id, shout.userid, shout.name, shout.time, shout.text)
-                #self.logprint("oldershouts", oldershouts, "latest_shout", self.latest_shout)
-                if shout.id > oldershouts and shout.userid is not 1:
-                    #self.logprint("Adding shout", shout.__str__())
+                shout = self.handleShoutMessage(e)
+                if shout:
                     shouts.append(shout)
-                    if shout.id > self.latest_shout:
-                        #self.logprint("Updating latest latest_shout to:", shout.id)
-                        self.latest_shout = int(shout.id)
         return shouts
 
+    def handleShoutMessage(self, e):
+        oldershouts = self.latest_shout
+        shout = self.parseShout(e)
+        if shout.id > oldershouts and shout.userid is not 1:
+            if shout.id > self.latest_shout:
+                self.latest_shout = int(shout.id)
+                if self.db:
+                    self.db.set_value('latest_shout_id', self.latest_shout)
+            return shout
 
 def main():
     import sys

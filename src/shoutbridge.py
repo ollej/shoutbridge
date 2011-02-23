@@ -47,7 +47,7 @@ def start_shoutbridge():
     # Setup Shoutbox
     of = ObjectFactory()
     sbox = of.create(cfg.shoutbox_type, mod='shoutbox', inst="Shoutbox")
-    sbox.setConfig(cfg)
+    #sbox.setConfig(cfg)
 
     # Setup xmpp bridge
     bridge = of.create(cfg.bridge_type, mod='bridges', inst="XmppBridge")

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 from bridges.XmppBridge import *
@@ -16,7 +17,8 @@ def main():
         print "Usage: %s <plugin_name> <message>" % args[0]
         quit()
     cfg = Conf('../config.ini', 'LOCAL')
-    bridge = FakeBridge(cfg=cfg)
+    bridge = FakeBridge()
+    bridge.setConfig(cfg=cfg)
     try:
         of = ObjectFactory()
         plug = of.create(plugin_name, mod='plugins', inst="Plugin", args=[bridge])

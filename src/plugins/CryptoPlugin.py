@@ -24,36 +24,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import commands
-
 from plugins.Plugin import *
-from utils.utilities import *
 
-class FortunePlugin(Plugin):
-    """
-    Displays a short fortune message.
-    Requires the fortune command line program.
-    """
-    priority = 0
-    name = "FortunePlugin"
-    author = "Olle Johansson <Olle@Johansson.com>"
-    description = "Fortune cookie plugin."
+class CryptoPlugin(Plugin):
+    name = "CryptoPlugin"
+    author = "Olle Johansson"
+    description = "Adds some simple crypto commands."
     commands = [
         dict(
-            command=['!fortune', '!kaka', '!sia'],
-            handler='tell_fortune',
-            onevents=['Message'],
+            command = ['!reverse'],
+            handler = 'cmd_reverse',
+            onevents = ['Message'],
+        ),
+        dict(
+            command = ['!rot13'],
+            handler = 'cmd_rot13',
+            onevents = ['Message'],
         ),
     ]
-    max_length = 60
 
-    def tell_fortune(self, shout, command, comobj):
-        """
-        Parse message body and send message with dice roll.
-        """
-        #newstr = commands.getoutput('fortune -a -s -n ' + str(self.max_length))
-        newstr = commands.getoutput('/usr/games/fortune -a -s')
-        if shout.name:
-            newstr = shout.name + ': ' + newstr
-        self.bridge.send_and_shout(newstr, self.nick)
+    def cmd_reverse(self, shout, command, comobj):
+        msg = self.strip_command(shout.text, command)
+        msg = msg[::-1]
+        self.send_message(msg)
+
+    def cmd_rot13(self, shout, command, comobj):
+        msg = self.strip_command(shout.text, command)
+        msg = self.rot13(msg)
+        self.send_message(msg)
+
+    def rot13(self, s):
+        return ''.join( self.rot13_char(ch) for ch in s )
+
+    def rot13_char(self, ch):
+        if ch.lower() <= 'm':
+            dist = 13
+        else:
+            dist = -13
+        return chr(ord(ch) + dist)
 

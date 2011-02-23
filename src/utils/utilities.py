@@ -251,7 +251,7 @@ def get_options():
                       action="store_true", dest="verbose", default=False,
                       help="make lots of noise [default]")
     parser.add_option("-s", "--start", dest="latest_shout",
-                      help="Start reading shouts from START", metavar="START")
+                      help="Start reading shouts from START. 'skip' to skip all, 'resume' to resume at last known id", metavar="START")
     parser.add_option("-l", "--login", dest="xmpp_login",
                       help="XMPP login JID.", metavar="JID")
     parser.add_option("-p", "--pass", dest="xmpp_pass",

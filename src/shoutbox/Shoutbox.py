@@ -35,6 +35,7 @@ from utils.pyanno import raises, abstractMethod, returnType, parameterTypes, dep
 
 from utils.BridgeClass import *
 from utils.Conf import Conf
+from utils.HaliDb import *
 
 class ShoutboxError(Exception):
     "Unknown Shoutbox error"
@@ -112,7 +113,27 @@ class Shoutbox(BridgeClass):
         """
         self.cfg = config
         if self.cfg.latest_shout:
-            self.latest_shout = int(self.cfg.latest_shout)
+            if self.cfg.latest_shout.lower() == "skip":
+                # Skip all shouts on startup if start value is "skip"
+                self.logprint("Skipping all current shouts.")
+                self.skipShouts()
+            elif self.cfg.latest_shout.lower() == "resume":
+                # Resume at the latest read shout message on startup.
+                try:
+                    self.latest_shout = int(self.db.get_value('latest_shout_id'))
+                    self.logprint("Resuming from shout id:", self.latest_shout)
+                except TypeError:
+                    self.logprint("Resume without prior known latest_shout_id, assuming 0")
+            else:
+                self.latest_shout = int(self.cfg.latest_shout)
+                self.logprint("Starting to read from shout id:", self.latest_shout)
+
+    @parameterTypes( selfType, 'HaliDb' )
+    def setDb(self, db):
+        """
+        Sets a reference to the database.
+        """
+        self.db = db
 
     @abstractMethod
     @parameterTypes( selfType )
@@ -174,6 +195,14 @@ class Shoutbox(BridgeClass):
         Read shoutbox messages, all or newer than "start".
         """
         return []
+
+    @abstractMethod
+    @parameterTypes( selfType )
+    def skipShouts(self):
+        """
+        Reads all shouts and ignores them.
+        """
+        pass
 
     @parameterTypes( selfType, str )
     @returnType( str )

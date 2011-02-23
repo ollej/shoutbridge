@@ -106,7 +106,7 @@ There are a lot of available configuration options for Shoutbridge.
  * show_time - If set to "True", the time of the shoutbox message will be prepended in jabber.
  * show_nick - Set to "True" to prefix each message with shoutbox nick. Otherwise the bot will rename itself to the username of the shoutbox user.
  * log_date_format - Date format for logging.
- * latest_shout - Start reading shout messages from this id.
+ * latest_shout - Start reading shout messages from this id. String "skip" to skip all earlier messages on startup. Or "resume" to resume at latest known shout id.
  * debug - Print debug information. Raw xml sent/received, sqlalchemy output etc.
  * verbose - Prints information on what the script is doing.
  * quiet - Make script quiet as a mouse, not outputting anything.
@@ -159,7 +159,8 @@ should output on the terminal: debug, quiet and verbose
     -q, --quiet           Don't print status messages to stdout
     -v, --verbose         make lots of noise [default]
     -s START, --start=START
-                          Start reading shouts from START
+                          Start reading shouts from START, "skip" to skip all,
+                          "resume" to resume at latest known id.
     -l JID, --login=JID   XMPP login JID.
     -p PASSWD, --pass=PASSWD
                           XMPP password.
@@ -408,11 +409,15 @@ line containing only a percentage sign:
 
 
 ### SlapPlugin ###
-Writes a possibly hilarious slapping message.
+Writes a possibly hilarious slapping message as well as giving out hugs.
 
 #### Command: ####
 
     !slap username
+
+#### Command: ####
+
+    !hug username
 
 ### TermPlugin ###
 Returns definitions of given term, prints a random definition and allows adding

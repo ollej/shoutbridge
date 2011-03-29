@@ -362,8 +362,19 @@ class TwistedBridge(XmppBridge):
     def reactor_error(self, failure):
         self.logprint("Reactor failure", failure)
         # Let's try restarting if there is a failure. Hope we don't get a feedback loop.
-        self.listen()
+        self.start_message_loop()
         return True
+
+    def start_message_loop(self):
+        l = task.LoopingCall(self.process_shoutbox_messages)
+        # We are using longpoll, so do another request within a second.
+        d1 = l.start(float(self.cfg.loop_time))
+        d1.addErrback(self.reactor_error)
+
+    def start_ping_loop(self):
+        l2 = task.LoopingCall(self.ping)
+        d2 = l2.start(60.0)
+        d2.addErrback(self.reactor_error)
 
     def listen(self):
         """
@@ -371,14 +382,8 @@ class TwistedBridge(XmppBridge):
         """
         try:
             # Send messages from shoutbox every few seconds
-            l = task.LoopingCall(self.process_shoutbox_messages)
-            d1 = l.start(float(self.cfg.loop_time))
-            d1.addErrback(self.reactor_error)
-            l2 = task.LoopingCall(self.ping)
-            #d2 = l2.start(60.0)
-            # We are using longpoll, so do another request within a second.
-            d2 = l2.start(1.0)
-            d2.addErrback(self.reactor_error)
+            self.start_message_loop()
+            self.start_ping_loop()
             # Start the reactor
             reactor.run()
         except KeyboardInterrupt:

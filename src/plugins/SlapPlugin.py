@@ -98,8 +98,12 @@ class SlapPlugin(Plugin):
 
     def slap_stats(self, shout, command, comobj):
         slaps = self.bridge.db.get_value('slap_count')
+        if not slaps:
+            slaps = 0
         hugs = self.bridge.db.get_value('hug_count')
-        msg = _("Slap count: %s Hug count: %s") % (slaps, hugs)
+        if not hugs:
+            hugs = 0
+        msg = "Slap count: %s Hug count: %s" % (slaps, hugs)
         self.send_message(msg, False)
 
     def message_handler(self, shout, command, comobj):

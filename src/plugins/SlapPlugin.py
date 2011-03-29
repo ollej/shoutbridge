@@ -90,9 +90,7 @@ class SlapPlugin(Plugin):
         return slap
 
     def increase_counter(self, value):
-        slapcount = self.bridge.db.get_value(value)
-        if not slapcount:
-            slapcount = 0
+        slapcount = int(self.bridge.db.get_value(value))
         slapcount = slapcount + 1
         self.bridge.db.set_value(value, slapcount)
 

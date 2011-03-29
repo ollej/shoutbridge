@@ -39,6 +39,11 @@ class SlapPlugin(Plugin):
     description = "Slap bot lets users slap each other with hilarious items."
     commands = [
         dict(
+            command = [u'!slapistik', u'!slapstats'],
+            handler = 'slap_stats',
+            onevents = ['Message'],
+        ),
+        dict(
             command = [u'!slap', u'!bitchslap', u'!örfila', u'!örfil'],
             handler = 'message_handler',
             method = 'get_slap',
@@ -50,11 +55,6 @@ class SlapPlugin(Plugin):
             handler = 'message_handler',
             method = 'get_hug',
             datfile = 'extras/hugs.dat',
-            onevents = ['Message'],
-        ),
-        dict(
-            command = [u'!slapistik', u'!slapstats'],
-            handler = 'slap_stats',
             onevents = ['Message'],
         ),
     ]

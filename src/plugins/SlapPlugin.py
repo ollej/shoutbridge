@@ -39,7 +39,7 @@ class SlapPlugin(Plugin):
     description = "Slap bot lets users slap each other with hilarious items."
     commands = [
         dict(
-            command = [u'!slap', u'!bitchslap', u'!örfil', u'!örfila'],
+            command = [u'!slap', u'!bitchslap', u'!örfila', u'!örfil'],
             handler = 'message_handler',
             method = 'get_slap',
             datfile = 'extras/slaps.dat',
@@ -50,6 +50,11 @@ class SlapPlugin(Plugin):
             handler = 'message_handler',
             method = 'get_hug',
             datfile = 'extras/hugs.dat',
+            onevents = ['Message'],
+        ),
+        dict(
+            command = [u'!slapistik', u'!slapstats'],
+            handler = 'slap_stats',
             onevents = ['Message'],
         ),
     ]
@@ -68,6 +73,7 @@ class SlapPlugin(Plugin):
             msg = u"hugs himself fondly."
         else:
             msg = self.select_and_replace(dict(hugger=giver, hugee=taker), comobj)
+        self.increase_counter('hug_count');
         return msg
 
     def get_slap(self, slapper, slapee, comobj):
@@ -80,7 +86,19 @@ class SlapPlugin(Plugin):
             slap = u"No, he likes it too much."
         else:
             slap = self.select_and_replace(dict(slapper=slapper, slapee=slapee), comobj)
+        self.increase_counter('slap_count')
         return slap
+
+    def increase_counter(self, value):
+        slapcount = self.bridge.db.get_value(value)
+        slapcount = slapcount + 1
+        self.bridge.db.set_value(value, slapcount)
+
+    def slap_stats(self, shout, command, comobj):
+        slaps = self.bridge.db.get_value('slap_count')
+        hugs = self.bridge.db.get_value('hug_count')
+        msg = _("Slap count: %s Hug count: %s") % (slaps, hugs)
+        self.send_message(msg, False)
 
     def message_handler(self, shout, command, comobj):
         """

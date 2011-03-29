@@ -62,6 +62,7 @@ class MessageShoutbox(Shoutbox):
     def loadShouts(self, start):
         params = dict({
             "ubb": "listshouts",
+            "longpoll": "1",
             "start": str(start),
         })
         shoutxml = loadUrl(self.cfg.base_url, params)

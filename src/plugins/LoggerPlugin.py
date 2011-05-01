@@ -24,6 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+import logging
+
 from plugins.Plugin import *
 
 class LoggerPlugin(Plugin):
@@ -34,27 +36,31 @@ class LoggerPlugin(Plugin):
     name = "LoggerPlugin"
     author = "Olle Johansson"
     description = "Message logger plugin."
+    commands = [
+        dict(
+            command = [''],
+            handler = 'handle_message',
+            onevents = ['SentMessage', 'Message'],
+        )
+    ]
 
     def setup(self):
         """
         Setup method which is called once before any triggers methods are called.
         """
-        # FileLogger object not created yet.
-        self.log = FileLogger("./message.log")
+        self.log = logging.getLogger('message_logger')
+        self.log.setLevel(logging.INFO)
+        ch = logging.FileHandler('extras/messages.log', encoding='UTF-8')
+        formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        ch.setFormatter(formatter)
+        self.log.addHandler(ch)
 
-    def handleXmppMessage(self, message):
+    def handle_message(self, shout, command, comobj):
         """
-        Method called on every received XMPP message stanza.
-        Message can be modified and must be returned.
+        Method called on every new message received.
         """
-        self.log.logprint(message.__str__())
-        return message
-
-    def handleShoutMessage(self, shout):
-        """
-        Method called on every new message from the Shoutbox.
-        Shout message can be modified, and must be returned.
-        """
-        self.log.logprint(shout.__str__())
+        msg = "%s: %s" % (shout.name, shout.text)
+        print "Message:", msg
+        self.log.info(msg)
         return shout
 

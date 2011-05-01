@@ -164,7 +164,8 @@ class ShoutList {
         // Get username and userid based on JID
         if (strpos($post['user_name'], '@') !== false) {
             if (list($userinfo) = $this->getUserInfo($post['user_name'])) {
-                list($post['user_id'], $post['user_name']) = $userinfo;
+                $post['user_id'] = $userinfo['user_id'];
+                $post['user_name'] = $userinfo['username'];
             }
         }
 
@@ -172,12 +173,13 @@ class ShoutList {
         $query = "
             INSERT INTO {$config['TABLE_PREFIX']}SHOUT_BOX 
             (USER_ID, SHOUT_DISPLAY_NAME, SHOUT_TEXT, SHOUT_TIME, USER_IP) 
-            VALUES (?, ?, ?, UNIX_TIMESTAMP(), '127.0.0.1')
+            VALUES (?, ?, ?, ?, '127.0.0.1')
         ";
         $username = $post['user_name'] ? $post['user_name'] : $ubbt_lang['ANON_TEXT'];
         $id = $post['user_id'] ? intval($post['user_id']) : 1;
         $post['message'] = $this->parseMessage($post['message']);
-        $values = array($id, $username, $post['message']);
+        $time = $html->get_date();
+        $values = array($id, $username, $post['message'], $time);
         $dbh->do_placeholder_query($query, $values, __LINE__, __FILE__);
 
         echo "OK";

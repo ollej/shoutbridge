@@ -360,6 +360,7 @@ class TwistedBridge(XmppBridge):
             self.logprint("Unicode Decode Error: ", text)
 
     def reactor_error(self, failure):
+        # FIXME: Log to file
         self.logprint("Reactor failure", failure)
         # Let's try restarting if there is a failure. Hope we don't get a feedback loop.
         self.start_message_loop()

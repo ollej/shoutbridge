@@ -56,7 +56,7 @@ class GooglePlugin(Plugin):
         results = self.google(terms)
         if results:
             url = results[0]['url']
-            title = strip_tags(results[0]['title'])
+            title = unescape(strip_tags(results[0]['title']))
             msg = u"Google search result for '%(terms)s': %(title)s - %(url)s" % {'terms': terms, 'url': url, 'title': title}
             self.send_message(msg)
 

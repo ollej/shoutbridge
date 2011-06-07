@@ -60,12 +60,12 @@ class GooglePlugin(Plugin):
 
     def search_wikipedia(self, terms, lang='sv'):
         searchurl = 'http://%s.wikipedia.org/w/api.php' % lang
-        linkurl = 'http://%s/wiki/%s'
+        linkurl = 'http://%s.wikipedia.org/wiki/%s'
         params = { 'action': 'opensearch', 'search': terms, 'format': 'json' }
         search_results = loadUrl(searchurl, params)
         json = simplejson.loads(search_results)
         (searchedterm, termlist) = json
-        results = list(dict( title = title, url = linkurl % (lang, title) ) for title in termlist)
+        results = list(dict( title = title, url = linkurl % (lang, urllib.quote(title)) ) for title in termlist)
         return results
 
     def handle_search(self, shout, command, comobj):

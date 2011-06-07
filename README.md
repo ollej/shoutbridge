@@ -557,10 +557,13 @@ HALiBot pretends to kick and ban the user, optionally with a reason given.
     !kickban user reason
 
 ### GooglePlugin ###
-Adds a command that lets users make a lucky google search.
+Adds a command that lets users make a lucky google search, or a wikipedia search.
 
 #### !google <terms> ####
 Returns the first hit from Google for the search terms.
+
+### !wikipedia <terms> ####
+Returns the first matching page for the search terms.
 
 Write your own plugin
 ---------------------

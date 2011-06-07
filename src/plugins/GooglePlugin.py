@@ -38,12 +38,19 @@ class GooglePlugin(Plugin):
     commands = [
         dict(
             command = ['!google', '!lmgtfy'],
-            handler = 'handle_google',
+            handler = 'handle_search',
             onevents = ['Message'],
-        )
+            func = 'google',
+        ),
+        dict(
+            command = ['!wikipedia'],
+            handler = 'handle_search',
+            onevents = ['Message'],
+            func = 'wikipedia',
+        ),
     ]
 
-    def google(self, terms):
+    def search_google(self, terms):
         params = {'v': '1.0', 'q' : terms}
         googleurl = 'http://ajax.googleapis.com/ajax/services/search/web'
         search_results = loadUrl(googleurl, params)
@@ -51,12 +58,23 @@ class GooglePlugin(Plugin):
         results = json['responseData']['results']
         return results
 
-    def handle_google(self, shout, command, comobj):
+    def search_wikipedia(self, terms, lang='sv'):
+        searchurl = 'http://%s.wikipedia.org/w/api.php' % lang
+        linkurl = 'http://%s/wiki/%s'
+        params = { 'action': 'opensearch', 'search': terms, 'format': 'json' }
+        search_results = loadUrl(searchurl, params)
+        json = simplejson.loads(search_results)
+        (searchedterm, termlist) = json
+        results = list(dict( title = title, url = linkurl % (lang, title) ) for title in termlist)
+        return results
+
+    def handle_search(self, shout, command, comobj):
         terms = self.strip_command(shout.text, command)
-        results = self.google(terms)
+        func = getattr(self, 'search_' + comobj['func'])
+        results = func(terms)
         if results:
             url = results[0]['url']
             title = unescape(strip_tags(results[0]['title']))
-            msg = u"Google search result for '%(terms)s': %(title)s - %(url)s" % {'terms': terms, 'url': url, 'title': title}
+            msg = u"Search result for '%(terms)s': %(title)s - %(url)s" % {'terms': terms, 'url': url, 'title': title}
             self.send_message(msg)
 

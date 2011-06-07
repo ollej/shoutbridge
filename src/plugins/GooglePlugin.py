@@ -26,6 +26,7 @@ THE SOFTWARE.
 """
 
 from plugins.Plugin import *
+from utils.utilities import loadUrl, strip_tags
 
 import urllib
 import simplejson
@@ -45,13 +46,13 @@ class GooglePlugin(Plugin):
     def google(self, shout, command, comobj):
         terms = self.strip_command(shout.text, command)
         query = urllib.urlencode({'q' : terms})
-        url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % (query)
-        search_results = urllib.urlopen(url)
-        json = simplejson.loads(search_results.read())
+        googleurl = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % (query)
+        search_results = loadUrl(googleurl)
+        json = simplejson.loads(search_results)
         results = json['responseData']['results']
         if results:
             url = results[0]['url']
-            title = results[0]['title']
-            msg = 'Google says: <a href="%s" target="_blank">%s</a>' % (url, title)
+            title = strip_tags(results[0]['title'])
+            msg = u"Google search result for '%(terms)s': %(title)s - %(url)s" % {'terms': terms, 'url': url, 'title': title}
             self.send_message(msg)
 

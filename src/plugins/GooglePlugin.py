@@ -38,18 +38,22 @@ class GooglePlugin(Plugin):
     commands = [
         dict(
             command = ['!google', '!lmgtfy'],
-            handler = 'google',
+            handler = 'handle_google',
             onevents = ['Message'],
         )
     ]
 
-    def google(self, shout, command, comobj):
-        terms = self.strip_command(shout.text, command)
-        query = urllib.urlencode({'q' : terms})
-        googleurl = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % (query)
-        search_results = loadUrl(googleurl)
+    def google(self, terms):
+        params = {'v': '1.0', 'q' : terms}
+        googleurl = 'http://ajax.googleapis.com/ajax/services/search/web'
+        search_results = loadUrl(googleurl, params)
         json = simplejson.loads(search_results)
         results = json['responseData']['results']
+        return results
+
+    def handle_google(self, shout, command, comobj):
+        terms = self.strip_command(shout.text, command)
+        results = self.google(terms)
         if results:
             url = results[0]['url']
             title = strip_tags(results[0]['title'])

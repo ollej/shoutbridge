@@ -35,12 +35,14 @@ Requirements
  * Python 2.6
  * Twisted
  * SQLAlchemy
+ * BeautifulSoup
  * pyOpenSSL (for secure connections)
  * MySQL (for direct connection to shoutbox)
  * UBB.threads v7 (for shoutbox bridge)
  * MySQLdb (for direct connection to shoutbox)
  * Sqlite (for SeenTell plugin)
  * Tweepy (for Twitter plugin)
+ * simplejson (for Google plugin)
 
 Installation
 ------------
@@ -58,6 +60,8 @@ Install necessary modules:
     $ sudo easy_install pyOpenSSL
     $ sudo easy_install sqlalchemy
     $ sudo easy_install tweepy
+    $ sudo easy_install simplejson
+    $ sudo easy_install beautifulsoup
 
 Next, create a configuration file from the example.
 
@@ -552,6 +556,12 @@ HALiBot pretends to kick and ban the user, optionally with a reason given.
 
     !kickban user reason
 
+### GooglePlugin ###
+Adds a command that lets users make a lucky google search.
+
+#### !google <terms> ####
+Returns the first hit from Google for the search terms.
+
 Write your own plugin
 ---------------------
 If you know a little Python, writing your own bot plugin is easy.
@@ -804,7 +814,7 @@ Some ideas for future development.
    * !memory - display used memory
    * !cyborg <word> - cyborgify <word> - http://www.brunching.com/
    * !techify <word> - techify <word> - http://www.brunching.com/
-   * Possibly convert !trivia, !weather, !translate, !google, !wiki etc from other bots.
+   * Possibly convert !trivia, !weather, !translate, !wiki etc from other bots.
    * Use people's dictionary and synlist.
  * Direct message commands:
    * !die - make bot disconnect and shutdown

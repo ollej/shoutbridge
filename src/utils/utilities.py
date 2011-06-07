@@ -33,6 +33,7 @@ import string
 from twisted.words.xish import domish
 import codecs
 from optparse import OptionParser
+from BeautifulSoup import BeautifulSoup
 
 from utils.decorators import *
 
@@ -205,26 +206,11 @@ def grep(string, list):
     expr = re.compile(string)
     return filter(expr.search, list)
 
-# TODO: not very smart, strips stuff that isn't tags, if a less than sign is in
-# the text.
 def strip_tags(s):
     """
     Strip html tags from s
     """
-    # this list is neccesarry because chk() would otherwise not know
-    # that intag in strip_tags() is ment, and not a new intag variable in chk().
-    intag = [False]
-
-    def chk(c):
-        if intag[0]:
-            intag[0] = (c != '>')
-            return False
-        elif c == '<':
-            intag[0] = True
-            return False
-        return True
-
-    return ''.join(c for c in s if chk(c))
+    return ''.join(BeautifulSoup(s).findAll(text=True))
 
 def dump_dict_items(o):
     """

@@ -37,7 +37,7 @@ class GooglePlugin(Plugin):
     description = "Makes a google search for the given terms and returns the first hit."
     commands = [
         dict(
-            command = ['!google', '!lmgtfy'],
+            command = ['!google'],
             handler = 'handle_search',
             onevents = ['Message'],
             func = 'google',
@@ -47,6 +47,11 @@ class GooglePlugin(Plugin):
             handler = 'handle_search',
             onevents = ['Message'],
             func = 'wikipedia',
+        ),
+        dict(
+            command = ['!lmgtfy'],
+            handler = 'lmgtfy',
+            onevents = ['Message'],
         ),
     ]
 
@@ -67,6 +72,12 @@ class GooglePlugin(Plugin):
         (searchedterm, termlist) = json
         results = list(dict( title = title, url = linkurl % (lang, urllib.quote(title)) ) for title in termlist)
         return results
+
+    def lmgtfy(self, shout, command, comobj):
+        terms = self.strip_command(shout.text, command)
+        linkurl = "http://lmgtfy.com/?q=%s" % urllib.quote(terms)
+        msg = "Let me Google that for you: %s" % linkurl
+        self.send_message(msg)
 
     def handle_search(self, shout, command, comobj):
         terms = self.strip_command(shout.text, command)

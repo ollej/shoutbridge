@@ -565,6 +565,27 @@ Returns the first hit from Google for the search terms.
 ### !wikipedia <terms> ####
 Returns the first matching page for the search terms.
 
+### QuestPlugin ###
+A very simple game where all users control the same hero through a dungeon.
+
+#### !quest reroll ####
+Creates a new hero if one doesn't already exist.
+
+#### !quest deeper ####
+Makes the hero go another level deeper into the dungeon.
+
+#### !quest loot ####
+The hero looks for gold.
+
+#### !quest fight ####
+Makes the hero find a monster and tries to kill it.
+
+#### !quest rest ####
+If the hero has been hurt some health is regained.
+
+#### !quest charsheet ####
+Shows information about the current hero.
+
 Write your own plugin
 ---------------------
 If you know a little Python, writing your own bot plugin is easy.

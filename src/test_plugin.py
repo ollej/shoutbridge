@@ -17,6 +17,7 @@ def main():
         print "Usage: %s <plugin_name> <message>" % args[0]
         quit()
     cfg = Conf('../config.ini', 'LOCAL')
+    cfg.set('debug', True)
     bridge = FakeBridge()
     bridge.setConfig(cfg=cfg)
     try:

@@ -66,6 +66,9 @@ class Conf(BridgeClass):
     def get(self, name):
         return self._items[name]
 
+    def set(self, name, value):
+        self._items[name] = value
+
     def get_bool(self, name):
         try:
             val = self._items[name]

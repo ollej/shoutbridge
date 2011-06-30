@@ -27,7 +27,6 @@ THE SOFTWARE.
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Sequence, create_engine
 from sqlalchemy.orm import mapper, sessionmaker
 
-
 class HaliData(object):
     def __init__(self, key, value):
         self.key = key
@@ -38,8 +37,8 @@ class HaliDb(object):
     SQLAlchemy wrapper class that sets up at simple key/value database.
     """
 
-    def __init__(self, debug):
-        self.engine = create_engine('sqlite:///extras/halidata.db', echo=debug)
+    def __init__(self, db, debug):
+        self.engine = create_engine(db, echo=debug)
         self.setup_session()
         self.setup_tables()
 
@@ -88,4 +87,13 @@ class HaliDb(object):
         hd = self.get(key)
         self.session.delete(hd)
         self.session.commit()
+
+if __name__ == "__main__":
+    h = HaliDb('sqlite:///halidata_test.db', False) 
+    import random
+    r = random.randint(1, 100)
+    h.set_value('foo', r)
+    print "Should be:", r, ":", h.get_value('foo')
+    h.del_key('foo')
+
 

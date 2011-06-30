@@ -129,7 +129,7 @@ class XmppBridge(BridgeClass):
             debug = cfg.get_bool('debug')
         except AttributeError:
             debug = False
-        self.db = HaliDb(debug)
+            self.db = HaliDb('sqlite:///extras/halidata.db', debug)
 
         if sbox:
             self.setShoutbox(sbox)

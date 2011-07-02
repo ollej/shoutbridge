@@ -369,6 +369,7 @@ class GoldQuest(object):
             self.save_data()
             msg = self.get_text('newhero')
             msg = msg % self.hero.get_attributes()
+            msg = msg + " " + self.level.text
             return msg
 
     def search_treasure(self):

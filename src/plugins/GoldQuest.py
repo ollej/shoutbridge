@@ -29,6 +29,7 @@ from sqlalchemy import Table, Column, Integer, Boolean, String, MetaData, Foreig
 from sqlalchemy.orm import mapper, sessionmaker
 import random
 import cmd
+import yaml
 
 from utils.Conf import *
 
@@ -138,11 +139,14 @@ class Monster(object):
     strength = None
     health = None
 
-    def __init__(self, level=None, name=None):
+    def __init__(self, level=None, name=None, boss=False):
         if not level:
             level = 1
         self.strength = random.randint(1, level)
         self.health = random.randint(1, level)
+        if boss:
+            self.strength = self.strength + level
+            self.health = self.health + level
         if name:
             self.name = name
         else:
@@ -162,12 +166,21 @@ class Monster(object):
         return random.choice([
             "an orc", "an ogre", "a bunch of goblins", "a giant spider",
             "a cyclops", "a minotaur", "a horde of kobolds",
+            "a rattling skeleton", "a large troll", "a moaning zombie",
+            "a swarm of vampire bats", "a baby hydra", "a giant monster ant",
+            "a slithering lizard", "an angry lion", "three hungry bears",
+            "a hell hound", "a pack of rabid dogs", "a werewolf",
+            "an ice demon", "a fire wraith", "a groaning ghoul",
+            "two goblins", "a three-headed hyena", "a giant monster worm",
+            "a slobbering were-pig"
         ])
 
 class Level(object):
     depth = None
     killed = None
     looted = None
+    boss = None
+    text = None
 
     def __init__(self, depth=None):
         self.killed = 0
@@ -177,9 +190,15 @@ class Level(object):
         else:
             self.depth = 1
 
-    def get_monster(self):
+    def get_monster(self, name):
+        if self.killed == self.depth - 1:
+            boss = True
+            if self.boss:
+                name = self.boss
+        else:
+            boss = False
         if self.killed < self.depth:
-            return Monster(self.depth)
+            return Monster(self.depth, name, boss)
 
     def get_loot(self):
         loot = 0
@@ -198,6 +217,7 @@ class Level(object):
         return False
 
 class GoldQuest(object):
+    _gamedata = None
     cfg = None
     hero = None
     level = None
@@ -216,6 +236,7 @@ class GoldQuest(object):
             debug = self.cfg.get_bool('debug')
         except AttributeError:
             debug = False
+        self.read_texts()
         self.engine = create_engine('sqlite:///extras/quest.db', echo=debug)
         self.setup_tables()
         self.setup_session()
@@ -259,13 +280,44 @@ class GoldQuest(object):
         mapper(Level, level_table)
         self.metadata.create_all(self.engine)
 
+    def read_texts(self):
+        f = open('extras/goldquest.dat')
+        self._gamedata = yaml.load(f)
+        f.close()
+
+    def get_text(self, text):
+        texts = self._gamedata['texts'][text]
+        if not texts:
+            return None
+        elif isinstance(texts, str):
+            return texts
+        else:
+            return random.choice(texts)
+
+    def get_level_texts(self, depth):
+        for lvl in self._gamedata['level']:
+            if lvl['level'] == depth:
+                return lvl
+
+    def get_monster(self, lvl=None):
+        if not lvl:
+            lvl = self.level.depth or 1
+        monsters = []
+        for monster in self._gamedata['monster']:
+            if lvl >= monster['lowlevel'] and lvl <= monster['highlevel']:
+                monsters.append(monster['name'])
+        if monsters:
+            name = random.choice(monsters)
+        else:
+            name = None
+        return self.level.get_monster(name)
+
     def play(self, command):
         msg = ""
         if command in ['reroll', 'ny gubbe']:
             return self.reroll()
         if not self.hero or not self.hero.alive:
-            msg = u"Your village doesn't have a champion! Use !quest reroll"
-            return msg
+            return self.get_text('nochampion')
         if command in ['rest', 'vila']:
             msg = self.rest()
         elif command in ['fight', u'slåss']:
@@ -278,31 +330,44 @@ class GoldQuest(object):
             msg = self.show_charsheet()
         else:
             return None
-        self.save_hero()
+        self.save_data()
         return msg
 
-    def save_hero(self):
+    def save_data(self):
         self.session.add(self.hero)
+        self.session.add(self.level)
         self.session.commit()
 
     def get_alive_hero(self):
         hero = self.session.query(Hero).filter_by(alive=True).first()
         return hero
 
+    def get_level(self, lvl):
+        level = self.session.query(Level).filter_by(depth=lvl).first()
+        if not level:
+            level = Level(lvl)
+        texts = self.get_level_texts(lvl)
+        if texts:
+            for k, v in texts.items():
+                if v:
+                    setattr(level, k , v)
+        if not level.boss:
+            level.boss = random.choice(self._gamedata['boss'])
+        return level
+
     def reroll(self):
         if self.hero and self.hero.alive:
-            msg = u'%s growls' % self.hero.name
+            msg = self.get_text('noreroll') % self.hero.get_attributes()
             return msg
         else:
+            # Delete all old Level data.
+            self.session.query(Level).delete()
+            # Reroll new hero.
             self.hero = Hero()
             self.hero.reroll()
-            self.level = Level(self.hero.level)
-            self.save_hero()
-            msg = random.choice([
-                "There's a new hero in town: %(name)s",
-                "The valiant hero %(name)s shows up to help the village.",
-                "%(name)s comes forth to fight for the village.",
-            ])
+            self.level = self.get_level(self.hero.level)
+            self.save_data()
+            msg = self.get_text('newhero')
             msg = msg % self.hero.get_attributes()
             return msg
 
@@ -313,98 +378,62 @@ class GoldQuest(object):
             loot = self.level.get_loot()
             attribs['loot'] = loot
             if loot > 0:
-                msg = random.choice([
-                    u"%(name)s found loot: %(loot)d pieces of gold!",
-                    u"%(name)s opens a chest and finds %(loot)d gold coins!",
-                    u"%(loot)d gold nuggets are scattered on the ground, %(name)s picks them up.",
-                ])
+                msg = self.get_text('foundloot')
             elif loot < 0:
                 attribs['trap_hurt'] = abs(loot)
                 self.hero.injure(attribs['trap_hurt'])
-                msg = random.choice([
-                    u"It's a trap!",
-                    u"A trap hurts %(name)s for %(injure)d points.",
-                    U"%(name)s drops the lid of a chest on his fingers.",
-                ])
+                msg = self.get_text('foundtrap')
             else:
-                msg = "%(name)s can't find any gold."
+                msg = self.get_text('nogold')
         else:
-            msg = random.choice([
-                "There are no corpses to loot.",
-                "You have to kill more monsters on this level to loot.",
-            ])
+            msg = self.get_text('noloot')
         msg = msg % attribs
         return msg
 
     def rest(self):
+        # TODO: There should be a chance of being attacked by a monster (who
+        # will hit first)
         rested = self.hero.rest()
         if rested:
             if self.hero.hurt:
-                restmsg = random.choice([
-                    u"%(name)s rests and heals %(rested)s hurt.",
-                    u"After a short rest, %(name)s heals %(rested)s points.",
-                ])
+                restmsg = self.get_text('rests')
             else:
-                restmsg = random.choice([
-                    u"%(name)s is fully healed.",
-                    u"After some rest, %(name)s is healed.",
-                ])
+                restmsg = self.get_text('healed')
         else:
-            restmsg = "%(name)s is already fully rested."
+            restmsg = self.get_text('alreadyhealed')
         attribs = self.hero.get_attributes()
         attribs['rested'] = rested
         msg = restmsg % attribs
         return msg
 
     def go_deeper(self):
-        level = self.hero.go_deeper()
-        self.level = Level(self.hero.level)
-        msg = random.choice([
-            u"Your valiant hero, %(name)s, delves deeper into the dungeon.",
-            u"%(name)s is now at level %(level)d of the dungeon.",
-            u"With steady steps %(name)s heads down to level %(level)d.",
-        ])
+        depth = self.hero.go_deeper()
+        self.level = self.get_level(depth)
+        msg = self.level.text or self.get_text('deeper')
         msg = msg % self.hero.get_attributes()
         return msg
 
     def fight(self):
-        monster = self.level.get_monster()
+        monster = self.get_monster(self.level.depth)
         attribs = self.hero.get_attributes()
         if not monster:
-            msg = random.choice([
-                "The hero searches high and low, but can't find any more monsters on this level.",
-                "Apparently this level has been cleared of all monsters.",
-            ])
+            msg = self.get_text('nomonsters')
             return msg % attribs
         won = self.hero.fight_monster(monster)
         if won:
             self.level.killed = self.level.killed + 1
-            msg = random.choice([
-                u"%(monster)s is slaughtered.",
-                u"%(name)s kills yet another monster.",
-                u"Another one bites the dust.",
-                u"%(monster)s is slayed by %(name)s.",
-                u"%(name)s %(slayed)s %(monster)s.",
-            ])
-            attribs['slayed'] = random.choice([
-                u"narrowly defeats",
-                u"easily beats",
-                u"slays",
-                u"kills",
-            ])
+            msg = self.get_text('killed')
+            attribs['slayed'] = self.get_text('slayed')
         else:
-            msg = random.choice([
-                u"Your hero has died.",
-                u"The entire village mourns the death of %(name)s.",
-                u"%(name)s dies a hero's death.",
-            ])
+            msg = self.get_text('died')
         attribs['monster'] = monster.name
         msg = msg % attribs
         msg = self.firstupper(msg)
         return msg
 
     def show_charsheet(self):
-        return self.hero.get_charsheet()
+        msg = self.get_text('charsheet')
+        return msg % self.hero.get_attributes()
 
     def firstupper(self, text):
         first = text[0].upper()

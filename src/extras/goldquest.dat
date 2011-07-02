@@ -1,0 +1,202 @@
+hero:
+  name:
+    - Conan
+    - Canon
+    - Hercules
+    - Robin
+    - Dante
+    - Legolas
+    - Buffy
+    - Xena
+  epithet:
+    - "%(name)s the Barbarian"
+    - "%(name)s the Invincible"
+    - "%(name)s the Mighty"
+    - "%(name)s the Hairy"
+    - "%(name)s the Bastard"
+
+monster:
+  - name: a horde of kobolds
+    lowlevel: 2
+    highlevel: 5
+  - name: a bunch of goblins
+    lowlevel: 3
+    highlevel: 10
+  - name: an orc
+    lowlevel: 4
+    highlevel: 100
+  - name: an ogre
+    lowlevel: 4
+    highlevel: 100
+  - name: a giant spider
+    lowlevel: 5
+    highlevel: 100
+  - name: a cyclops
+    lowlevel: 5
+    highlevel: 100
+  - name: a minotaur
+    lowlevel: 5
+    highlevel: 100
+  - name: a rattling skeleton
+    lowlevel: 5
+    highlevel: 100
+  - name: a large troll
+    lowlevel: 5
+    highlevel: 100
+  - name: a moaning zombie
+    lowlevel: 5
+    highlevel: 100
+  - name: a swarm of vampire bats
+    lowlevel: 5
+    highlevel: 100
+  - name: a baby hydra
+    lowlevel: 5
+    highlevel: 100
+  - name: a giant monster ant
+    lowlevel: 5
+    highlevel: 100
+  - name: a slithering lizard
+    lowlevel: 5
+    highlevel: 100
+  - name: an angry lion
+    lowlevel: 5
+    highlevel: 100
+  - name: three hungry bears
+    lowlevel: 5
+    highlevel: 100
+  - name: a hell hound
+    lowlevel: 5
+    highlevel: 100
+  - name: a pack of rabid dogs
+    lowlevel: 5
+    highlevel: 100
+  - name: a werewolf
+    lowlevel: 5
+    highlevel: 100
+  - name: an ice demon
+    lowlevel: 5
+    highlevel: 100
+  - name: a fire wraith
+    lowlevel: 5
+    highlevel: 100
+  - name: a groaning ghoul
+    lowlevel: 5
+    highlevel: 100
+  - name: two goblins
+    lowlevel: 5
+    highlevel: 100
+  - name: a three-headed hyena
+    lowlevel: 5
+    highlevel: 100
+  - name: a giant monster worm
+    lowlevel: 5
+    highlevel: 100
+  - name: a slobbering were-pig
+    lowlevel: 5
+    highlevel: 100
+
+boss:
+  - Death Piglet the necromancer
+  - Doctor Meanie the mad scientist
+  - D.E.D. The Killer Droid
+  - Boneheap the skeletal serf
+  - R. McGedon the Doomsday Prophet
+  - Zombony, chef of the Damned
+  - Eye of the Beholder
+  - Hyggelmonster
+  - Manbearpig
+  - Bear-man
+  - Hydra
+  - Dragon
+  - Diablo
+  - Demon King
+  - Lizard King
+  - Scorpion King
+  - Wicked Wizard
+
+level:
+  - level: 1
+    text: The hero enters the antechamber of the dungeon. There is a Key Master here.
+    boss: Key Master
+  - level: 2
+    text: After slaying the Key Master, %(name)s walks down to a kobold infested level.
+    boss: Kobold Shaman
+  - level: 3
+    text: The kobold shaman guarded an entrance down to a level filled with goblins.
+    boss: Goblin Chief
+  - level: 4
+    text:
+    boss:
+  - level: 5
+    text:
+    boss:
+  - level: 6
+    text:
+    boss:
+  - level: 7
+    text:
+    boss:
+  - level: 8
+    text:
+    boss:
+  - level: 9
+    text:
+    boss:
+  - level: 10
+    text:
+    boss:
+
+items:
+  - name: Sword
+    strength: 0
+    health: 0
+
+texts:
+  charsheet: "Stats: %(name)s%(status)s - Strength: %(strength)d Health: %(health)d Hurt: %(hurt)d Kills: %(kills)d Gold: %(gold)d Level: %(level)d"
+  nochampion: Your village doesn't have a champion! Use reroll to call a new hero.
+  noreroll: "%(name)s growls"
+  newhero:
+    - "There's a new hero in town: %(name)s"
+    - The valiant hero %(name)s shows up to help the village.
+    - "%(name)s comes forth to fight for the village."
+  foundloot:
+    - "%(name)s found loot: %(loot)d pieces of gold!"
+    - "%(name)s opens a chest and finds %(loot)d gold coins!"
+    - "%(loot)d gold nuggets are scattered on the ground, %(name)s picks them up."
+  foundtrap:
+    - It's a trap!
+    - A trap hurts %(name)s for %(trap_hurt)d points.
+    - "%(name)s drops the lid of a chest on his fingers."
+  nogold: "%(name)s can't find any gold."
+  noloot:
+    - There are no corpses to loot.
+    - You have to kill more monsters on this level to loot.
+  rests:
+    - "%(name)s rests and heals %(rested)s hurt."
+    - After a short rest, %(name)s heals %(rested)s points.
+  healed:
+    - "%(name)s is fully healed."
+    - After some rest, %(name)s is healed.
+  alreadyhealed:
+    - "%(name)s is already fully rested."
+  deeper:
+    - Your valiant hero, %(name)s, delves deeper into the dungeon.
+    - "%(name)s is now at level %(level)d of the dungeon."
+    - With steady steps %(name)s heads down to level %(level)d.
+  nomonsters:
+    - The hero searches high and low, but can't find any more monsters on this level.
+    - Apparently this level has been cleared of all monsters.
+  killed:
+    - "%(monster)s is slaughtered."
+    - "%(monster)s bites the dust."
+    - "%(monster)s is slayed by %(name)s."
+    - "%(name)s %(slayed)s %(monster)s."
+  slayed:
+    - narrowly defeats
+    - easily beats
+    - slays
+    - kills
+  died:
+    - Your hero has died.
+    - The entire village mourns the death of %(name)s.
+    - "%(name)s dies a hero's death."

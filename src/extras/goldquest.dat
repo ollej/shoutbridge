@@ -8,6 +8,8 @@ hero:
     - Legolas
     - Buffy
     - Xena
+    - Altair
+    - Adele
   epithet:
     - "%(name)s the Barbarian"
     - "%(name)s the Invincible"
@@ -24,76 +26,139 @@ monster:
     highlevel: 10
   - name: an orc
     lowlevel: 4
-    highlevel: 100
+    highlevel: 0
   - name: an ogre
     lowlevel: 4
-    highlevel: 100
+    highlevel: 0
   - name: a giant spider
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a cyclops
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a minotaur
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a rattling skeleton
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a large troll
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a moaning zombie
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a swarm of vampire bats
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a baby hydra
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a giant monster ant
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a slithering lizard
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: an angry lion
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: three hungry bears
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a hell hound
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a pack of rabid dogs
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a werewolf
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: an ice demon
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a fire wraith
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a groaning ghoul
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: two goblins
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a three-headed hyena
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a giant monster worm
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
   - name: a slobbering were-pig
     lowlevel: 5
-    highlevel: 100
+    highlevel: 0
+  - name: a werebat
+    lowlevel: 5
+    highlevel: 0
+  - name: a clay golem
+    lowlevel: 5
+    highlevel: 0
+  - name: an assassin zombie
+    lowlevel: 5
+    highlevel: 0
+  - name: a demon spawn
+    lowlevel: 5
+    highlevel: 0
+  - name: a skull knight
+    lowlevel: 5
+    highlevel: 0
+  - name: a dragon minion
+    lowlevel: 5
+    highlevel: 0
+  - name: a lizard knight
+    lowlevel: 5
+    highlevel: 0
+  - name: a tiny devil
+    lowlevel: 5
+    highlevel: 0
+  - name: a red wyvern
+    lowlevel: 5
+    highlevel: 0
+  - name: a green wyrm
+    lowlevel: 5
+    highlevel: 0
+  - name: a rabid yeti
+    lowlevel: 5
+    highlevel: 0
+  - name: three angry imps
+    lowlevel: 5
+    highlevel: 0
+  - name: a flying gorgon
+    lowlevel: 5
+    highlevel: 0
+  - name: a growling sphinx
+    lowlevel: 5
+    highlevel: 0
+  - name: a monstrous python
+    lowlevel: 5
+    highlevel: 0
+  - name: a staggering mummy
+    lowlevel: 5
+    highlevel: 0
+  - name: a slithering serpent
+    lowlevel: 5
+    highlevel: 0
+  - name: a soul crusher
+    lowlevel: 5
+    highlevel: 0
+  - name: 
+    lowlevel: 5
+    highlevel: 0
+  - name: 
+    lowlevel: 5
+    highlevel: 0
+  - name: 
+    lowlevel: 5
+    highlevel: 0
 
 boss:
   - Death Piglet the necromancer
@@ -109,10 +174,16 @@ boss:
   - Hydra
   - Dragon
   - Diablo
-  - Demon King
+  - Demon Lord
   - Lizard King
   - Scorpion King
   - Wicked Wizard
+  - Basilisk
+  - Dark Warlock
+  - Behemoth
+  - Chimera
+  - Great Lake Monster
+
 
 level:
   - level: 1

@@ -289,7 +289,7 @@ class GoldQuest(object):
         texts = self._gamedata['texts'][text]
         if not texts:
             return None
-        elif isinstance(texts, str):
+        elif isinstance(texts, basestring):
             return texts
         else:
             return random.choice(texts)
@@ -304,7 +304,7 @@ class GoldQuest(object):
             lvl = self.level.depth or 1
         monsters = []
         for monster in self._gamedata['monster']:
-            if lvl >= monster['lowlevel'] and lvl <= monster['highlevel']:
+            if lvl >= monster['lowlevel'] and monster['highlevel'] == 0 or lvl <= monster['highlevel']:
                 monsters.append(monster['name'])
         if monsters:
             name = random.choice(monsters)

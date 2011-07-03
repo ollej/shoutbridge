@@ -129,7 +129,7 @@ class XmppBridge(BridgeClass):
             debug = cfg.get_bool('debug')
         except AttributeError:
             debug = False
-            self.db = HaliDb('sqlite:///extras/halidata.db', debug)
+        self.db = HaliDb('sqlite:///extras/halidata.db', debug)
 
         if sbox:
             self.setShoutbox(sbox)
@@ -180,11 +180,11 @@ class XmppBridge(BridgeClass):
                 nick = ""
             try:
                 (cmd, comobj, func) = self.get_plugin_handler(plugin, event, text)
-            except AttributeError:
-                self.logprint("Attribute Error encountered in plugin:", plugin_name)
+            except AttributeError, ae:
+                self.logprint("Attribute Error encountered in plugin:", plugin_name, ae)
                 continue
-            except UnicodeDecodeError:
-                self.logprint("UnicodeDecodeError on text:", text)
+            except UnicodeDecodeError, ude:
+                self.logprint("UnicodeDecodeError on text:", text, ude)
                 continue
             try:
                 if func:

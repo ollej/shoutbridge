@@ -267,7 +267,18 @@ texts:
     - easily beats
     - slays
     - kills
+    - wreaks havoc on
+    - pulverizes
+    - flattens
+    - slaughters
   died:
     - Your hero has died.
     - The entire village mourns the death of %(name)s.
     - "%(name)s dies a hero's death."
+  rest_attack_won:
+    - "%(name)s kills %(monster_name)s that attacks the hero while resting."
+    - "%(name)s tries to rest but has to fight and kill %(monster_name)s that sneaks up on the hero."
+  rest_attack_lost:
+    - Poor %(name)s was attacked while resting and didn't survive.
+    - "%(monster_name)s sneaks up on %(name)s while resting and kills the hero."
+    - "%(name)s is killed while resting by %(monster_name)s."

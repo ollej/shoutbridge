@@ -77,7 +77,7 @@ class Hero(object):
         if self.hurt > self.health:
             self.alive = False
 
-    def fight_monster(self, monster):
+    def fight(self, monster):
         #print("Monster:", monster.health, monster.strength)
         while monster.health >= 0 and self.hurt < self.health:
             hit = self.roll(self.strength)
@@ -95,7 +95,7 @@ class Hero(object):
 
     def rest(self):
         if self.hurt > 0:
-            heal = random.randint(1, 10)
+            heal = self.roll(10)
             if heal > self.hurt:
                 heal = self.hurt
             self.hurt = self.hurt - heal
@@ -138,6 +138,7 @@ class Monster(object):
     name = None
     strength = None
     health = None
+    level = None
 
     def __init__(self, level=None, name=None, boss=False):
         if not level:
@@ -158,6 +159,7 @@ class Monster(object):
         """
         self.health = self.health - hurt
         if self.health <= 0:
+            self.level.kill_monster()
             return True
         else:
             return False
@@ -197,8 +199,10 @@ class Level(object):
                 name = self.boss
         else:
             boss = False
-        if self.killed < self.depth:
-            return Monster(self.depth, name, boss)
+        if self.has_monsters():
+            monster = Monster(self.depth, name, boss)
+            monster.level = self
+            return monster
 
     def get_loot(self):
         loot = 0
@@ -211,12 +215,23 @@ class Level(object):
                 loot = 0 - luck
         return loot
 
+    def kill_monster(self):
+        if self.has_monsters():
+            self.killed = self.killed + 1
+            return True
+        return False
+
+    def has_monsters(self):
+        if self.killed < self.depth:
+            return True
+        return False
+
     def can_loot(self):
         if self.looted < self.killed:
             return True
         return False
 
-class GoldQuest(object):
+class GoldQuest(BridgeClass):
     _gamedata = None
     cfg = None
     hero = None
@@ -391,9 +406,30 @@ class GoldQuest(object):
         msg = msg % attribs
         return msg
 
+    def sneak_attack(self):
+        if self.level.has_monsters():
+            #self.logprint("Monsters are available to sneak attack.")
+            unlucky = self.roll(100)
+            #self.logprint("unlucky:", unlucky)
+            if unlucky < 20:
+                #self.logprint("Sneak attack!")
+                monster = self.get_monster(self.level.depth)
+                won = self.hero.fight(monster)
+                if won:
+                    msg = self.get_text('rest_attack_won')
+                else:
+                    msg = self.get_text('rest_attack_lost')
+                attribs = self.hero.get_attributes()
+                attribs['monster_name'] = monster.name
+                msg = msg % attribs
+                return msg
+
     def rest(self):
-        # TODO: There should be a chance of being attacked by a monster (who
-        # will hit first)
+        # If there are monsters alive on the level, there is a
+        # risk of a sneak attack while resting.
+        msg = self.sneak_attack()
+        if msg:
+            return msg
         rested = self.hero.rest()
         if rested:
             if self.hero.hurt:
@@ -420,9 +456,8 @@ class GoldQuest(object):
         if not monster:
             msg = self.get_text('nomonsters')
             return msg % attribs
-        won = self.hero.fight_monster(monster)
+        won = self.hero.fight(monster)
         if won:
-            self.level.killed = self.level.killed + 1
             msg = self.get_text('killed')
             attribs['slayed'] = self.get_text('slayed')
         else:
@@ -431,6 +466,12 @@ class GoldQuest(object):
         msg = msg % attribs
         msg = self.firstupper(msg)
         return msg
+
+    def roll(self, sides, times=1):
+        total = 0
+        for i in range(times):
+            total = total + random.randint(1, sides)
+        return total
 
     def show_charsheet(self):
         msg = self.get_text('charsheet')

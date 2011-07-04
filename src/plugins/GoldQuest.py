@@ -4,7 +4,7 @@
 """
 The MIT License
 
-Copyright (c) 2010 Olle Johansson
+Copyright (c) 2011 Olle Johansson
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -329,19 +329,27 @@ class GoldQuest(BridgeClass):
 
     def play(self, command):
         msg = ""
-        if command in ['reroll', 'ny gubbe']:
+        command = command.strip().lower()
+        try:
+            (command, rest) = command.split(' ')
+        except ValueError:
+            rest = ""
+        rest = rest.strip()
+        if self.cfg.get_bool('debug'):
+            self.logprint("Command: |%s|" % command)
+        if command in ['reroll']:
             return self.reroll()
         if not self.hero or not self.hero.alive:
             return self.get_text('nochampion')
         if command in ['rest', 'vila']:
             msg = self.rest()
-        elif command in ['fight', u'slåss']:
+        elif command in ['fight', 'kill', 'slay', u'slåss']:
             msg = self.fight()
-        elif command in ['deeper', 'vidare']:
-            msg = self.go_deeper()
-        elif command in ['loot', 'search', u'sök', 'finna dolda ting']:
+        elif command in ['deeper', 'descend', 'vidare']:
+            msg = self.go_deeper(rest)
+        elif command in ['loot', 'search', u'sök', 'finna']:
             msg = self.search_treasure()
-        elif command in ['charsheet', u'formulär']:
+        elif command in ['charsheet', 'stats', u'formulär']:
             msg = self.show_charsheet()
         else:
             return None
@@ -443,14 +451,19 @@ class GoldQuest(BridgeClass):
         msg = restmsg % attribs
         return msg
 
-    def go_deeper(self):
-        depth = self.hero.go_deeper()
+    def go_deeper(self, levels=1):
+        try:
+            levels = int(levels)
+        except ValueError:
+            levels = 1
+        depth = self.hero.go_deeper(levels)
         self.level = self.get_level(depth)
         msg = self.level.text or self.get_text('deeper')
         msg = msg % self.hero.get_attributes()
         return msg
 
     def fight(self):
+        self.logprint('Fight')
         monster = self.get_monster(self.level.depth)
         attribs = self.hero.get_attributes()
         if not monster:

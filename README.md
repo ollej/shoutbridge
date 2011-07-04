@@ -76,6 +76,25 @@ Now you should be ready to start the program:
 
     $ python shoutbridge.py
 
+### Gold Quest ###
+The Gold Quest game used by the QuestPlugin can be run in several different ways.
+
+#### Telnet Server ####
+The Gold Quest telnet server supports multiple clients playing with the
+same hero and receiving updates about events initiated by other players.
+
+    $ twistd -y gqtelnetserver.py
+
+#### Interactive Shell ####
+Gold Quest can also be played from the command line using an interactive shell:
+
+    $ python plugins/GoldQuest.py
+
+#### Twitter Client ####
+The QuestPlugin also supports running the game against a Twitter account,
+using Twippy:
+
+    https://github.com/ollej/Twippy
 
 Configuration Options
 ---------------------

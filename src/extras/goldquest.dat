@@ -150,13 +150,25 @@ monster:
   - name: a soul crusher
     lowlevel: 5
     highlevel: 0
-  - name: 
+  - name: a zombie duck
     lowlevel: 5
     highlevel: 0
-  - name: 
+  - name: a pirate duck
     lowlevel: 5
     highlevel: 0
-  - name: 
+  - name: a giant duck
+    lowlevel: 5
+    highlevel: 0
+  - name: a wereduck
+    lowlevel: 5
+    highlevel: 0
+  - name: a  duck
+    lowlevel: 5
+    highlevel: 0
+  - name: an albino alligator
+    lowlevel: 5
+    highlevel: 0
+  - name: a humongous sewer rat
     lowlevel: 5
     highlevel: 0
 

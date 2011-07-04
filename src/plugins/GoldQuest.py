@@ -335,8 +335,6 @@ class GoldQuest(BridgeClass):
         except ValueError:
             rest = ""
         rest = rest.strip()
-        if self.cfg.get_bool('debug'):
-            self.logprint("Command: |%s|" % command)
         if command in ['reroll']:
             return self.reroll()
         if not self.hero or not self.hero.alive:
@@ -456,6 +454,8 @@ class GoldQuest(BridgeClass):
             levels = int(levels)
         except ValueError:
             levels = 1
+        if levels > 10:
+            levels = 10
         depth = self.hero.go_deeper(levels)
         self.level = self.get_level(depth)
         msg = self.level.text or self.get_text('deeper')
@@ -463,7 +463,6 @@ class GoldQuest(BridgeClass):
         return msg
 
     def fight(self):
-        self.logprint('Fight')
         monster = self.get_monster(self.level.depth)
         attribs = self.hero.get_attributes()
         if not monster:
@@ -530,7 +529,11 @@ class Game(cmd.Cmd):
 
     def do_deeper(self, line):
         "Tells the hero to go deeper into the dungeon."
-        print self.game.play('deeper')
+        if line:
+            cmd = 'deeper %s' % line
+        else:
+            cmd = 'deeper'
+        print self.game.play(cmd)
 
     def do_quit(self, line):
         "Quit Game"

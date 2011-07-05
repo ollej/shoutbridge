@@ -401,6 +401,8 @@ class GoldQuest(BridgeClass):
             attribs['loot'] = loot
             if loot > 0:
                 msg = self.get_text('foundloot')
+                # Should be a method on Hero
+                self.hero.gold = self.hero.gold + loot
             elif loot < 0:
                 attribs['trap_hurt'] = abs(loot)
                 self.hero.injure(attribs['trap_hurt'])

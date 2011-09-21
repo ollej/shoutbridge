@@ -70,7 +70,7 @@ class SlapPlugin(Plugin):
         Returns a random hug.
         """
         if giver.lower() == taker.lower():
-            msg = u"hugs himself fondly."
+            msg = u"%s hugs themself fondly." % giver
         else:
             msg = self.select_and_replace(dict(hugger=giver, hugee=taker), comobj)
         self.increase_counter('hug_count');
@@ -82,7 +82,7 @@ class SlapPlugin(Plugin):
         """
         if slapee.lower() == self.nick.lower():
             slap = u"I'm sorry, %s. I'm afraid I can't do that." % shout.name
-        elif slapee == 'Endyamon':
+        elif slapee == 'Robert Jonsson':
             slap = u"No, he likes it too much."
         else:
             slap = self.select_and_replace(dict(slapper=slapper, slapee=slapee), comobj)
